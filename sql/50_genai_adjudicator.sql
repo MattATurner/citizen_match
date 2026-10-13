@@ -3,7 +3,7 @@
 --
 -- Evaluates ONLY the `GREY_ZONE` candidate pairs from Stage 40.
 -- Every verdict is recorded in the append-only, immutable audit ledger
--- `dcj_tdm.person_match_adjudications` with:
+-- `dcj_match.person_match_adjudications` with:
 --   - `verdict` (`MATCH`, `NO_MATCH`, `UNCERTAIN`)
 --   - `confidence` (`0.0` to `1.0`)
 --   - `rationale` (Human-readable statutory justification for caseworkers/auditors)
@@ -15,7 +15,7 @@
 -- =====================================================================
 
 -- 50a · Immutable Append-Only Adjudication Ledger
-CREATE TABLE IF NOT EXISTS `all-things-cdp.dcj_tdm.person_match_adjudications`
+CREATE TABLE IF NOT EXISTS `all-things-cdp.dcj_match.person_match_adjudications`
 (
   record_id_a         STRING    NOT NULL OPTIONS(description="First source record ID in the compared pair"),
   record_id_b         STRING    NOT NULL OPTIONS(description="Second source record ID in the compared pair"),
@@ -40,15 +40,15 @@ OPTIONS (
 );
 
 -- 50b · Adjudicate Outstanding Grey-Zone Pairs via AI.GENERATE
-CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.stg_adjudications_new`
+CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.stg_adjudications_new`
 AS
 WITH outstanding AS (
   SELECT t.*
-  FROM `all-things-cdp.dcj_tdm.candidate_pair_tiers` AS t
+  FROM `all-things-cdp.dcj_match.candidate_pair_tiers` AS t
   WHERE t.tier = 'GREY_ZONE'
     AND NOT EXISTS (
       SELECT 1
-      FROM `all-things-cdp.dcj_tdm.person_match_adjudications` AS j
+      FROM `all-things-cdp.dcj_match.person_match_adjudications` AS j
       WHERE j.record_id_a    = t.record_id_a
         AND j.record_id_b    = t.record_id_b
         AND j.model          = 'gemini-2.5-flash'
@@ -203,7 +203,7 @@ SELECT
 FROM prompted;
 
 -- Append new verdicts to the immutable audit ledger
-INSERT INTO `all-things-cdp.dcj_tdm.person_match_adjudications`
+INSERT INTO `all-things-cdp.dcj_match.person_match_adjudications`
 (
   record_id_a, record_id_b, verdict, confidence, rationale, decisive_evidence,
   contradiction, scenario_classified, injection_detected, model, prompt_version,
@@ -213,10 +213,10 @@ SELECT
   record_id_a, record_id_b, verdict, confidence, rationale, decisive_evidence,
   contradiction, scenario_classified, injection_detected, model, prompt_version,
   adjudicated_at, raw_status, input_tokens, output_tokens
-FROM `all-things-cdp.dcj_tdm.stg_adjudications_new`;
+FROM `all-things-cdp.dcj_match.stg_adjudications_new`;
 
 -- 50c · Current Active Verdicts View
-CREATE OR REPLACE VIEW `all-things-cdp.dcj_tdm.v_adjudications_current` AS
+CREATE OR REPLACE VIEW `all-things-cdp.dcj_match.v_adjudications_current` AS
 SELECT * EXCEPT (rn)
 FROM (
   SELECT
@@ -225,14 +225,14 @@ FROM (
       PARTITION BY record_id_a, record_id_b
       ORDER BY IFNULL(raw_status, '') = '' DESC, adjudicated_at DESC
     ) AS rn
-  FROM `all-things-cdp.dcj_tdm.person_match_adjudications` AS j
+  FROM `all-things-cdp.dcj_match.person_match_adjudications` AS j
   WHERE model = 'gemini-2.5-flash'
     AND prompt_version = 'dcj-adjudicator-v1.0'
 )
 WHERE rn = 1;
 
 -- 50d · Unified Pair Decisions (Combining Deterministic Tiers + Gemini Adjudicator + Structural Guards)
-CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.person_match_decisions`
+CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.person_match_decisions`
 CLUSTER BY decision, record_id_a
 AS
 SELECT
@@ -288,6 +288,6 @@ SELECT
     IF(t.twin_or_sibling_trap, 'Twin/Sibling SLK-581 & household collision: distinct forenames born on same date.', NULL)
   ) AS contradiction,
   j.scenario_classified
-FROM `all-things-cdp.dcj_tdm.candidate_pair_tiers` AS t
-LEFT JOIN `all-things-cdp.dcj_tdm.v_adjudications_current` AS j
+FROM `all-things-cdp.dcj_match.candidate_pair_tiers` AS t
+LEFT JOIN `all-things-cdp.dcj_match.v_adjudications_current` AS j
   ON j.record_id_a = t.record_id_a AND j.record_id_b = t.record_id_b;

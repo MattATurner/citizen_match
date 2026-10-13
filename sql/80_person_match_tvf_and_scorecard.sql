@@ -3,10 +3,10 @@
 --      & 3-Method Ground-Truth Benchmark Scorecard
 -- =====================================================================
 
--- 80a · Callable Real-Time / Interactive Person Match Function (`fn_person_match`)
+-- 80a · Callable Real-Time / Interactive Person Match Function (`dcj_match.fn_person_match`)
 --       Combines Lexical/Identifier matching + AI.EMBED + VECTOR_SEARCH + RRF Ranking
 --       and resolves directly to the Mastered Golden Person in `dcj_tdm.person`.
-CREATE OR REPLACE TABLE FUNCTION `all-things-cdp.dcj_tdm.fn_person_match`(
+CREATE OR REPLACE TABLE FUNCTION `all-things-cdp.dcj_match.fn_person_match`(
   in_given_name  STRING,
   in_family_name STRING,
   in_dob         DATE,
@@ -21,8 +21,8 @@ AS (
   WITH
   probe AS (
     SELECT
-      UPPER(TRIM(`all-things-cdp.dcj_tdm.fold_diacritics`(in_given_name))) AS q_forename,
-      UPPER(TRIM(`all-things-cdp.dcj_tdm.fold_diacritics`(in_family_name))) AS q_surname,
+      UPPER(TRIM(`all-things-cdp.dcj_match.fold_diacritics`(in_given_name))) AS q_forename,
+      UPPER(TRIM(`all-things-cdp.dcj_match.fold_diacritics`(in_family_name))) AS q_surname,
       in_dob AS q_dob,
       CASE
         WHEN UPPER(SUBSTR(IFNULL(in_gender, ''), 1, 1)) = 'M' THEN 'Male'
@@ -32,15 +32,15 @@ AS (
       `all-things-cdp.dcj_sdm.standardize_address`(in_address) AS q_addr,
       UPPER(TRIM(in_suburb)) AS q_suburb,
       TRIM(in_postcode) AS q_postcode,
-      `all-things-cdp.dcj_tdm.norm_phone`(in_phone) AS q_phone,
+      `all-things-cdp.dcj_match.norm_phone`(in_phone) AS q_phone,
       UPPER(TRIM(in_identifier)) AS q_id,
-      `all-things-cdp.dcj_tdm.compute_slk581`(in_given_name, in_family_name, in_dob, in_gender) AS q_slk,
+      `all-things-cdp.dcj_match.compute_slk581`(in_given_name, in_family_name, in_dob, in_gender) AS q_slk,
       CONCAT(
         'NAME: ', UPPER(TRIM(CONCAT(IFNULL(in_given_name, ''), ' ', IFNULL(in_family_name, '')))),
         ' | DOB: ', IFNULL(CAST(in_dob AS STRING), 'UNKNOWN'),
         ' | SEX: ', IFNULL(in_gender, 'Unknown'),
         ' | ADDR: ', IFNULL(`all-things-cdp.dcj_sdm.standardize_address`(in_address), ''), ' ', IFNULL(UPPER(in_suburb), ''), ' ', IFNULL(in_postcode, ''),
-        IF(in_phone IS NOT NULL, CONCAT(' | PH: ', `all-things-cdp.dcj_tdm.norm_phone`(in_phone)), ''),
+        IF(in_phone IS NOT NULL, CONCAT(' | PH: ', `all-things-cdp.dcj_match.norm_phone`(in_phone)), ''),
         IF(in_identifier IS NOT NULL, CONCAT(' | ID: ', UPPER(TRIM(in_identifier))), '')
       ) AS probe_match_key
   ),
@@ -67,7 +67,7 @@ AS (
         + IF(p.q_dob IS NOT NULL AND p.q_dob = s.dob, 45, IF(p.q_dob IS NOT NULL AND EXTRACT(YEAR FROM p.q_dob) = s.birth_year AND s.dob_status = 'ESTIMATED', 25, 0))
         + IF(p.q_postcode IS NOT NULL AND p.q_postcode = s.postcode_norm, 20, 0)
       ) AS lexical_strength
-    FROM `all-things-cdp.dcj_tdm.stg_source_profiles` AS s
+    FROM `all-things-cdp.dcj_match.stg_source_profiles` AS s
     CROSS JOIN probe AS p
     WHERE
       (p.q_id IS NOT NULL AND p.q_id != '' AND p.q_id IN (s.childstory_id_ref, s.cni_number, s.ndis_number, s.source_person_id))
@@ -92,7 +92,7 @@ AS (
       ROUND(1.0 - distance, 4) AS semantic_similarity,
       RANK() OVER (ORDER BY distance ASC) AS rank_semantic
     FROM VECTOR_SEARCH(
-      TABLE `all-things-cdp.dcj_tdm.source_profile_vectors`, 'embedding',
+      TABLE `all-things-cdp.dcj_match.source_profile_vectors`, 'embedding',
       (SELECT embedding FROM probe_vec),
       'embedding',
       top_k         => 25,
@@ -191,13 +191,13 @@ AS (
 -- =====================================================================
 
 -- Method 1: Naive Connected Components over all shared identifiers (including SLK-581 & Refuge Hubs)
-CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.edges_baseline_cc`
+CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.edges_baseline_cc`
 AS
 WITH id_anchors AS (
   SELECT
     record_id,
     MIN(record_id) OVER (PARTITION BY identifier_id) AS anchor_record_id
-  FROM `all-things-cdp.dcj_tdm.has_identifier`
+  FROM `all-things-cdp.dcj_match.has_identifier`
 )
 SELECT DISTINCT record_id AS src, anchor_record_id AS dst
 FROM id_anchors WHERE record_id != anchor_record_id
@@ -205,40 +205,40 @@ UNION DISTINCT
 SELECT DISTINCT anchor_record_id AS src, record_id AS dst
 FROM id_anchors WHERE record_id != anchor_record_id;
 
-CALL `all-things-cdp.dcj_tdm.sp_connected_components`(
-  'all-things-cdp.dcj_tdm.graph_nodes',
-  'all-things-cdp.dcj_tdm.edges_baseline_cc',
-  'all-things-cdp.dcj_tdm.cc_baseline',
+CALL `all-things-cdp.dcj_match.sp_connected_components`(
+  'all-things-cdp.dcj_match.graph_nodes',
+  'all-things-cdp.dcj_match.edges_baseline_cc',
+  'all-things-cdp.dcj_match.cc_baseline',
   15
 );
 
 -- Method 2: Deterministic IDF-Weighted CC (non_hub_idf_sum >= 6.5, no LLM or semantic vector leg)
-CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.edges_weighted_cc`
+CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.edges_weighted_cc`
 AS
 SELECT record_id_a AS src, record_id_b AS dst
-FROM `all-things-cdp.dcj_tdm.profile_projection`
+FROM `all-things-cdp.dcj_match.profile_projection`
 WHERE non_hub_idf_sum >= 6.5 AND NOT hub_only
 UNION ALL
 SELECT record_id_b AS src, record_id_a AS dst
-FROM `all-things-cdp.dcj_tdm.profile_projection`
+FROM `all-things-cdp.dcj_match.profile_projection`
 WHERE non_hub_idf_sum >= 6.5 AND NOT hub_only;
 
-CALL `all-things-cdp.dcj_tdm.sp_connected_components`(
-  'all-things-cdp.dcj_tdm.graph_nodes',
-  'all-things-cdp.dcj_tdm.edges_weighted_cc',
-  'all-things-cdp.dcj_tdm.cc_weighted',
+CALL `all-things-cdp.dcj_match.sp_connected_components`(
+  'all-things-cdp.dcj_match.graph_nodes',
+  'all-things-cdp.dcj_match.edges_weighted_cc',
+  'all-things-cdp.dcj_match.cc_weighted',
   15
 );
 
 -- Pairwise Evaluation across all 3 methods against `dcj_truth.ground_truth_pairs`
-CREATE OR REPLACE VIEW `all-things-cdp.dcj_tdm.v_dcj_method_comparison` AS
+CREATE OR REPLACE VIEW `all-things-cdp.dcj_match.v_dcj_method_comparison` AS
 WITH
 all_methods AS (
-  SELECT '1_naive_slk_and_hub_cc' AS method, node AS record_id, comp AS cluster_id FROM `all-things-cdp.dcj_tdm.cc_baseline`
+  SELECT '1_naive_slk_and_hub_cc' AS method, node AS record_id, comp AS cluster_id FROM `all-things-cdp.dcj_match.cc_baseline`
   UNION ALL
-  SELECT '2_deterministic_idf_cc' AS method, node AS record_id, comp AS cluster_id FROM `all-things-cdp.dcj_tdm.cc_weighted`
+  SELECT '2_deterministic_idf_cc' AS method, node AS record_id, comp AS cluster_id FROM `all-things-cdp.dcj_match.cc_weighted`
   UNION ALL
-  SELECT '3_dcj_hybrid_genai'     AS method, record_id, person_id AS cluster_id    FROM `all-things-cdp.dcj_tdm.person_assignment`
+  SELECT '3_dcj_hybrid_genai'     AS method, record_id, person_id AS cluster_id    FROM `all-things-cdp.dcj_match.person_assignment`
 ),
 predicted_pairs AS (
   SELECT
@@ -305,14 +305,14 @@ CROSS JOIN truth_total AS tt
 ORDER BY e.method;
 
 -- Scenario-by-Scenario Recall & False-Merge Breakdown
-CREATE OR REPLACE VIEW `all-things-cdp.dcj_tdm.v_dcj_scenario_scorecard` AS
+CREATE OR REPLACE VIEW `all-things-cdp.dcj_match.v_dcj_scenario_scorecard` AS
 WITH
 pred AS (
   SELECT
     a.record_id AS record_id_a,
     b.record_id AS record_id_b
-  FROM `all-things-cdp.dcj_tdm.person_assignment` AS a
-  JOIN `all-things-cdp.dcj_tdm.person_assignment` AS b
+  FROM `all-things-cdp.dcj_match.person_assignment` AS a
+  JOIN `all-things-cdp.dcj_match.person_assignment` AS b
     ON a.person_id = b.person_id AND a.record_id < b.record_id
 ),
 recall_by_scenario AS (

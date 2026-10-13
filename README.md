@@ -3,9 +3,9 @@
 > [!IMPORTANT]
 > **Live Deployment Summary (`all-things-cdp` · `us-central1`)**
 > - **Source Data Model (`all-things-cdp.dcj_sdm`)**: **14 SDM tables, views, and materialized views** populated with **1,150 source records** representing **600 true individuals** (`655` true cross-record pairs) and **260 geocoded GNAF locations** across **Child Protection (`ChildStory`)**, **Family Preservation (`InfoShare`)**, and **Youth Justice (`KIMS`)**.
-> - **Target Data Model (`all-things-cdp.dcj_tdm`)**: **9 mastered TDM tables** (`party`, `person`, `person_name`, `person_identity_instrument`, `address_location`, `address_relation`, `person_source_linkage`, `party_relationship`, `person_protection_event`) + **Immutable AI Audit Ledger** (`person_match_adjudications`).
-> - **Target Property Graph (`all-things-cdp.dcj_tdm.dcj_person_graph`)**: Unified ISO GQL Property Graph combining **8 Node Labels** and **9 Edge Labels** across mastered TDM entities and the identity resolution audit trail.
-> - **Person Match Engine & Callable TVF (`all-things-cdp.dcj_tdm.fn_person_match`)**: Combines Bipartite Identifier IDF Rarity, Crisis Refuge Hub Guard, Autonomous **Gemini Platform** Embeddings (`AI.EMBED` + `VECTOR_SEARCH`), **Reciprocal Rank Fusion (`RRF`)**, 2-Hop Kinship Context, and an auditable **Gemini Platform** Adjudicator (`AI.GENERATE` with `gemini-2.5-flash`) — achieving **99.39% Precision**, **100.00% Recall**, and **0.9970 F1** (`0` hairball clusters).
+> - **Entity Resolution Working Dataset (`all-things-cdp.dcj_match`)**: All staging, bipartite identifier graph (`identifier`, `has_identifier`), **BigQuery Vector Search** (`source_profile_search`, `source_profile_vectors`), RRF candidate tiers (`candidate_pair_tiers`), **Immutable AI Audit Ledger** (`person_match_adjudications`), Connected Components (`sp_connected_components`, `person_assignment`), callable real-time TVF (`fn_person_match`), and benchmark views (`v_dcj_method_comparison`, `v_dcj_scenario_scorecard`).
+> - **Target Data Model & Graph ONLY (`all-things-cdp.dcj_tdm`)**: Strictly the **9 mastered Target Data Model (TDM) tables** (`party`, `person`, `person_name`, `person_identity_instrument`, `address_location`, `address_relation`, `person_source_linkage`, `party_relationship`, `person_protection_event`) and the **Target Property Graph (`all-things-cdp.dcj_tdm.dcj_person_graph`)** combining **8 Node Labels** and **9 Edge Labels**.
+> - **Person Match Engine & Callable TVF (`all-things-cdp.dcj_match.fn_person_match`)**: Combines Bipartite Identifier IDF Rarity, Crisis Refuge Hub Guard, Native **BigQuery Vector Search** (`AI.EMBED` + `VECTOR_SEARCH`), **Reciprocal Rank Fusion (`RRF`)**, 2-Hop Kinship Context, and an auditable **Gemini Platform AI Adjudicator** (`AI.GENERATE` via BigQuery connection `all-things-cdp.us-central1.dcj-conn` to **Gemini 3.5** / `gemini-3.5-flash`) — achieving **99.39% Precision**, **100.00% Recall**, and **0.9970 F1** (`0` hairball clusters).
 > - **BigQuery Knowledge Catalog Business Glossary (`dcj_person_cdm_glossary`)**: **6 logical categories**, **118 business terms & KPIs** with rich HTML overviews, and **118 direct `Schema.<Column>` `EntryLinks`** synced to BigQuery table and column descriptions.
 
 ---
@@ -26,18 +26,18 @@ All pipeline stages are orchestrated by [run.sh](file:///usr/local/google/home/m
 
 | Stage | File | Purpose & Key Outputs |
 | :--- | :--- | :--- |
-| **Config** | [config.env](file:///usr/local/google/home/mattturner/Customers/dcj/config.env) / [run.sh](file:///usr/local/google/home/mattturner/Customers/dcj/run.sh) | Project (`all-things-cdp`), datasets (`dcj_sdm`, `dcj_tdm`, `dcj_truth`), connection (`dcj-conn`), and idempotent runner (`./run.sh --all`). |
-| **Stage 00** | [00_setup_and_sdm.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/00_setup_and_sdm.sql) | Creates schemas, normalization UDFs (`standardize_address`, `fold_diacritics`, `norm_phone`, `compute_slk581`, `canonical_relationship_type`, `relationship_category`), and all 14 SDM tables, views, and materialized views. |
+| **Config** | [config.env](file:///usr/local/google/home/mattturner/Customers/dcj/config.env) / [run.sh](file:///usr/local/google/home/mattturner/Customers/dcj/run.sh) | Project (`all-things-cdp`), datasets (`dcj_sdm`, `dcj_match`, `dcj_tdm`, `dcj_truth`), connection (`dcj-conn`), and idempotent runner (`./run.sh --all`). |
+| **Stage 00** | [00_setup_and_sdm.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/00_setup_and_sdm.sql) | Creates schemas (`dcj_sdm`, `dcj_match`, `dcj_tdm`, `dcj_truth`), normalization UDFs (`standardize_address` in `dcj_sdm`; `fold_diacritics`, `norm_phone`, `compute_slk581`, `canonical_relationship_type`, `relationship_category` in `dcj_match`), and all 14 SDM tables, views, and materialized views. |
 | **Data Gen** | [generate_dcj_sdm_data.py](file:///usr/local/google/home/mattturner/Customers/dcj/scripts/generate_dcj_sdm_data.py) | Generates realistic NSW DCJ synthetic data (`600` true people, `1,150` SDM records, `655` true pairs, all `78` relationship strings, all `16` name usage types, and `8` planted edge-case scenarios) and loads `dcj_sdm` + `dcj_truth`. |
-| **Stage 10** | [10_stage_sources.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/10_stage_sources.sql) | Normalizes and unifies Child Protection, Family Preservation, and Youth Justice records into `dcj_tdm.stg_source_profiles` (`1,150` rows) with phonetic keys (`SOUNDEX`), SLK-581, and serialized `match_key` dossiers. |
-| **Stage 20** | [20_bipartite_graph.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/20_bipartite_graph.sql) | Builds the Bipartite Identifier Graph (`dcj_tdm.has_identifier` = `5,143` links, `dcj_tdm.identifier` = `2,754` nodes) with $\text{IDF} = \ln(1 + N/\text{df})$ rarity weights and Crisis Refuge hub suppression (`df > 5` $\rightarrow$ `is_hub = TRUE`). |
-| **Stage 30** | [30_embed_and_search.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/30_embed_and_search.sql) | Creates `dcj_tdm.source_profile_search` with autonomous `GENERATED ALWAYS AS (AI.EMBED(...))` columns (`text-embedding-005` on **Gemini Platform**) and materialized `dcj_tdm.source_profile_vectors`. |
-| **Stage 40** | [40_hybrid_candidates_rrf.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/40_hybrid_candidates_rrf.sql) | Combines Lexical/Deterministic blocking + `VECTOR_SEARCH` via **Reciprocal Rank Fusion (`RRF`, $k=60$)** + **2-Hop Kinship Context** + **Twin SLK-581 Collision Guard** into `dcj_tdm.person_match_candidates` (`405` `AUTO_MATCH`, `391` `GREY_ZONE`, `13,690` `REJECT`). |
-| **Stage 50** | [50_genai_adjudicator.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/50_genai_adjudicator.sql) | Calls `AI.GENERATE` (`gemini-2.5-flash` on **Gemini Platform**) with structured output schema for the `391` `GREY_ZONE` pairs and appends to the immutable audit ledger `dcj_tdm.person_match_adjudications`. |
-| **Stage 60** | [60_connected_components_and_tdm.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/60_connected_components_and_tdm.sql) | Runs Two-Pass Connected Components + Contradiction/Twin Guard (`599` resolved entities, `0` hairballs) and populates all **9 mastered TDM tables**. |
-| **Stage 70** | [70_property_graph.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/70_property_graph.sql) | Declares `CREATE OR REPLACE PROPERTY GRAPH all-things-cdp.dcj_tdm.dcj_person_graph` with 8 Node Labels and 9 Edge Labels. |
-| **Stage 80** | [80_person_match_tvf_and_scorecard.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/80_person_match_tvf_and_scorecard.sql) | Creates the callable real-time TVF `dcj_tdm.fn_person_match(...)` and benchmark views `v_dcj_method_comparison` and `v_dcj_scenario_scorecard`. |
-| **Catalog** | [populate_dcj_knowledge_catalog.py](file:///usr/local/google/home/mattturner/Customers/dcj/scripts/populate_dcj_knowledge_catalog.py) | Populates **BigQuery Knowledge Catalog** Business Glossary `dcj_person_cdm_glossary` (`6` categories, `118` terms & KPIs, `118` column `EntryLinks`, and synced BigQuery column descriptions). |
+| **Stage 10** | [10_stage_sources.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/10_stage_sources.sql) | Normalizes and unifies Child Protection, Family Preservation, and Youth Justice records into `dcj_match.stg_source_profiles` (`1,150` rows) with phonetic keys (`SOUNDEX`), SLK-581, and serialized `match_key` dossiers. |
+| **Stage 20** | [20_bipartite_graph.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/20_bipartite_graph.sql) | Builds the Bipartite Identifier Graph (`dcj_match.has_identifier` = `5,143` links, `dcj_match.identifier` = `2,754` nodes) with $\text{IDF} = \ln(1 + N/\text{df})$ rarity weights and Crisis Refuge hub suppression (`df > 5` $\rightarrow$ `is_hub = TRUE`). |
+| **Stage 30** | [30_embed_and_search.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/30_embed_and_search.sql) | Creates `dcj_match.source_profile_search` with autonomous `GENERATED ALWAYS AS (AI.EMBED(...))` columns (`text-embedding-005`) and materialized `dcj_match.source_profile_vectors` for native **BigQuery Vector Search**. |
+| **Stage 40** | [40_hybrid_candidates_rrf.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/40_hybrid_candidates_rrf.sql) | Combines Lexical/Deterministic blocking + **BigQuery Vector Search** (`VECTOR_SEARCH`) via **Reciprocal Rank Fusion (`RRF`, $k=60$)** + **2-Hop Kinship Context** + **Twin SLK-581 Collision Guard** into `dcj_match.candidate_pair_tiers` (`405` `AUTO_MATCH`, `391` `GREY_ZONE`, `13,690` `REJECT`). |
+| **Stage 50** | [50_genai_adjudicator.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/50_genai_adjudicator.sql) | Calls `AI.GENERATE` via BigQuery connection (`all-things-cdp.us-central1.dcj-conn`) to **Gemini 3.5** (`gemini-3.5-flash` on **Gemini Platform**) with structured output schema for the `391` `GREY_ZONE` pairs and appends to the immutable audit ledger `dcj_match.person_match_adjudications`. |
+| **Stage 60** | [60_connected_components_and_tdm.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/60_connected_components_and_tdm.sql) | Runs Two-Pass Connected Components + Contradiction/Twin Guard in `dcj_match` (`599` resolved entities, `0` hairballs) and populates all **9 mastered Target Data Model (TDM) tables** in `dcj_tdm`. |
+| **Stage 70** | [70_property_graph.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/70_property_graph.sql) | Declares `CREATE OR REPLACE PROPERTY GRAPH all-things-cdp.dcj_tdm.dcj_person_graph` with 8 Node Labels and 9 Edge Labels (and summary view `dcj_match.v_dcj_graph_summary`). |
+| **Stage 80** | [80_person_match_tvf_and_scorecard.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/80_person_match_tvf_and_scorecard.sql) | Creates the callable real-time TVF `dcj_match.fn_person_match(...)` and benchmark views `dcj_match.v_dcj_method_comparison` and `dcj_match.v_dcj_scenario_scorecard`. |
+| **Catalog** | [populate_dcj_knowledge_catalog.py](file:///usr/local/google/home/mattturner/Customers/dcj/scripts/populate_dcj_knowledge_catalog.py) | Populates **BigQuery Knowledge Catalog** Business Glossary `dcj_person_cdm_glossary` (`6` categories, `118` terms & KPIs, `118` column `EntryLinks` across `dcj_tdm` and `dcj_match`, and synced BigQuery column descriptions). |
 
 ---
 
@@ -114,7 +114,7 @@ LIMIT 6;
 
 ## 5. Callable Real-Time `fn_person_match` TVF Verification
 
-Frontline intake applications and caseworkers can invoke `all-things-cdp.dcj_tdm.fn_person_match` directly in SQL:
+Frontline intake applications and caseworkers can invoke `all-things-cdp.dcj_match.fn_person_match` directly in SQL:
 
 ```sql
 SELECT
@@ -131,7 +131,7 @@ SELECT
   lexical_strength,
   hybrid_match_score,
   recommended_action
-FROM `all-things-cdp.dcj_tdm.fn_person_match`(
+FROM `all-things-cdp.dcj_match.fn_person_match`(
   'Lachie', 'Smith', DATE '2009-01-01', 'M', NULL, 'PARRAMATTA', '2150', NULL, NULL
 )
 LIMIT 5;
@@ -147,7 +147,7 @@ LIMIT 5;
 
 ## 6. Ground-Truth Benchmark & 8-Scenario Scorecard
 
-### A. 3-Method Entity Resolution Comparison (`all-things-cdp.dcj_tdm.v_dcj_method_comparison`)
+### A. 3-Method Entity Resolution Comparison (`all-things-cdp.dcj_match.v_dcj_method_comparison`)
 
 | Method | Resolved Entities (True = `600`) | Largest Cluster | Hairballs (`>6`) | True Pos (`TP`) | False Pos (`FP`) | False Neg (`FN`) | Precision | Recall | **F1 Score** |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -155,7 +155,7 @@ LIMIT 5;
 | `2_deterministic_idf_cc` | `641` | `4` | `0` | `538` | `120` (Twins) | `117` | `81.76%` | `82.14%` | `0.8195` |
 | **`3_dcj_hybrid_genai` (Ours)** | **`599`** | **`4`** | **`0`** | **`655`** | **`4`** | **`0`** | **`99.39%`** | **`100.00%`** | **`0.9970`** |
 
-### B. Per-Scenario Recall Scorecard (`all-things-cdp.dcj_tdm.v_dcj_scenario_scorecard`)
+### B. Per-Scenario Recall Scorecard (`all-things-cdp.dcj_match.v_dcj_scenario_scorecard`)
 
 | Planted DCJ Scenario (`scenario_tag`) | True Pairs | Matched Pairs | Missed Pairs | Recall (`%`) |
 | :--- | ---: | ---: | ---: | ---: |

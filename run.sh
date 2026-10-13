@@ -48,9 +48,9 @@ fi
 if [[ "${MODE}" == "--all" || "${MODE}" == "--verify" ]]; then
   echo "==> Running 3-Method Benchmark & Scenario Scorecard Verification ..."
   bq query --project_id="${PROJECT_ID}" --location="${LOCATION}" --use_legacy_sql=false \
-    "SELECT * FROM \`${PROJECT_ID}.${TDM_DATASET}.v_dcj_method_comparison\` ORDER BY method;"
+    "SELECT * FROM \`${PROJECT_ID}.${MATCH_DATASET}.v_dcj_method_comparison\` ORDER BY method;"
   bq query --project_id="${PROJECT_ID}" --location="${LOCATION}" --use_legacy_sql=false \
-    "SELECT * FROM \`${PROJECT_ID}.${TDM_DATASET}.v_dcj_scenario_scorecard\` ORDER BY scenario_tag;"
+    "SELECT * FROM \`${PROJECT_ID}.${MATCH_DATASET}.v_dcj_scenario_scorecard\` ORDER BY scenario;"
 fi
 
 echo "🎉 NSW DCJ Person Data Model Pipeline Completed Successfully!"

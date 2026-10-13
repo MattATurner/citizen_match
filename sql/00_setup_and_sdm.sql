@@ -4,9 +4,12 @@
 -- Creates:
 --   1. all-things-cdp.dcj_sdm   (Source Data Model across Child Protection,
 --                                Family Preservation, Youth Justice, GNAF)
---   2. all-things-cdp.dcj_tdm   (Target Data Model, Hybrid Match Engine &
---                                Native BigQuery Property Graph)
---   3. all-things-cdp.dcj_truth (Hidden Ground Truth for Benchmarking)
+--   2. all-things-cdp.dcj_match (Working Entity Resolution Dataset: Staging,
+--                                Bipartite Graph, Vector Search, RRF Tiers,
+--                                Gemini Adjudicator Ledger & Connected Components)
+--   3. all-things-cdp.dcj_tdm   (Target Data Model ONLY: 9 Mastered Target
+--                                Tables + Native BigQuery Property Graph)
+--   4. all-things-cdp.dcj_truth (Hidden Ground Truth for Benchmarking)
 -- =====================================================================
 
 CREATE SCHEMA IF NOT EXISTS `all-things-cdp.dcj_sdm`
@@ -15,10 +18,16 @@ OPTIONS (
   description = 'NSW DCJ Source Data Model (SDM) — Child Protection (ChildStory), Family Preservation (InfoShare), Youth Justice (KIMS), and GNAF.'
 );
 
+CREATE SCHEMA IF NOT EXISTS `all-things-cdp.dcj_match`
+OPTIONS (
+  location = 'us-central1',
+  description = 'NSW DCJ Person Entity Resolution Working Dataset — Staging, Bipartite Identifiers, Vector Embeddings, RRF Candidate Tiers, Gemini 3.5 Adjudications, Connected Components, and Benchmark Views.'
+);
+
 CREATE SCHEMA IF NOT EXISTS `all-things-cdp.dcj_tdm`
 OPTIONS (
   location = 'us-central1',
-  description = 'NSW DCJ Target Data Model (TDM) — Mastered Party/Person tables, Hybrid Search + Gemini Adjudicator Audit Ledger, and Native Property Graph.'
+  description = 'NSW DCJ Target Data Model (TDM) — 9 Mastered Party/Person Target Tables and Native BigQuery Property Graph (dcj_person_graph).'
 );
 
 CREATE SCHEMA IF NOT EXISTS `all-things-cdp.dcj_truth`
@@ -60,7 +69,7 @@ CREATE OR REPLACE FUNCTION `all-things-cdp.dcj_sdm.standardize_address`(raw_addr
 );
 
 -- 2. Diacritic & Unicode Folding for Match Keys
-CREATE OR REPLACE FUNCTION `all-things-cdp.dcj_tdm.fold_diacritics`(s STRING) AS (
+CREATE OR REPLACE FUNCTION `all-things-cdp.dcj_match.fold_diacritics`(s STRING) AS (
   REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
   REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
     REGEXP_REPLACE(NORMALIZE(IFNULL(s, ''), NFKD), r'\p{Mn}', '')
@@ -73,7 +82,7 @@ CREATE OR REPLACE FUNCTION `all-things-cdp.dcj_tdm.fold_diacritics`(s STRING) AS
 );
 
 -- 3. Australian Phone E.164 Normalisation (+614... mobile, +612... NSW landline)
-CREATE OR REPLACE FUNCTION `all-things-cdp.dcj_tdm.norm_phone`(p STRING) AS (
+CREATE OR REPLACE FUNCTION `all-things-cdp.dcj_match.norm_phone`(p STRING) AS (
   CASE
     WHEN p IS NULL OR LENGTH(REGEXP_REPLACE(p, r'[^0-9]', '')) < 8 THEN NULL
     WHEN STARTS_WITH(REGEXP_REPLACE(p, r'[^0-9]', ''), '61') AND LENGTH(REGEXP_REPLACE(p, r'[^0-9]', '')) = 11
@@ -88,7 +97,7 @@ CREATE OR REPLACE FUNCTION `all-things-cdp.dcj_tdm.norm_phone`(p STRING) AS (
 
 -- 4. AIHW Statistical Linkage Key (SLK-581) Function
 --    Format: LLL (2nd, 3rd, 5th of Surname) + FF (2nd, 3rd of Given Name) + DDMMYYYY + Sex (1=M, 2=F, 9=U)
-CREATE OR REPLACE FUNCTION `all-things-cdp.dcj_tdm.compute_slk581`(
+CREATE OR REPLACE FUNCTION `all-things-cdp.dcj_match.compute_slk581`(
   given_name STRING,
   family_name STRING,
   dob DATE,
@@ -124,7 +133,7 @@ CREATE OR REPLACE FUNCTION `all-things-cdp.dcj_tdm.compute_slk581`(
 );
 
 -- 5. Canonical Relationship Normaliser (harmonises the 78 DCJ relationship types)
-CREATE OR REPLACE FUNCTION `all-things-cdp.dcj_tdm.canonical_relationship_type`(rel STRING) AS (
+CREATE OR REPLACE FUNCTION `all-things-cdp.dcj_match.canonical_relationship_type`(rel STRING) AS (
   CASE
     WHEN LOWER(TRIM(rel)) IN ('step child', 'step-child') THEN 'Step Child'
     WHEN LOWER(TRIM(rel)) IN ('step parent', 'step-parent') THEN 'Step-Parent'
@@ -135,7 +144,7 @@ CREATE OR REPLACE FUNCTION `all-things-cdp.dcj_tdm.canonical_relationship_type`(
 );
 
 -- 6. High-Level Relationship Category for Graph Analytics
-CREATE OR REPLACE FUNCTION `all-things-cdp.dcj_tdm.relationship_category`(rel STRING) AS (
+CREATE OR REPLACE FUNCTION `all-things-cdp.dcj_match.relationship_category`(rel STRING) AS (
   CASE
     WHEN LOWER(TRIM(rel)) IN (
       'mother', 'father', 'parent', 'son', 'daughter', 'child',

@@ -19,6 +19,7 @@ import urllib.request
 
 PROJECT_ID = os.environ.get("DCJ_PROJECT", "all-things-cdp")
 DATASET_ID = os.environ.get("DCJ_TDM_DS", "dcj_tdm")
+MATCH_DATASET_ID = os.environ.get("DCJ_MATCH_DS", "dcj_match")
 BQ_LOCATION = os.environ.get("DCJ_LOCATION", "us-central1").lower()
 GLOSSARY_ID = "dcj_person_cdm_glossary"
 GLOSSARY_LOC = "global"
@@ -279,8 +280,9 @@ TABLE_SPECS = {
         },
     },
     "person_match_adjudications": {
+        "dataset": "dcj_match",
         "category": "hybrid_match_and_ai_audit",
-        "table_description": "Immutable append-only audit ledger (`dcj_tdm.person_match_adjudications`) storing every Gemini Platform (`AI.GENERATE`) entity resolution verdict, confidence score, and statutory rationale.",
+        "table_description": "Immutable append-only audit ledger (`dcj_match.person_match_adjudications`) storing every Gemini Platform (`AI.GENERATE`) entity resolution verdict, confidence score, and statutory rationale.",
         "columns": {
             "record_id_a": ("Candidate Pair Record A (record_id_a)", "First staged source record ID (`CP:...`, `FP:...`, `YJ:...`) in the grey-zone comparison pair."),
             "record_id_b": ("Candidate Pair Record B (record_id_b)", "Second staged source record ID (`CP:...`, `FP:...`, `YJ:...`) in the grey-zone comparison pair."),
@@ -396,24 +398,29 @@ def main():
     work_items = []
     for table_id, t_spec in TABLE_SPECS.items():
         cat_id = t_spec["category"]
+        t_ds = t_spec.get("dataset", DATASET_ID)
         for col_name, (disp_name, desc) in t_spec["columns"].items():
             term_id = sanitize_snake_id(f"dcj_{table_id}_{col_name}")
             work_items.append({
                 "term_id": term_id,
                 "category": cat_id,
+                "dataset": t_ds,
                 "table": table_id,
                 "column": col_name,
                 "displayName": disp_name,
                 "description": desc,
             })
     for kpi in KPI_TERMS:
-        work_items.append(kpi)
+        kpi_copy = dict(kpi)
+        kpi_copy["dataset"] = TABLE_SPECS[kpi["table"]].get("dataset", DATASET_ID)
+        work_items.append(kpi_copy)
 
     print(f"\n==> [3/4] Creating {len(work_items)} Glossary Terms, HTML Overviews & Attaching Column EntryLinks ...")
 
     def process_item(item: dict) -> str:
         term_id = item["term_id"]
         cat_id = item["category"]
+        table_ds = item.get("dataset", DATASET_ID)
         table_id = item["table"]
         col_name = item.get("column")
         parent_path = f"{glossary_name}/categories/{cat_id}"
@@ -450,7 +457,7 @@ def main():
             f"projects/{project_number}/locations/{GLOSSARY_LOC}/glossaries/{GLOSSARY_ID}/terms/{term_id}"
         )
         overview_key = f"{DATAPLEX_TYPES_PROJECT}.global.overview"
-        target_label = f"{PROJECT_ID}.{DATASET_ID}.{table_id}.{col_name or 'KPI'}"
+        target_label = f"{PROJECT_ID}.{table_ds}.{table_id}.{col_name or 'KPI'}"
         html_doc = (
             f"<h3>{item['displayName']}</h3>"
             f"<p><strong>Physical Mapping:</strong> <code>{target_label}</code></p>"
@@ -479,7 +486,7 @@ def main():
         # Attach EntryLink in @bigquery regional entry group
         table_entry_name = (
             f"projects/{PROJECT_ID}/locations/{BQ_LOCATION}/entryGroups/@bigquery/entries/"
-            f"bigquery.googleapis.com/projects/{PROJECT_ID}/datasets/{DATASET_ID}/tables/{table_id}"
+            f"bigquery.googleapis.com/projects/{PROJECT_ID}/datasets/{table_ds}/tables/{table_id}"
         )
         entry_links_parent = f"projects/{PROJECT_ID}/locations/{BQ_LOCATION}/entryGroups/@bigquery"
         if col_name:
@@ -489,19 +496,23 @@ def main():
                 "path": f"Schema.{col_name}",
                 "type": "SOURCE",
             }
-            label = f"{table_id}.Schema.{col_name} -> {term_id}"
+            label = f"{table_ds}.{table_id}.Schema.{col_name} -> {term_id}"
         else:
             link_id = sanitize_hyphen_id(f"link-dcj-{table_id}-{term_id}")
             src_ref = {
                 "name": table_entry_name,
                 "type": "SOURCE",
             }
-            label = f"{table_id} (Table KPI) -> {term_id}"
+            label = f"{table_ds}.{table_id} (Table KPI) -> {term_id}"
 
         link_name = f"{entry_links_parent}/entryLinks/{link_id}"
         try:
-            api_request("GET", f"https://dataplex.googleapis.com/v1/{link_name}", token, PROJECT_ID)
-            return f"✔ Verified Link: {label}"
+            existing_link = api_request("GET", f"https://dataplex.googleapis.com/v1/{link_name}", token, PROJECT_ID)
+            existing_refs = existing_link.get("entryReferences", [])
+            if any(r.get("name") == table_entry_name for r in existing_refs):
+                return f"✔ Verified Link: {label}"
+            # Dataset changed (e.g. migrated from dcj_tdm to dcj_match): delete stale link and recreate
+            api_request("DELETE", f"https://dataplex.googleapis.com/v1/{link_name}", token, PROJECT_ID)
         except RuntimeError as e:
             if "404" not in str(e):
                 raise
@@ -533,9 +544,10 @@ def main():
 
     print("\n==> [4/4] Syncing Enriched Glossary Definitions to BigQuery Table & Column Descriptions ...")
     for table_id, t_spec in TABLE_SPECS.items():
+        t_ds = t_spec.get("dataset", DATASET_ID)
         bq_url = (
             f"https://bigquery.googleapis.com/bigquery/v2/projects/{PROJECT_ID}"
-            f"/datasets/{DATASET_ID}/tables/{table_id}"
+            f"/datasets/{t_ds}/tables/{table_id}"
         )
         table_meta = api_request("GET", bq_url, token, PROJECT_ID)
         fields = table_meta.get("schema", {}).get("fields", [])
@@ -550,7 +562,7 @@ def main():
             "schema": {"fields": fields},
         }
         api_request("PATCH", bq_url, token, PROJECT_ID, patch_body)
-        print(f"    ✔ Synced {len(col_map):2d} column descriptions -> `{PROJECT_ID}.{DATASET_ID}.{table_id}`")
+        print(f"    ✔ Synced {len(col_map):2d} column descriptions -> `{PROJECT_ID}.{t_ds}.{table_id}`")
 
     print("\n🎉 NSW DCJ Knowledge Catalog Business Glossary & Column Attachment Complete!")
 

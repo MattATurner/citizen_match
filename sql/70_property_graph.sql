@@ -141,7 +141,7 @@ CREATE OR REPLACE PROPERTY GRAPH `all-things-cdp.dcj_tdm.dcj_person_graph`
         last_updated_ts  OPTIONS (description = 'Timestamp when linkage was verified')
       ),
 
-    `all-things-cdp.dcj_tdm.identifier` AS Identifier
+    `all-things-cdp.dcj_match.identifier` AS Identifier
       KEY (identifier_id)
       DEFAULT LABEL OPTIONS (
         description = 'A normalised bipartite identifier node with degree, Inverse Document Frequency (IDF) rarity weight, and promiscuous hub detection.',
@@ -260,7 +260,7 @@ CREATE OR REPLACE PROPERTY GRAPH `all-things-cdp.dcj_tdm.dcj_person_graph`
         is_mastered    OPTIONS (description = 'TRUE if mastered')
       ),
 
-    `all-things-cdp.dcj_tdm.has_identifier` AS HasIdentifier
+    `all-things-cdp.dcj_match.has_identifier` AS HasIdentifier
       KEY (record_id, identifier_id)
       SOURCE KEY (record_id) REFERENCES SourceRecord (source_record_id)
       DESTINATION KEY (identifier_id) REFERENCES Identifier (identifier_id)
@@ -271,7 +271,7 @@ CREATE OR REPLACE PROPERTY GRAPH `all-things-cdp.dcj_tdm.dcj_person_graph`
         sources         OPTIONS (description = 'Source systems reporting this link')
       ),
 
-    `all-things-cdp.dcj_tdm.resolution_edges` AS ComparedWith
+    `all-things-cdp.dcj_match.resolution_edges` AS ComparedWith
       KEY (record_id_a, record_id_b)
       SOURCE KEY (record_id_a) REFERENCES SourceRecord (source_record_id)
       DESTINATION KEY (record_id_b) REFERENCES SourceRecord (source_record_id)
@@ -291,8 +291,8 @@ CREATE OR REPLACE PROPERTY GRAPH `all-things-cdp.dcj_tdm.dcj_person_graph`
       )
   );
 
--- Summary view of Graph Node and Edge counts
-CREATE OR REPLACE VIEW `all-things-cdp.dcj_tdm.v_dcj_graph_summary` AS
+-- Summary view of Graph Node and Edge counts (stored in dcj_match so dcj_tdm holds strictly the 9 TDM tables + graph)
+CREATE OR REPLACE VIEW `all-things-cdp.dcj_match.v_dcj_graph_summary` AS
 SELECT 'NODE · Party (person, group, organisation)' AS graph_element, COUNT(*) AS element_count FROM `all-things-cdp.dcj_tdm.party`
 UNION ALL SELECT 'NODE · Person (Mastered Golden Profile)', COUNT(*) FROM `all-things-cdp.dcj_tdm.person`
 UNION ALL SELECT 'NODE · PersonName (16 Usage Codes)', COUNT(*) FROM `all-things-cdp.dcj_tdm.person_name`
@@ -300,12 +300,12 @@ UNION ALL SELECT 'NODE · AddressLocation (GNAF De-duplicated)', COUNT(*) FROM `
 UNION ALL SELECT 'NODE · IdentityInstrument (CNI, NDIS, CS_ID, SLK)', COUNT(*) FROM `all-things-cdp.dcj_tdm.person_identity_instrument`
 UNION ALL SELECT 'NODE · ProtectionEvent (DV / Confidentiality)', COUNT(*) FROM `all-things-cdp.dcj_tdm.person_protection_event`
 UNION ALL SELECT 'NODE · SourceRecord (SDM Lineage)', COUNT(*) FROM `all-things-cdp.dcj_tdm.person_source_linkage`
-UNION ALL SELECT 'NODE · Identifier (Bipartite Graph)', COUNT(*) FROM `all-things-cdp.dcj_tdm.identifier`
+UNION ALL SELECT 'NODE · Identifier (Bipartite Graph)', COUNT(*) FROM `all-things-cdp.dcj_match.identifier`
 UNION ALL SELECT 'EDGE · PARTY_RELATIONSHIP (78 Kinship & Group Types)', COUNT(*) FROM `all-things-cdp.dcj_tdm.party_relationship`
 UNION ALL SELECT 'EDGE · LIVES_AT (Address Relations)', COUNT(*) FROM `all-things-cdp.dcj_tdm.address_relation`
 UNION ALL SELECT 'EDGE · HAS_NAME (Person -> PersonName)', COUNT(*) FROM `all-things-cdp.dcj_tdm.person_name`
 UNION ALL SELECT 'EDGE · HOLDS_INSTRUMENT (Person -> Instrument)', COUNT(*) FROM `all-things-cdp.dcj_tdm.person_identity_instrument`
 UNION ALL SELECT 'EDGE · HAS_PROTECTION_EVENT (Person -> Protection)', COUNT(*) FROM `all-things-cdp.dcj_tdm.person_protection_event`
 UNION ALL SELECT 'EDGE · RESOLVES_TO (SourceRecord -> Golden Person)', COUNT(*) FROM `all-things-cdp.dcj_tdm.person_source_linkage`
-UNION ALL SELECT 'EDGE · HAS_IDENTIFIER (SourceRecord -> Identifier)', COUNT(*) FROM `all-things-cdp.dcj_tdm.has_identifier`
-UNION ALL SELECT 'EDGE · COMPARED_WITH (Hybrid Match + AI Audit)', COUNT(*) FROM `all-things-cdp.dcj_tdm.resolution_edges`;
+UNION ALL SELECT 'EDGE · HAS_IDENTIFIER (SourceRecord -> Identifier)', COUNT(*) FROM `all-things-cdp.dcj_match.has_identifier`
+UNION ALL SELECT 'EDGE · COMPARED_WITH (Hybrid Match + AI Audit)', COUNT(*) FROM `all-things-cdp.dcj_match.resolution_edges`;

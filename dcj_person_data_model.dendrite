@@ -36,27 +36,23 @@ Style @TdmZone {
   fill: "#f3e8fd", strokeColor: "#c084fc", strokeWidth: 1.5, borderRadius: 12,
   padding: 16, gap: 14, fontColor: $DarkSlate, fontSize: 15, labelWeight: bold
 }
-Style @SubGroup {
-  fill: "#ffffff", strokeColor: "#cbd5e1", strokeWidth: 1, borderRadius: 10,
-  padding: 12, gap: 10, fontColor: $DarkSlate, fontSize: 13, labelWeight: bold
-}
 Style @ProductCard {
-  width: 210, height: 60,
+  width: 220, height: 64,
   fill: $SurfaceWhite, strokeColor: $CardBorder, strokeWidth: 1, borderRadius: 8,
   fontColor: $DarkSlate, subFontColor: $SubText,
-  fontSize: 13.5, subFontSize: 11, labelWeight: bold,
+  fontSize: 14, subFontSize: 11.5, labelWeight: bold,
   textAlign: "left", textVAlign: "middle",
   iconPosition: "left", iconSize: 28, padding: 10, shadow: true
 }
 Style @HeroCard {
   base: @ProductCard,
-  width: 210, height: 64, strokeColor: $GcpBlue, strokeWidth: 2,
-  fontSize: 14, subFontSize: 11, iconSize: 30, padding: 10
+  width: 220, height: 66, strokeColor: $GcpBlue, strokeWidth: 2,
+  fontSize: 14, subFontSize: 11.5, iconSize: 30, padding: 10
 }
 
 Zone @GoogleCloud {
   title: "Google Cloud"
-  subtitle: "NSW DCJ Person Data Model (SDM to TDM), Hybrid Match & Property Graph"
+  subtitle: "NSW DCJ System Architecture: Source Systems to Unified Person View & Family Graph"
   style: @ArchitectureRoot
   layout: matrix
   cols: 4
@@ -66,120 +62,120 @@ Zone @GoogleCloud {
 
   Zone @Col1_SDM {
     area: "sdm"
-    title: "1. Source Data Model"
-    subtitle: "dcj_sdm (14 Tables & Views)"
+    title: "1. Source Systems"
+    subtitle: "dcj_sdm · 1,150 Source Records"
     style: @SdmZone
     layout: column, gap: 14, align: center, justify: center
 
-    [sdm_cp: "Child Protection" | "ChildStory · 450 rows"] {
+    [sdm_cp: "Child Protection" | "ChildStory · 450 Records"] {
       style: @ProductCard, icon: "BigQuery",
-      description: "person_file_1_ciw, person_names_file_2_ciw, person_relation_file_4_ciw, addr_loc_ods, addr_rel_loc_ods"
+      description: "Person records, 16 name types, 78 family relationship labels, and safety orders"
     }
-    [sdm_fp: "Family Preservation" | "InfoShare · 380 rows"] {
+    [sdm_fp: "Family Preservation" | "InfoShare · 380 Records"] {
       style: @ProductCard, icon: "BigQuery",
-      description: "infoshare_family_preservation_clients, groups, groupclients"
+      description: "Partner intake records, preferred names, estimated birth years, and support groups"
     }
-    [sdm_yj: "Youth Justice" | "KIMS / CNI · 320 rows"] {
+    [sdm_yj: "Youth Justice" | "Case System · 320 Records"] {
       style: @ProductCard, icon: "BigQuery",
-      description: "YJ_YO_CDM_Data, yj_new_clients_kims, yj_address_mapping"
+      description: "Youth case records, street nicknames, spelling variations, and address mappings"
     }
-    [sdm_gnaf: "NSW GNAF Spine" | "Geocoded · 260 PIDs"] {
+    [sdm_gnaf: "NSW Street Addresses" | "260 Verified Locations"] {
       style: @ProductCard, icon: "MapsGeospatial",
-      description: "gnaf_address_materialised_view & GNAF_address_view with standardize_address UDF"
+      description: "Standardized NSW street addresses with map coordinates and crisis shelter flags"
     }
   }
 
   Zone @Col2_Hybrid {
     area: "hybrid"
-    title: "2. Hybrid Match Engine"
-    subtitle: "Stages 10–40 · Bipartite + RRF"
+    title: "2. Hybrid Person Match"
+    subtitle: "dcj_match · Shared IDs + Vector Search"
     style: @HybridZone
     layout: column, gap: 18, align: center, justify: center
 
-    [hyb_bip: "Bipartite IDF Graph" | "SLK-581 · CNI · NDIS · Hub Guard"] {
+    [hyb_bip: "Shared ID & Shelter Filter" | "Weights Rare IDs · Flags Shelters"] {
       style: @HeroCard, icon: "BigQuery",
-      description: "Stage 10-20: Extracts 5,143 identifier links across 2,754 nodes with log(N/df) IDF rarity & Crisis Refuge hub down-weighting"
+      description: "Gives high weight to unique government IDs while flagging addresses shared by >5 people as crisis shelters"
     }
-    [hyb_vec: "Gemini Platform Embed" | "AI.EMBED + VECTOR_SEARCH"] {
-      style: @ProductCard, icon: "Gemini",
-      description: "Stage 30: Autonomous AI.EMBED (text-embedding-005, 768-d) + COSINE Top-K VECTOR_SEARCH"
+    [hyb_vec: "BigQuery Vector Search" | "Native AI.EMBED + VECTOR_SEARCH"] {
+      style: @ProductCard, icon: "BigQuery",
+      description: "BigQuery Vector Search finds matching people across nicknames, phonetic spelling variations, and surname changes"
     }
-    [hyb_rrf: "RRF + Kinship Scorer" | "Reciprocal Rank Fusion (k=60)"] {
+    [hyb_rrf: "Combined Match Scoring" | "IDs + Vector Rank + Family Ties"] {
       style: @HeroCard, icon: "BigQuery",
-      description: "Stage 40: Combines Lexical/Phonetic + Vector Rank + 2-Hop Shared Kinship & Twin SLK-581 Guard into 3 tiers"
+      description: "Combines exact ID match, BigQuery Vector Search rank, and shared family members while preventing twin merges"
     }
   }
 
   Zone @Col3_Adjudicator {
     area: "adjudicator"
-    title: "3. Gemini Adjudicator"
-    subtitle: "Stages 50–60 · Audit & Graph CC"
+    title: "3. Gemini Platform Adjudicator"
+    subtitle: "dcj_match · Gemini 3.5 + Audit Log"
     style: @AdjudicatorZone
     layout: column, gap: 18, align: center, justify: center
 
-    [adj_cc: "Two-Pass Clustering" | "Connected Components + Guard"] {
+    [adj_cc: "Person Record Grouping" | "Links Matches · Separates Twins"] {
       style: @HeroCard, icon: "Dataflow",
-      description: "Stage 60: Pass-1 Connected Components + Pass-2 Contradiction & Twin Guard -> 599 Golden Persons (0 hairballs)"
+      description: "Combines confirmed links into 599 Master Person profiles with zero false shelter or twin merges"
     }
-    [adj_ledger: "Immutable Audit Ledger" | "Verdict · Evidence · Tokens"] {
+    [adj_ledger: "Written Audit Log" | "Stores Every Decision & Reason"] {
       style: @ProductCard, icon: "CloudAuditLogs",
-      description: "person_match_adjudications: Append-only ledger recording rationale, decisive_evidence, prompt_version & token counts"
+      description: "Permanent audit table recording the match decision, confidence score, and plain-English explanation"
     }
-    [adj_llm: "Gemini Platform Judge" | "AI.GENERATE · 391 Grey-Zone"] {
+    [adj_llm: "Gemini Platform Adjudicator" | "Gemini 3.5 · 391 Borderline Pairs"] {
       style: @HeroCard, icon: "Gemini",
-      description: "Stage 50: Calls gemini-2.5-flash on Gemini Platform for 391 grey-zone pairs with structured schema enforcement"
+      description: "Calls Gemini 3.5 on Gemini Platform via BigQuery connection to adjudicate ambiguous pairs with written reasons"
     }
   }
 
   Zone @Col4_TDM {
     area: "tdm"
-    title: "4. Target Model & Graph"
-    subtitle: "Stages 60–80 · TDM & Catalog"
+    title: "4. Unified View & Graph"
+    subtitle: "dcj_tdm · 9 Target Tables + Graph"
     style: @TdmZone
     layout: column, gap: 18, align: center, justify: center
 
-    [tdm_tables: "9 Mastered TDM Tables" | "599 Golden Persons · F1 0.997"] {
+    [tdm_tables: "9 Master Person Tables" | "599 People · 99.4% Accuracy"] {
       style: @HeroCard, icon: "BigQuery",
-      description: "party (681), person (599), person_name (1,623), address_location (260), address_relation (630), party_relationship (593), person_source_linkage (1,150), person_protection_event (45), person_identity_instrument (1,517)"
+      description: "One master profile per person plus full history of names, addresses, government IDs, family ties, and safety orders"
     }
-    [tdm_graph: "Property Graph & TVF" | "dcj_person_graph · fn_person_match"] {
+    [tdm_graph: "Family Graph & Live Search" | "BigQuery Property Graph"] {
       style: @HeroCard, icon: "BigQuery",
-      description: "Stage 70-80: Unified ISO GQL Property Graph (8 Node labels, 9 Edge labels) + Real-time fn_person_match TVF"
+      description: "Connected family and audit graph plus real-time SQL search across ChildStory, InfoShare, and Youth Justice"
     }
-    [tdm_catalog: "Knowledge Catalog" | "118 Glossary Terms & Links"] {
+    [tdm_catalog: "BigQuery Knowledge Catalog" | "118 Business Definitions"] {
       style: @ProductCard, icon: "Dataplex",
-      description: "BigQuery Knowledge Catalog Business Glossary (dcj_person_cdm_glossary) with 6 Categories, 118 Terms & Column EntryLinks"
+      description: "Plain-English business definitions and accuracy metrics linked directly to every table column"
     }
   }
 }
 
 [sdm_cp] --> [hyb_bip] { sourceAnchor: "right", targetAnchor: "left", label: "ChildStory", color: $GcpBlue }
 [sdm_fp] --> [hyb_bip] { sourceAnchor: "right", targetAnchor: "left", label: "InfoShare", color: $GcpBlue }
-[sdm_yj] --> [hyb_bip] { sourceAnchor: "right", targetAnchor: "left", label: "KIMS / CNI", color: $GcpBlue }
-[sdm_gnaf] --> [hyb_bip] { sourceAnchor: "right", targetAnchor: "left", label: "GNAF PIDs", color: $GcpBlue }
+[sdm_yj] --> [hyb_bip] { sourceAnchor: "right", targetAnchor: "left", label: "Youth Justice", color: $GcpBlue }
+[sdm_gnaf] --> [hyb_bip] { sourceAnchor: "right", targetAnchor: "left", label: "NSW Addresses", color: $GcpBlue }
 
 [hyb_bip] --> [hyb_vec] { sourceAnchor: "bottom", targetAnchor: "top", label: "1,150 Profiles", color: $GcpGreen }
-[hyb_vec] --> [hyb_rrf] { sourceAnchor: "bottom", targetAnchor: "top", label: "Cosine Top-K", color: $GcpGreen }
+[hyb_vec] --> [hyb_rrf] { sourceAnchor: "bottom", targetAnchor: "top", label: "Similar Names", color: $GcpGreen }
 
-[hyb_rrf] --> [adj_llm] { sourceAnchor: "right", targetAnchor: "left", label: "391 Grey-Zone", color: $AmberGold }
-[hyb_rrf] --> [adj_cc] { sourceAnchor: "right", targetAnchor: "left", label: "405 Auto-Match", color: $GcpGreen }
+[hyb_rrf] --> [adj_llm] { sourceAnchor: "right", targetAnchor: "left", label: "391 Borderline", color: $AmberGold }
+[hyb_rrf] --> [adj_cc] { sourceAnchor: "right", targetAnchor: "left", label: "405 Clear Links", color: $GcpGreen }
 
-[adj_llm] --> [adj_ledger] { curve: "step",  sourceAnchor: "top", targetAnchor: "bottom", label: "JSON Verdicts", color: $AmberGold }
-[adj_ledger] --> [adj_cc] { curve: "step",  sourceAnchor: "top", targetAnchor: "bottom", label: "Audited Edges", color: $AmberGold }
+[adj_llm] --> [adj_ledger] { curve: "step",  sourceAnchor: "top", targetAnchor: "bottom", label: "Written Reasons", color: $AmberGold }
+[adj_ledger] --> [adj_cc] { curve: "step",  sourceAnchor: "top", targetAnchor: "bottom", label: "Verified Links", color: $AmberGold }
 
-[adj_cc] --> [tdm_tables] { sourceAnchor: "right", targetAnchor: "left", label: "599 Golden IDs", color: $PurpleAccent }
-[tdm_tables] --> [tdm_graph] { sourceAnchor: "bottom", targetAnchor: "top", label: "8 Nodes · 9 Edges", color: $PurpleAccent }
-[tdm_graph] --> [tdm_catalog] { sourceAnchor: "bottom", targetAnchor: "top", label: "118 Terms", color: $PurpleAccent }
+[adj_cc] --> [tdm_tables] { sourceAnchor: "right", targetAnchor: "left", label: "599 People", color: $PurpleAccent }
+[tdm_tables] --> [tdm_graph] { sourceAnchor: "bottom", targetAnchor: "top", label: "Family & ID Links", color: $PurpleAccent }
+[tdm_graph] --> [tdm_catalog] { sourceAnchor: "bottom", targetAnchor: "top", label: "118 Definitions", color: $PurpleAccent }
 
 animation "Main flow" {
   loop: false
-  step 1: [sdm_cp] -> [hyb_bip] { packet: "1. Ingest SDM Sources", duration: "1.0s" }
-  step 2: [hyb_bip] -> [hyb_vec] { packet: "2. AI.EMBED Profiles", duration: "1.0s" }
-  step 3: [hyb_vec] -> [hyb_rrf] { packet: "3. Hybrid RRF + Kinship", duration: "1.0s" }
-  step 4: [hyb_rrf] -> [adj_llm] { packet: "4. 391 Grey-Zone Pairs", duration: "1.0s" }
-  step 5: [adj_llm] -> [adj_ledger] { packet: "5. Audit Verdict & Tokens", duration: "1.0s" }
-  step 6: [adj_ledger] -> [adj_cc] { packet: "6. Two-Pass Graph CC", duration: "1.0s" }
-  step 7: [adj_cc] -> [tdm_tables] { packet: "7. Populate 9 TDM Tables", duration: "1.0s" }
-  step 8: [tdm_tables] -> [tdm_graph] { packet: "8. Build Property Graph", duration: "1.0s" }
-  step 9: [tdm_graph] -> [tdm_catalog] { packet: "9. Attach Glossary Terms", duration: "1.0s" }
+  step 1: [sdm_cp] -> [hyb_bip] { packet: "1. Ingest Source Records", duration: "1.0s" }
+  step 2: [hyb_bip] -> [hyb_vec] { packet: "2. AI Name & Profile Search", duration: "1.0s" }
+  step 3: [hyb_vec] -> [hyb_rrf] { packet: "3. Combined Match Scoring", duration: "1.0s" }
+  step 4: [hyb_rrf] -> [adj_llm] { packet: "4. Review 391 Borderline Pairs", duration: "1.0s" }
+  step 5: [adj_llm] -> [adj_ledger] { packet: "5. Record Written Explanation", duration: "1.0s" }
+  step 6: [adj_ledger] -> [adj_cc] { packet: "6. Group into Master People", duration: "1.0s" }
+  step 7: [adj_cc] -> [tdm_tables] { packet: "7. Populate 9 Master Tables", duration: "1.0s" }
+  step 8: [tdm_tables] -> [tdm_graph] { packet: "8. Build Family & Lineage Graph", duration: "1.0s" }
+  step 9: [tdm_graph] -> [tdm_catalog] { packet: "9. Link 118 Business Definitions", duration: "1.0s" }
 }

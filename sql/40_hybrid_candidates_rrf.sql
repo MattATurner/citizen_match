@@ -11,11 +11,11 @@
 -- =====================================================================
 
 -- 40a · Block size telemetry
-CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.block_stats`
+CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.block_stats`
 AS
 WITH exploded AS (
   SELECT record_id, key
-  FROM `all-things-cdp.dcj_tdm.stg_source_profiles`, UNNEST(blocking_keys) AS key
+  FROM `all-things-cdp.dcj_match.stg_source_profiles`, UNNEST(blocking_keys) AS key
 )
 SELECT
   key,
@@ -28,17 +28,17 @@ GROUP BY key
 HAVING COUNT(*) > 1;
 
 -- 40b · Lexical / Deterministic Candidate Leg
-CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.candidate_pairs_lexical`
+CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.candidate_pairs_lexical`
 CLUSTER BY record_id_a, record_id_b
 AS
 WITH exploded AS (
   SELECT p.record_id, key
-  FROM `all-things-cdp.dcj_tdm.stg_source_profiles` AS p, UNNEST(p.blocking_keys) AS key
+  FROM `all-things-cdp.dcj_match.stg_source_profiles` AS p, UNNEST(p.blocking_keys) AS key
 ),
 usable AS (
   SELECT e.record_id, e.key
   FROM exploded AS e
-  JOIN `all-things-cdp.dcj_tdm.block_stats` AS b USING (key)
+  JOIN `all-things-cdp.dcj_match.block_stats` AS b USING (key)
   WHERE NOT b.oversized
 ),
 paired AS (
@@ -76,7 +76,7 @@ FROM paired
 GROUP BY record_id_a, record_id_b;
 
 -- 40c · Semantic Vector Search Leg (COSINE top_k = 15)
-CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.candidate_pairs_semantic`
+CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.candidate_pairs_semantic`
 CLUSTER BY record_id_a, record_id_b
 AS
 WITH knn AS (
@@ -85,8 +85,8 @@ WITH knn AS (
     base.record_id  AS match_id,
     distance
   FROM VECTOR_SEARCH(
-    TABLE `all-things-cdp.dcj_tdm.source_profile_vectors`, 'embedding',
-    (SELECT record_id, embedding FROM `all-things-cdp.dcj_tdm.source_profile_vectors`),
+    TABLE `all-things-cdp.dcj_match.source_profile_vectors`, 'embedding',
+    (SELECT record_id, embedding FROM `all-things-cdp.dcj_match.source_profile_vectors`),
     'embedding',
     top_k         => 15,
     distance_type => 'COSINE'
@@ -103,13 +103,13 @@ FROM knn
 GROUP BY record_id_a, record_id_b;
 
 -- 40d · Reciprocal Rank Fusion (RRF, k = 60)
-CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.candidate_pairs_fused`
+CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.candidate_pairs_fused`
 CLUSTER BY record_id_a, record_id_b
 AS
 WITH all_pairs AS (
-  SELECT record_id_a, record_id_b FROM `all-things-cdp.dcj_tdm.candidate_pairs_lexical`
+  SELECT record_id_a, record_id_b FROM `all-things-cdp.dcj_match.candidate_pairs_lexical`
   UNION DISTINCT
-  SELECT record_id_a, record_id_b FROM `all-things-cdp.dcj_tdm.candidate_pairs_semantic`
+  SELECT record_id_a, record_id_b FROM `all-things-cdp.dcj_match.candidate_pairs_semantic`
 ),
 joined AS (
   SELECT
@@ -124,9 +124,9 @@ joined AS (
     l.block_strength IS NOT NULL      AS found_lexical,
     s.semantic_similarity IS NOT NULL AS found_semantic
   FROM all_pairs AS p
-  LEFT JOIN `all-things-cdp.dcj_tdm.candidate_pairs_lexical` AS l
+  LEFT JOIN `all-things-cdp.dcj_match.candidate_pairs_lexical` AS l
     ON l.record_id_a = p.record_id_a AND l.record_id_b = p.record_id_b
-  LEFT JOIN `all-things-cdp.dcj_tdm.candidate_pairs_semantic` AS s
+  LEFT JOIN `all-things-cdp.dcj_match.candidate_pairs_semantic` AS s
     ON s.record_id_a = p.record_id_a AND s.record_id_b = p.record_id_b
 ),
 directed_ranks AS (
@@ -172,7 +172,7 @@ FROM joined AS j
 JOIN pair_ranks AS pr USING (record_id_a, record_id_b);
 
 -- 40e · Enrich with 1-Hop Bipartite Rarity, 2-Hop Kinship/Household Features & Tiering
-CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.candidate_pair_tiers`
+CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.candidate_pair_tiers`
 CLUSTER BY tier, record_id_a
 AS
 WITH
@@ -292,10 +292,10 @@ features AS (
     (a.childstory_id_ref IS NOT NULL AND b.childstory_id_ref IS NOT NULL AND a.childstory_id_ref != b.childstory_id_ref) AS cs_id_conflict,
     -- Documented Kinship Conflict (Sibling / Parent-Child in Child Protection)
     kk.cp_rel_type AS documented_kin_relationship
-  FROM `all-things-cdp.dcj_tdm.candidate_pairs_fused` AS f
-  JOIN `all-things-cdp.dcj_tdm.stg_source_profiles` AS a ON a.record_id = f.record_id_a
-  JOIN `all-things-cdp.dcj_tdm.stg_source_profiles` AS b ON b.record_id = f.record_id_b
-  LEFT JOIN `all-things-cdp.dcj_tdm.profile_projection` AS pp
+  FROM `all-things-cdp.dcj_match.candidate_pairs_fused` AS f
+  JOIN `all-things-cdp.dcj_match.stg_source_profiles` AS a ON a.record_id = f.record_id_a
+  JOIN `all-things-cdp.dcj_match.stg_source_profiles` AS b ON b.record_id = f.record_id_b
+  LEFT JOIN `all-things-cdp.dcj_match.profile_projection` AS pp
     ON pp.record_id_a = f.record_id_a AND pp.record_id_b = f.record_id_b
   LEFT JOIN known_cp_kin AS kk
     ON kk.cs_a = LEAST(IFNULL(a.childstory_id_ref, ''), IFNULL(b.childstory_id_ref, ''))

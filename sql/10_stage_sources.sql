@@ -3,7 +3,7 @@
 --
 -- Unifies Child Protection (ChildStory), Family Preservation (InfoShare),
 -- and Youth Justice (KIMS) into a single normalised staging table
--- `dcj_tdm.stg_source_profiles` with:
+-- `dcj_match.stg_source_profiles` with:
 --   - All historical, cultural, pre-adoptive, adopted & alias names
 --   - Standardised GNAF & street addresses
 --   - Government & statistical identifiers (ChildStoryID, CNI, NDIS, SLK-581)
@@ -11,7 +11,7 @@
 --   - Canonical `match_key` and multi-leg `blocking_keys`
 -- =====================================================================
 
-CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.stg_source_profiles`
+CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.stg_source_profiles`
 CLUSTER BY postcode_norm, family_name_norm
 AS
 WITH
@@ -54,8 +54,8 @@ cp_names_agg AS (
       DISTINCT IF(NOT is_primary, CONCAT(IFNULL(FST_NAME, ''), ' ', IFNULL(LAST_NAME, ''), ' (', IFNULL(name_usage_code, 'Unspecified'), ')'), NULL),
       ' ; '
     ) AS alt_names_summary,
-    ARRAY_AGG(DISTINCT UPPER(`all-things-cdp.dcj_tdm.fold_diacritics`(LAST_NAME)) IGNORE NULLS) AS all_surnames_norm,
-    ARRAY_AGG(DISTINCT UPPER(`all-things-cdp.dcj_tdm.fold_diacritics`(FST_NAME)) IGNORE NULLS) AS all_forenames_norm
+    ARRAY_AGG(DISTINCT UPPER(`all-things-cdp.dcj_match.fold_diacritics`(LAST_NAME)) IGNORE NULLS) AS all_surnames_norm,
+    ARRAY_AGG(DISTINCT UPPER(`all-things-cdp.dcj_match.fold_diacritics`(FST_NAME)) IGNORE NULLS) AS all_forenames_norm
   FROM cp_names_raw
   GROUP BY CHILDSTORY_ID
 ),
@@ -123,8 +123,8 @@ cp_staged AS (
     FALSE AS is_cald,
     p.PROTECTED_INDIVIDUAL = 'Y' AS is_protected,
     LOWER(TRIM(p.EMAIL)) AS email_norm,
-    `all-things-cdp.dcj_tdm.norm_phone`(COALESCE(p.MOBILE_PHN, p.HOME_PHN)) AS phone_e164,
-    `all-things-cdp.dcj_tdm.norm_phone`(p.HOME_PHN) AS home_phone_e164,
+    `all-things-cdp.dcj_match.norm_phone`(COALESCE(p.MOBILE_PHN, p.HOME_PHN)) AS phone_e164,
+    `all-things-cdp.dcj_match.norm_phone`(p.HOME_PHN) AS home_phone_e164,
     ca.gnaf_address_id,
     `all-things-cdp.dcj_sdm.standardize_address`(
       COALESCE(ca.FULL_ADDRESS, CONCAT(IFNULL(ca.STREET_NUMBER_FIRST, ''), ' ', IFNULL(ca.STREET_NAME, ''), ' ', IFNULL(ca.STREET_TYPE, '')))
@@ -165,15 +165,15 @@ fp_staged AS (
          [])
     ) AS all_names_arr,
     ARRAY_CONCAT(
-      [UPPER(`all-things-cdp.dcj_tdm.fold_diacritics`(COALESCE(c.LastName, c.FamilyName)))],
+      [UPPER(`all-things-cdp.dcj_match.fold_diacritics`(COALESCE(c.LastName, c.FamilyName)))],
       IF(c.AnyKnownAlias.FieldValueENUM = 'Y' AND SPLIT(c.AnyKnownAlias.FieldENUMLabel, ' ')[SAFE_OFFSET(1)] IS NOT NULL,
-         [UPPER(`all-things-cdp.dcj_tdm.fold_diacritics`(SPLIT(c.AnyKnownAlias.FieldENUMLabel, ' ')[SAFE_OFFSET(1)]))],
+         [UPPER(`all-things-cdp.dcj_match.fold_diacritics`(SPLIT(c.AnyKnownAlias.FieldENUMLabel, ' ')[SAFE_OFFSET(1)]))],
          [])
     ) AS all_surnames_norm,
     ARRAY_CONCAT(
-      [UPPER(`all-things-cdp.dcj_tdm.fold_diacritics`(c.FirstName))],
+      [UPPER(`all-things-cdp.dcj_match.fold_diacritics`(c.FirstName))],
       IF(c.AnyKnownAlias.FieldValueENUM = 'Y' AND SPLIT(c.AnyKnownAlias.FieldENUMLabel, ' ')[SAFE_OFFSET(0)] IS NOT NULL,
-         [UPPER(`all-things-cdp.dcj_tdm.fold_diacritics`(SPLIT(c.AnyKnownAlias.FieldENUMLabel, ' ')[SAFE_OFFSET(0)]))],
+         [UPPER(`all-things-cdp.dcj_match.fold_diacritics`(SPLIT(c.AnyKnownAlias.FieldENUMLabel, ' ')[SAFE_OFFSET(0)]))],
          [])
     ) AS all_forenames_norm,
     CASE
@@ -187,8 +187,8 @@ fp_staged AS (
     IFNULL(c.Language.FieldENUMLabel, 'English') != 'English' AS is_cald,
     FALSE AS is_protected,
     LOWER(TRIM(c.ContactEmail)) AS email_norm,
-    `all-things-cdp.dcj_tdm.norm_phone`(COALESCE(c.ContactPhoneNumber, c.ContactNumber, c.CarerContactNumber1)) AS phone_e164,
-    `all-things-cdp.dcj_tdm.norm_phone`(c.CarerContactNumber1) AS home_phone_e164,
+    `all-things-cdp.dcj_match.norm_phone`(COALESCE(c.ContactPhoneNumber, c.ContactNumber, c.CarerContactNumber1)) AS phone_e164,
+    `all-things-cdp.dcj_match.norm_phone`(c.CarerContactNumber1) AS home_phone_e164,
     c.AddressId AS gnaf_address_id,
     `all-things-cdp.dcj_sdm.standardize_address`(COALESCE(c.FormattedAddress, c.Address, c.ManualAddressLine1)) AS address_norm,
     UPPER(TRIM(COALESCE(c.LocalityName, c.Suburb, c.ManualSuburb))) AS suburb_norm,
@@ -219,8 +219,8 @@ yj_staged AS (
     y.Last_name AS family_name_raw,
     CAST(NULL AS STRING) AS alias_names_concat,
     [STRUCT(y.First_Name AS given_name, CAST(NULL AS STRING) AS middle_name, y.Last_name AS family_name, 'Preferred Name' AS name_usage_code, TRUE AS is_primary)] AS all_names_arr,
-    [UPPER(`all-things-cdp.dcj_tdm.fold_diacritics`(y.Last_name))] AS all_surnames_norm,
-    [UPPER(`all-things-cdp.dcj_tdm.fold_diacritics`(y.First_Name))] AS all_forenames_norm,
+    [UPPER(`all-things-cdp.dcj_match.fold_diacritics`(y.Last_name))] AS all_surnames_norm,
+    [UPPER(`all-things-cdp.dcj_match.fold_diacritics`(y.First_Name))] AS all_forenames_norm,
     CASE
       WHEN UPPER(SUBSTR(y.Sex, 1, 1)) = 'M' THEN 'Male'
       WHEN UPPER(SUBSTR(y.Sex, 1, 1)) = 'F' THEN 'Female'
@@ -262,13 +262,13 @@ unioned AS (
 enriched AS (
   SELECT
     u.*,
-    UPPER(TRIM(`all-things-cdp.dcj_tdm.fold_diacritics`(u.given_name_raw))) AS given_name_norm,
-    UPPER(TRIM(`all-things-cdp.dcj_tdm.fold_diacritics`(u.middle_name_raw))) AS middle_name_norm,
-    UPPER(TRIM(`all-things-cdp.dcj_tdm.fold_diacritics`(u.family_name_raw))) AS family_name_norm,
-    UPPER(TRIM(`all-things-cdp.dcj_tdm.fold_diacritics`(
+    UPPER(TRIM(`all-things-cdp.dcj_match.fold_diacritics`(u.given_name_raw))) AS given_name_norm,
+    UPPER(TRIM(`all-things-cdp.dcj_match.fold_diacritics`(u.middle_name_raw))) AS middle_name_norm,
+    UPPER(TRIM(`all-things-cdp.dcj_match.fold_diacritics`(u.family_name_raw))) AS family_name_norm,
+    UPPER(TRIM(`all-things-cdp.dcj_match.fold_diacritics`(
       CONCAT(IFNULL(u.given_name_raw, ''), ' ', IFNULL(u.family_name_raw, ''))
     ))) AS full_name_norm,
-    `all-things-cdp.dcj_tdm.compute_slk581`(u.given_name_raw, u.family_name_raw, u.dob, u.gender_norm) AS slk_code,
+    `all-things-cdp.dcj_match.compute_slk581`(u.given_name_raw, u.family_name_raw, u.dob, u.gender_norm) AS slk_code,
     EXTRACT(YEAR FROM u.dob) AS birth_year
   FROM unioned AS u
 )

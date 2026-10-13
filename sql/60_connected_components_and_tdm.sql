@@ -1,10 +1,10 @@
 -- =====================================================================
 -- 60 · Two-Pass Connected Components, Contradiction Guard, Survivorship
---      & Population of All 9 Target Data Model (TDM) Tables
+--      (`dcj_match`) & Population of All 9 Target Data Model Tables (`dcj_tdm`)
 -- =====================================================================
 
 -- 60a · Iterative Label-Propagation Connected Components Stored Procedure
-CREATE OR REPLACE PROCEDURE `all-things-cdp.dcj_tdm.sp_connected_components`(
+CREATE OR REPLACE PROCEDURE `all-things-cdp.dcj_match.sp_connected_components`(
   nodes_table STRING,
   edges_table STRING,
   out_table   STRING,
@@ -54,30 +54,30 @@ BEGIN
 END;
 
 -- 60b · Pass-1 Connected Components over Accepted LINK Decisions
-CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.graph_nodes`
+CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.graph_nodes`
 AS
 SELECT DISTINCT record_id AS node
-FROM `all-things-cdp.dcj_tdm.stg_source_profiles`;
+FROM `all-things-cdp.dcj_match.stg_source_profiles`;
 
-CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.edges_pass1`
+CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.edges_pass1`
 AS
 SELECT record_id_a AS src, record_id_b AS dst
-FROM `all-things-cdp.dcj_tdm.person_match_decisions`
+FROM `all-things-cdp.dcj_match.person_match_decisions`
 WHERE decision = 'LINK'
 UNION ALL
 SELECT record_id_b AS src, record_id_a AS dst
-FROM `all-things-cdp.dcj_tdm.person_match_decisions`
+FROM `all-things-cdp.dcj_match.person_match_decisions`
 WHERE decision = 'LINK';
 
-CALL `all-things-cdp.dcj_tdm.sp_connected_components`(
-  'all-things-cdp.dcj_tdm.graph_nodes',
-  'all-things-cdp.dcj_tdm.edges_pass1',
-  'all-things-cdp.dcj_tdm.cc_pass1',
+CALL `all-things-cdp.dcj_match.sp_connected_components`(
+  'all-things-cdp.dcj_match.graph_nodes',
+  'all-things-cdp.dcj_match.edges_pass1',
+  'all-things-cdp.dcj_match.cc_pass1',
   15
 );
 
 -- 60c · Pass-2 Transitive Contradiction Guard (Detects Twin/Sibling or Verified DOB Conflicts inside a Cluster)
-CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.component_contradictions`
+CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.component_contradictions`
 AS
 SELECT
   c.comp,
@@ -86,20 +86,20 @@ SELECT
   COUNT(DISTINCT p.cni_number) > 1 AS has_cni_conflict,
   COUNT(DISTINCT p.ndis_number) > 1 AS has_ndis_conflict,
   COUNT(DISTINCT p.childstory_id_ref) > 1 AS has_cs_id_conflict
-FROM `all-things-cdp.dcj_tdm.cc_pass1` AS c
-JOIN `all-things-cdp.dcj_tdm.stg_source_profiles` AS p
+FROM `all-things-cdp.dcj_match.cc_pass1` AS c
+JOIN `all-things-cdp.dcj_match.stg_source_profiles` AS p
   ON p.record_id = c.node
 GROUP BY c.comp
 HAVING has_verified_dob_conflict OR has_cni_conflict OR has_ndis_conflict OR has_cs_id_conflict;
 
 -- 60d · Prune Contradicted Bridge Edges & Re-Run Pass-2 Connected Components
-CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.resolution_edges`
+CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.resolution_edges`
 CLUSTER BY record_id_a, record_id_b
 AS
 WITH suspect_nodes AS (
   SELECT c.node
-  FROM `all-things-cdp.dcj_tdm.cc_pass1` AS c
-  JOIN `all-things-cdp.dcj_tdm.component_contradictions` AS x USING (comp)
+  FROM `all-things-cdp.dcj_match.cc_pass1` AS c
+  JOIN `all-things-cdp.dcj_match.component_contradictions` AS x USING (comp)
 )
 SELECT
   d.record_id_a,
@@ -118,29 +118,29 @@ SELECT
    AND (d.record_id_a IN (SELECT node FROM suspect_nodes) OR d.record_id_b IN (SELECT node FROM suspect_nodes))
    AND (t.verified_dob_conflict OR t.cni_conflict OR t.ndis_conflict OR t.cs_id_conflict OR t.twin_or_sibling_trap OR d.confidence < 0.92)
   ) AS suppressed_by_contradiction
-FROM `all-things-cdp.dcj_tdm.person_match_decisions` AS d
-JOIN `all-things-cdp.dcj_tdm.candidate_pair_tiers` AS t
+FROM `all-things-cdp.dcj_match.person_match_decisions` AS d
+JOIN `all-things-cdp.dcj_match.candidate_pair_tiers` AS t
   ON t.record_id_a = d.record_id_a AND t.record_id_b = d.record_id_b;
 
-CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.edges_pass2`
+CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.edges_pass2`
 AS
 SELECT record_id_a AS src, record_id_b AS dst
-FROM `all-things-cdp.dcj_tdm.resolution_edges`
+FROM `all-things-cdp.dcj_match.resolution_edges`
 WHERE decision = 'LINK' AND NOT suppressed_by_contradiction
 UNION ALL
 SELECT record_id_b AS src, record_id_a AS dst
-FROM `all-things-cdp.dcj_tdm.resolution_edges`
+FROM `all-things-cdp.dcj_match.resolution_edges`
 WHERE decision = 'LINK' AND NOT suppressed_by_contradiction;
 
-CALL `all-things-cdp.dcj_tdm.sp_connected_components`(
-  'all-things-cdp.dcj_tdm.graph_nodes',
-  'all-things-cdp.dcj_tdm.edges_pass2',
-  'all-things-cdp.dcj_tdm.cc_final',
+CALL `all-things-cdp.dcj_match.sp_connected_components`(
+  'all-things-cdp.dcj_match.graph_nodes',
+  'all-things-cdp.dcj_match.edges_pass2',
+  'all-things-cdp.dcj_match.cc_final',
   15
 );
 
 -- 60e · Durable Golden `person_id` Assignment (`person_assignment` & `person_crosswalk`)
-CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.person_assignment`
+CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.person_assignment`
 CLUSTER BY person_id, record_id
 AS
 SELECT
@@ -151,10 +151,10 @@ SELECT
   ABS(FARM_FINGERPRINT(CONCAT('PER-', UPPER(SUBSTR(TO_HEX(MD5(c.comp)), 1, 12))))) AS party_id_int64,
   COUNT(*) OVER (PARTITION BY c.comp) AS cluster_size,
   CURRENT_TIMESTAMP() AS assigned_at
-FROM `all-things-cdp.dcj_tdm.cc_final` AS c;
+FROM `all-things-cdp.dcj_match.cc_final` AS c;
 
 -- 60f · Field-Level Survivorship & Provenance (`field_survivorship`)
-CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.field_assertions`
+CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.field_assertions`
 CLUSTER BY person_id, field_name
 AS
 SELECT
@@ -166,8 +166,8 @@ SELECT
   p.record_ts,
   f.field_name,
   f.field_value
-FROM `all-things-cdp.dcj_tdm.stg_source_profiles` AS p
-JOIN `all-things-cdp.dcj_tdm.person_assignment` AS a USING (record_id),
+FROM `all-things-cdp.dcj_match.stg_source_profiles` AS p
+JOIN `all-things-cdp.dcj_match.person_assignment` AS a USING (record_id),
 UNNEST([
   STRUCT('given_name'        AS field_name, p.given_name_raw AS field_value),
   STRUCT('middle_name'       AS field_name, p.middle_name_raw AS field_value),
@@ -183,7 +183,7 @@ UNNEST([
 ]) AS f
 WHERE f.field_value IS NOT NULL AND f.field_value != '';
 
-CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.field_survivorship`
+CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.field_survivorship`
 CLUSTER BY person_id, field_name
 AS
 WITH ranked AS (
@@ -198,7 +198,7 @@ WITH ranked AS (
         record_ts DESC NULLS LAST,
         record_id ASC
     ) AS rn
-  FROM `all-things-cdp.dcj_tdm.field_assertions` AS fa
+  FROM `all-things-cdp.dcj_match.field_assertions` AS fa
 )
 SELECT
   person_id,
@@ -238,8 +238,8 @@ SELECT
   'person' AS party_type_code,
   ANY_VALUE(CONCAT(p.given_name_raw, ' ', p.family_name_raw)) AS party_display_name,
   MIN(p.record_ts) AS created_timestamp
-FROM `all-things-cdp.dcj_tdm.person_assignment` AS a
-JOIN `all-things-cdp.dcj_tdm.stg_source_profiles` AS p USING (record_id)
+FROM `all-things-cdp.dcj_match.person_assignment` AS a
+JOIN `all-things-cdp.dcj_match.stg_source_profiles` AS p USING (record_id)
 GROUP BY a.person_id
 
 UNION ALL
@@ -300,7 +300,7 @@ WITH piv AS (
     MAX(IF(field_name = 'date_of_birth_any', surviving_value, NULL)) AS dob_any,
     MAX(IF(field_name = 'dob_certainty', surviving_value, NULL)) AS dob_cert,
     MAX(IF(field_name = 'indigenous_status', surviving_value, NULL)) AS indig_val
-  FROM `all-things-cdp.dcj_tdm.field_survivorship`
+  FROM `all-things-cdp.dcj_match.field_survivorship`
   GROUP BY person_id
 ),
 flags AS (
@@ -309,8 +309,8 @@ flags AS (
     LOGICAL_OR(p.is_protected) AS is_protected_person,
     LOGICAL_OR(p.is_cald) AS is_cald,
     ARRAY_AGG(p.source_program ORDER BY p.source_trust DESC, p.record_ts DESC LIMIT 1)[OFFSET(0)] AS winning_program
-  FROM `all-things-cdp.dcj_tdm.person_assignment` AS a
-  JOIN `all-things-cdp.dcj_tdm.stg_source_profiles` AS p USING (record_id)
+  FROM `all-things-cdp.dcj_match.person_assignment` AS a
+  JOIN `all-things-cdp.dcj_match.stg_source_profiles` AS p USING (record_id)
   GROUP BY a.person_id
 )
 SELECT
@@ -361,8 +361,8 @@ WITH raw_names AS (
     nm.family_name,
     nm.name_usage_code,
     nm.is_primary
-  FROM `all-things-cdp.dcj_tdm.stg_source_profiles` AS p
-  JOIN `all-things-cdp.dcj_tdm.person_assignment` AS a USING (record_id),
+  FROM `all-things-cdp.dcj_match.stg_source_profiles` AS p
+  JOIN `all-things-cdp.dcj_match.person_assignment` AS a USING (record_id),
   UNNEST(p.all_names_arr) AS nm
   WHERE nm.given_name IS NOT NULL OR nm.family_name IS NOT NULL
 ),
@@ -484,8 +484,8 @@ WITH person_addrs AS (
     MIN(p.record_ts) AS start_dt,
     MAX(p.record_ts) AS last_seen_dt,
     ARRAY_AGG(p.source_program ORDER BY p.source_trust DESC LIMIT 1)[OFFSET(0)] AS source_program
-  FROM `all-things-cdp.dcj_tdm.stg_source_profiles` AS p
-  JOIN `all-things-cdp.dcj_tdm.person_assignment` AS a USING (record_id)
+  FROM `all-things-cdp.dcj_match.stg_source_profiles` AS p
+  JOIN `all-things-cdp.dcj_match.person_assignment` AS a USING (record_id)
   WHERE p.gnaf_address_id IS NOT NULL
   GROUP BY a.person_id, p.gnaf_address_id
 ),
@@ -536,8 +536,8 @@ SELECT
   p.source_program,
   TRUE AS is_mastered,
   a.assigned_at AS last_updated_ts
-FROM `all-things-cdp.dcj_tdm.person_assignment` AS a
-JOIN `all-things-cdp.dcj_tdm.stg_source_profiles` AS p USING (record_id);
+FROM `all-things-cdp.dcj_match.person_assignment` AS a
+JOIN `all-things-cdp.dcj_match.stg_source_profiles` AS p USING (record_id);
 
 -- 7. TDM Table: `dcj_tdm.party_relationship` (Links parties: person-person across 78 types, person-group, group-org)
 CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.party_relationship`
@@ -657,8 +657,8 @@ SELECT
   subject_party_id,
   related_party_id,
   relationship_type,
-  `all-things-cdp.dcj_tdm.canonical_relationship_type`(relationship_type) AS canonical_relationship_type,
-  `all-things-cdp.dcj_tdm.relationship_category`(relationship_type) AS relationship_category,
+  `all-things-cdp.dcj_match.canonical_relationship_type`(relationship_type) AS canonical_relationship_type,
+  `all-things-cdp.dcj_match.relationship_category`(relationship_type) AS relationship_category,
   start_date,
   end_date,
   comment,
@@ -727,8 +727,8 @@ WITH raw_inst AS (
     'Verified' AS status_code,
     TRUE AS is_primary,
     s.source_program
-  FROM `all-things-cdp.dcj_tdm.stg_source_profiles` AS s
-  JOIN `all-things-cdp.dcj_tdm.person_assignment` AS a USING (record_id)
+  FROM `all-things-cdp.dcj_match.stg_source_profiles` AS s
+  JOIN `all-things-cdp.dcj_match.person_assignment` AS a USING (record_id)
   WHERE s.cni_number IS NOT NULL
 
   UNION ALL
@@ -742,8 +742,8 @@ WITH raw_inst AS (
     'Active' AS status_code,
     FALSE AS is_primary,
     s.source_program
-  FROM `all-things-cdp.dcj_tdm.stg_source_profiles` AS s
-  JOIN `all-things-cdp.dcj_tdm.person_assignment` AS a USING (record_id)
+  FROM `all-things-cdp.dcj_match.stg_source_profiles` AS s
+  JOIN `all-things-cdp.dcj_match.person_assignment` AS a USING (record_id)
   WHERE s.ndis_number IS NOT NULL
 
   UNION ALL
@@ -757,8 +757,8 @@ WITH raw_inst AS (
     'Active' AS status_code,
      TRUE AS is_primary,
     s.source_program
-  FROM `all-things-cdp.dcj_tdm.stg_source_profiles` AS s
-  JOIN `all-things-cdp.dcj_tdm.person_assignment` AS a USING (record_id)
+  FROM `all-things-cdp.dcj_match.stg_source_profiles` AS s
+  JOIN `all-things-cdp.dcj_match.person_assignment` AS a USING (record_id)
   WHERE s.childstory_id_ref IS NOT NULL
 
   UNION ALL
@@ -772,8 +772,8 @@ WITH raw_inst AS (
     'Statistical' AS status_code,
     FALSE AS is_primary,
     s.source_program
-  FROM `all-things-cdp.dcj_tdm.stg_source_profiles` AS s
-  JOIN `all-things-cdp.dcj_tdm.person_assignment` AS a USING (record_id)
+  FROM `all-things-cdp.dcj_match.stg_source_profiles` AS s
+  JOIN `all-things-cdp.dcj_match.person_assignment` AS a USING (record_id)
   WHERE s.slk_code IS NOT NULL
 ),
 dedup_inst AS (

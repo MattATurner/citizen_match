@@ -2,39 +2,39 @@
 -- 20 · Bipartite Identifier Graph, IDF Rarity & Hub Detection
 --
 -- Constructs the Profile <-> Identifier Bipartite Graph:
---   1. `dcj_tdm.has_identifier`     (SourceRecord -> Identifier edges)
---   2. `dcj_tdm.identifier`         (Identifier nodes with degree,
+--   1. `dcj_match.has_identifier`     (SourceRecord -> Identifier edges)
+--   2. `dcj_match.identifier`         (Identifier nodes with degree,
 --                                    IDF rarity weight LN(N/degree), and
 --                                    promiscuous hub detection for crisis
 --                                    refuges and shared caseworker phones)
---   3. `dcj_tdm.profile_projection` (2-hop shared-identifier projection)
+--   3. `dcj_match.profile_projection` (2-hop shared-identifier projection)
 -- =====================================================================
 
 -- 1. Extract Profile -> Identifier links
-CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.has_identifier`
+CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.has_identifier`
 CLUSTER BY record_id, identifier_id
 AS
 WITH raw_links AS (
   SELECT record_id, source_system, record_ts, CONCAT('CS:', childstory_id_ref) AS identifier_id, 'CHILDSTORY_ID' AS identifier_type, TRUE AS is_anchor
-  FROM `all-things-cdp.dcj_tdm.stg_source_profiles` WHERE childstory_id_ref IS NOT NULL
+  FROM `all-things-cdp.dcj_match.stg_source_profiles` WHERE childstory_id_ref IS NOT NULL
   UNION ALL
   SELECT record_id, source_system, record_ts, CONCAT('CNI:', cni_number), 'CNI_NUMBER', TRUE
-  FROM `all-things-cdp.dcj_tdm.stg_source_profiles` WHERE cni_number IS NOT NULL
+  FROM `all-things-cdp.dcj_match.stg_source_profiles` WHERE cni_number IS NOT NULL
   UNION ALL
   SELECT record_id, source_system, record_ts, CONCAT('NDIS:', ndis_number), 'NDIS_NUMBER', TRUE
-  FROM `all-things-cdp.dcj_tdm.stg_source_profiles` WHERE ndis_number IS NOT NULL
+  FROM `all-things-cdp.dcj_match.stg_source_profiles` WHERE ndis_number IS NOT NULL
   UNION ALL
   SELECT record_id, source_system, record_ts, CONCAT('SLK:', slk_code), 'SLK_581', FALSE
-  FROM `all-things-cdp.dcj_tdm.stg_source_profiles` WHERE slk_code IS NOT NULL
+  FROM `all-things-cdp.dcj_match.stg_source_profiles` WHERE slk_code IS NOT NULL
   UNION ALL
   SELECT record_id, source_system, record_ts, CONCAT('PH:', phone_e164), 'PHONE', FALSE
-  FROM `all-things-cdp.dcj_tdm.stg_source_profiles` WHERE phone_e164 IS NOT NULL
+  FROM `all-things-cdp.dcj_match.stg_source_profiles` WHERE phone_e164 IS NOT NULL
   UNION ALL
   SELECT record_id, source_system, record_ts, CONCAT('EM:', email_norm), 'EMAIL', FALSE
-  FROM `all-things-cdp.dcj_tdm.stg_source_profiles` WHERE email_norm IS NOT NULL
+  FROM `all-things-cdp.dcj_match.stg_source_profiles` WHERE email_norm IS NOT NULL
   UNION ALL
   SELECT record_id, source_system, record_ts, CONCAT('GNAF:', gnaf_address_id), 'GNAF_ADDRESS', FALSE
-  FROM `all-things-cdp.dcj_tdm.stg_source_profiles` WHERE gnaf_address_id IS NOT NULL
+  FROM `all-things-cdp.dcj_match.stg_source_profiles` WHERE gnaf_address_id IS NOT NULL
 )
 SELECT
   record_id,
@@ -47,11 +47,11 @@ FROM raw_links
 GROUP BY record_id, identifier_id;
 
 -- 2. Identifier Nodes with Degree, IDF Rarity & Promiscuous Hub Detection
-CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.identifier`
+CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.identifier`
 CLUSTER BY identifier_id
 AS
 WITH corpus AS (
-  SELECT COUNT(*) AS total_records FROM `all-things-cdp.dcj_tdm.stg_source_profiles`
+  SELECT COUNT(*) AS total_records FROM `all-things-cdp.dcj_match.stg_source_profiles`
 ),
 agg AS (
   SELECT
@@ -62,7 +62,7 @@ agg AS (
     STRING_AGG(DISTINCT h.sources, '|') AS sources,
     MIN(h.first_seen_ts) AS first_seen_ts,
     MAX(h.first_seen_ts) AS last_seen_ts
-  FROM `all-things-cdp.dcj_tdm.has_identifier` AS h
+  FROM `all-things-cdp.dcj_match.has_identifier` AS h
   GROUP BY h.identifier_id
 )
 SELECT
@@ -81,7 +81,7 @@ FROM agg AS a
 CROSS JOIN corpus AS c;
 
 -- 3. 2-Hop Bipartite Projection (Record A <-> Shared Identifier <-> Record B)
-CREATE OR REPLACE TABLE `all-things-cdp.dcj_tdm.profile_projection`
+CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.profile_projection`
 CLUSTER BY record_id_a, record_id_b
 AS
 SELECT
@@ -94,10 +94,10 @@ SELECT
   MIN(i.degree) AS min_shared_degree,
   LOGICAL_OR(i.is_promiscuous) AS via_hub,
   LOGICAL_AND(i.is_promiscuous) AS hub_only
-FROM `all-things-cdp.dcj_tdm.has_identifier` AS a
-JOIN `all-things-cdp.dcj_tdm.has_identifier` AS b
+FROM `all-things-cdp.dcj_match.has_identifier` AS a
+JOIN `all-things-cdp.dcj_match.has_identifier` AS b
   ON a.identifier_id = b.identifier_id
  AND a.record_id < b.record_id
-JOIN `all-things-cdp.dcj_tdm.identifier` AS i
+JOIN `all-things-cdp.dcj_match.identifier` AS i
   ON i.identifier_id = a.identifier_id
 GROUP BY a.record_id, b.record_id;
