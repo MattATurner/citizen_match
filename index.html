@@ -343,6 +343,7 @@
       border-radius: 4px;
       color: var(--primary);
       font-weight: 500;
+      white-space: nowrap;
     }
 
     /* Slide Body Container — Always flex-start, never center! */
@@ -1468,15 +1469,125 @@ ROUND(COALESCE(1.0 / (60 + rank_exact_id), 0.0) + COALESCE(1.0 / (60 + rank_bq_v
       </div>
 
       <!-- =====================================================================
-           SLIDE 6 (7/9): REAL-TIME SEARCH FUNCTION & AUDIT LOG (2 STEPS)
+           SLIDE 6 (7/10): LIVE DEMO WORKED EXAMPLE — STAGE BY STAGE (4 STEPS)
            ===================================================================== -->
-      <div class="s" data-idx="6" data-steps="2"
+      <div class="s" data-idx="6" data-steps="4"
+           data-notes="<strong>Step 0 (Overview):</strong> Let's trace one real young person from the BigQuery demo environment—Lachlan ('Lachie') Smith—through all four stages of the architecture."
+           data-notes-1="<strong>Step 1 (Stage 1 — 3 Source Records):</strong> In dcj_sdm, Lachlan appears as CS-10001 in ChildStory ('Lachlan James Smith'), FP-CL-50001 in InfoShare ('Lachlan Smith' with CNI-700000 and NDIS 431000000), and YJ-30001 in Youth Justice under the nickname 'Lachie Smith' with no government IDs or phone number."
+           data-notes-2="<strong>Step 2 (Stage 2 — Shared IDs + BigQuery Vector Search):</strong> ChildStory and InfoShare share CS-10001 and phone +61411000000 at a verified home address (rarity score 29.76 -> AUTO_MATCH). Youth Justice has no IDs or phone and uses 'Lachie', so BigQuery Vector Search bridges the name gap (0.9359 similarity, RRF 0.0328) and routes the pair to GREY_ZONE."
+           data-notes-3="<strong>Step 3 (Stage 3 — Gemini Platform AI Adjudicator):</strong> BigQuery calls Gemini 3.5 on Gemini Platform via dcj-conn. Gemini 3.5 confirms a MATCH (1.00 confidence), citing 'Lachie' as a diminutive of 'Lachlan' with matching birth date (2009-01-01), address (160 Darling St, Penrith), and mother (Ava Smith), then groups all 3 records."
+           data-notes-4="<strong>Step 4 (Stage 4 — Master Person &amp; Family Graph):</strong> All 3 records resolve into Master Person PER-698E72DBC085 ('Lachlan James Smith'), retaining all 5 name rows, 4 government IDs, verified GNAF address GNAF-NSW-00003, and Property Graph links to Mother Ava Smith (PER-CBC2AAB53745) and Family Group GRP-8001.">
+        <div class="slide-header">
+          <div class="top-bar">
+            <span class="badge">6 · WORKED EXAMPLE ACROSS ALL 4 STAGES (LIVE DEMO DATA)</span>
+            <span class="gcp-pill">Demo Entity: <code>PER-698E72DBC085</code> (Lachlan / Lachie Smith)</span>
+          </div>
+          <h2>How three source records become <span class="hl">one Master Person</span> stage by stage</h2>
+        </div>
+
+        <div class="body">
+          <div class="arch-diagram-grid scaffold-group">
+            <!-- Stage 1: Source Systems -->
+            <div class="arch-zone" data-active-step="1">
+              <div class="arch-zone-hdr">
+                <div class="arch-zone-title"><span>1. Source Records</span><span class="step-num">01</span></div>
+                <div class="arch-zone-sub"><code>dcj_sdm</code> &rarr; <code>stg_source_profiles</code></div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">ChildStory · <code>CP:CP-REC-10001</code></div>
+                <div class="arch-item-desc"><strong>Lachlan James Smith</strong> (Preferred: <em>Lachie</em>) · DOB <code>2009-01-01</code> (Verified) · ID <code>CS-10001</code> · Mother: <em>Ava Smith</em></div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">InfoShare · <code>FP:FP-CL-50001</code></div>
+                <div class="arch-item-desc"><strong>Lachlan Smith</strong> · DOB <code>2009-01-01</code> · Phone <code>+61411000000</code> · IDs: <code>CS-10001</code>, <code>CNI-700000</code>, <code>NDIS&nbsp;431000000</code></div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">Youth Justice · <code>YJ:YJ-30001</code></div>
+                <div class="arch-item-desc"><strong>Lachie Smith</strong> (nickname, <strong>no IDs or phone</strong>) · DOB <code>2009-01-01</code> · <code>160 Darling St, Penrith</code></div>
+              </div>
+            </div>
+
+            <!-- Stage 2: Hybrid Person Match -->
+            <div class="arch-zone z-green" data-active-step="2">
+              <div class="arch-zone-hdr">
+                <div class="arch-zone-title"><span>2. Hybrid Match</span><span class="step-num" style="background:var(--secondary-light);color:var(--secondary);">02</span></div>
+                <div class="arch-zone-sub"><code>candidate_pair_tiers</code></div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">ChildStory &harr; InfoShare</div>
+                <div class="arch-item-desc">Shares rare ID <code>CS-10001</code> + phone + home address (<code>is_hub = FALSE</code>, rarity <code>29.76</code>) &rarr; <strong><code>AUTO_MATCH</code></strong></div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">ChildStory &harr; Youth Justice</div>
+                <div class="arch-item-desc"><code>YJ-30001</code> has <strong>no IDs/phone</strong> and uses <em>"Lachie"</em> vs <em>"Lachlan"</em> (rarity <code>10.69</code>, below auto-link)</div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">BigQuery Vector Search</div>
+                <div class="arch-item-desc">Matches <em>"Lachlan"</em> &harr; <em>"Lachie"</em> at <strong><code>0.9359</code> vector similarity</strong> (<code>RRF = 0.0328</code>) &rarr; <strong><code>GREY_ZONE</code></strong></div>
+              </div>
+            </div>
+
+            <!-- Stage 3: Gemini Platform Adjudicator -->
+            <div class="arch-zone z-amber" data-active-step="3">
+              <div class="arch-zone-hdr">
+                <div class="arch-zone-title"><span>3. AI Adjudicator</span><span class="step-num" style="background:var(--accent-light);color:#B4680E;">03</span></div>
+                <div class="arch-zone-sub"><code>person_match_adjudications</code></div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">Gemini Platform (Gemini 3.5)</div>
+                <div class="arch-item-desc">Reviews borderline pair <code>CP:CP-REC-10001</code> &harr; <code>YJ:YJ-30001</code> via connection <code>dcj-conn</code></div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">Verdict: <code>MATCH</code> (Confidence <code>1.00</code>)</div>
+                <div class="arch-item-desc"><em>"'Lachlan' and 'Lachie' are a known diminutive match sharing DOB 2009-01-01, 160 Darling St, and mother Ava Smith."</em></div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">Person Record Grouping</div>
+                <div class="arch-item-desc">Combines <code>AUTO_MATCH</code> + <code>GEMINI_ADJUDICATOR</code> links into 1 cluster (<code>cluster_size = 3</code>)</div>
+              </div>
+            </div>
+
+            <!-- Stage 4: Master View & Graph -->
+            <div class="arch-zone z-purple" data-active-step="4">
+              <div class="arch-zone-hdr">
+                <div class="arch-zone-title"><span>4. Unified Master View</span><span class="step-num" style="background:var(--gcp-purple-light);color:var(--gcp-purple);">04</span></div>
+                <div class="arch-zone-sub"><code>dcj_tdm</code> &amp; <code>dcj_person_graph</code></div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">Master Person · <code>PER-698E72DBC085</code></div>
+                <div class="arch-item-desc">Primary Name: <strong>Lachlan James Smith</strong> (<code>2009-01-01 Verified</code>, <code>Aboriginal</code>) + <strong>5 names</strong> &amp; <strong>4 IDs</strong></div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">Verified Street Address</div>
+                <div class="arch-item-desc">Linked to <code>GNAF-NSW-00003</code> (<code>160 DARLING ST, PENRITH NSW 2750</code>, <code>-33.7551, 150.6978</code>)</div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">Property Graph Relationships</div>
+                <div class="arch-item-desc"><code>Son</code> &harr; <code>Mother</code> (<em>Ava Smith</em> <code>PER-CBC2AAB53745</code>) &amp; Member of <code>GRP-8001</code></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Live Demo Data Progression Strip -->
+          <div class="arch-flow-bar scaffold-group">
+            <div class="arch-flow-step" data-active-step="1"><span><strong>Stage 1:</strong> 3 Source Records</span><span>&rarr;</span></div>
+            <div class="arch-flow-step" data-active-step="2"><span><strong>Stage 2:</strong> 1 Auto + 1 Vector (<code>0.9359</code>)</span><span>&rarr;</span></div>
+            <div class="arch-flow-step" data-active-step="3"><span><strong>Stage 3:</strong> Gemini 3.5 <code>MATCH</code> (<code>1.00</code>)</span><span>&rarr;</span></div>
+            <div class="arch-flow-step" data-active-step="4"><span><strong>Stage 4:</strong> Golden <code>PER-698E72DBC085</code></span><span>&#10003;</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =====================================================================
+           SLIDE 7 (8/10): REAL-TIME SEARCH FUNCTION & AUDIT LOG (2 STEPS)
+           ===================================================================== -->
+      <div class="s" data-idx="7" data-steps="2"
            data-notes="<strong>Step 0 (Overview):</strong> Frontline intake systems call a single SQL function to search across programs, backed by a permanent AI audit log."
            data-notes-1="<strong>Step 1 (Real-Time Search Function):</strong> Calling dcj_tdm.fn_person_match for 'Lachie Smith' finds Master Person PER-698E72DBC085 across ChildStory, InfoShare, and Youth Justice."
            data-notes-2="<strong>Step 2 (Written Audit Log):</strong> Every borderline match decision records the model version, confidence score, and plain-English explanation.">
         <div class="slide-header">
           <div class="top-bar">
-            <span class="badge">6 · REAL-TIME SEARCH &amp; AUDITABLE AI DECISIONS</span>
+            <span class="badge">7 · REAL-TIME SEARCH &amp; AUDITABLE AI DECISIONS</span>
             <span class="gcp-pill">Live Search: <code>dcj_tdm.fn_person_match</code></span>
           </div>
           <h2>Search across systems in real time with a <span class="hl">written audit trail</span></h2>
@@ -1547,19 +1658,19 @@ ROUND(COALESCE(1.0 / (60 + rank_exact_id), 0.0) + COALESCE(1.0 / (60 + rank_bq_v
                 </thead>
                 <tbody>
                   <tr class="highlight-row">
-                    <td><strong>ChildStory &harr; InfoShare</strong><br/><span style="font-size:11px;color:var(--text-muted);">Foster Care Placement</span></td>
-                    <td><strong>MATCH</strong><br/>98% Confidence</td>
-                    <td>Birth date, gender, and ChildStory ID match; surname change reflects foster placement.</td>
+                    <td><strong><code>CP-REC-10001</code> &harr; <code>YJ-30001</code></strong><br/><span style="font-size:11px;color:var(--text-muted);">Lachlan vs. Lachie Smith</span></td>
+                    <td><strong>MATCH</strong><br/>100% Confidence</td>
+                    <td>'Lachlan' and 'Lachie' are a diminutive match; DOB 2009-01-01, 160 Darling St Penrith, and mother Ava Smith match.</td>
                   </tr>
                   <tr>
-                    <td><strong>ChildStory Twin Pair</strong><br/><span style="font-size:11px;color:var(--text-muted);">Same Birth Date &amp; Home</span></td>
-                    <td><strong>NO MATCH</strong><br/>99% Confidence</td>
-                    <td>Shared birth date and address belong to co-residing twins with distinct first names and separate IDs.</td>
+                    <td><strong><code>FP-CL-50111</code> &harr; <code>FP-CL-50112</code></strong><br/><span style="font-size:11px;color:var(--text-muted);">Chloe vs. Phoebe Young (Twins)</span></td>
+                    <td><strong>NO MATCH</strong><br/>100% Confidence</td>
+                    <td>Shared DOB (2014-11-11), 81 Elizabeth St Bankstown, and phone belong to co-residing twins with distinct given names.</td>
                   </tr>
                   <tr class="highlight-row">
-                    <td><strong>ChildStory &harr; Youth Justice</strong><br/><span style="font-size:11px;color:var(--text-muted);">Cultural Name Alias</span></td>
-                    <td><strong>MATCH</strong><br/>96% Confidence</td>
-                    <td>Youth Justice record uses traditional cultural name listed as an alias in ChildStory; address and birth date match.</td>
+                    <td><strong><code>CP-REC-10239</code> &harr; <code>FP-CL-50239</code></strong><br/><span style="font-size:11px;color:var(--text-muted);">Evie Nguyen (Estimated DOB)</span></td>
+                    <td><strong>MATCH</strong><br/>100% Confidence</td>
+                    <td>InfoShare DOB 2010-01-01 is marked ESTIMATED in same birth year as ChildStory VERIFIED DOB (2010-05-18); address &amp; phone match.</td>
                   </tr>
                 </tbody>
               </table>
@@ -1569,16 +1680,16 @@ ROUND(COALESCE(1.0 / (60 + rank_exact_id), 0.0) + COALESCE(1.0 / (60 + rank_bq_v
       </div>
 
       <!-- =====================================================================
-           SLIDE 7 (8/9): 3-METHOD BENCHMARK & 8-SCENARIO SCORECARD (3 STEPS)
+           SLIDE 8 (9/10): 3-METHOD BENCHMARK & 8-SCENARIO SCORECARD (3 STEPS)
            ===================================================================== -->
-      <div class="s" data-idx="7" data-steps="3"
+      <div class="s" data-idx="8" data-steps="3"
            data-notes="<strong>Step 0 (Overview):</strong> We evaluated three matching methods against 600 known individuals (655 true cross-record pairs)."
            data-notes-1="<strong>Step 1 (Method 1 — Basic Linkage Key + Shared Address):</strong> Collapses 75 crisis shelter residents into a single person, causing 4,420 false links (12.8% precision)."
            data-notes-2="<strong>Step 2 (Method 2 — Strict ID Rules):</strong> Avoids the shelter merge, but falsely merges twins (120 false links) and misses 117 true matches."
            data-notes-3="<strong>Step 3 (Method 3 — BigQuery Hybrid &amp; Vector Search + Gemini Platform AI Adjudicator):</strong> Finds 100% of true matches (655/655) with 99.4% accuracy and zero false merges across all 8 test scenarios.">
         <div class="slide-header">
           <div class="top-bar">
-            <span class="badge">7 · VERIFIED ACCURACY AGAINST 600 TRUE PEOPLE</span>
+            <span class="badge">8 · VERIFIED ACCURACY AGAINST 600 TRUE PEOPLE</span>
             <span class="gcp-pill">100% of True Matches Found · 0 False Shelter Merges</span>
           </div>
           <h2><span class="hl-green">99.4% match accuracy</span> and zero false merges across all 8 test scenarios</h2>
@@ -1682,16 +1793,16 @@ ROUND(COALESCE(1.0 / (60 + rank_exact_id), 0.0) + COALESCE(1.0 / (60 + rank_bq_v
       </div>
 
       <!-- =====================================================================
-           SLIDE 8 (9/9): BIGQUERY KNOWLEDGE CATALOG BUSINESS GLOSSARY (3 STEPS)
+           SLIDE 9 (10/10): BIGQUERY KNOWLEDGE CATALOG BUSINESS GLOSSARY (3 STEPS)
            ===================================================================== -->
-      <div class="s" data-idx="8" data-steps="3"
+      <div class="s" data-idx="9" data-steps="3"
            data-notes="<strong>Step 0 (Overview):</strong> All 118 business definitions and metrics are governed in BigQuery Knowledge Catalog."
            data-notes-1="<strong>Step 1 (Core Person, Names &amp; Street Addresses):</strong> 75 definitions covering master person attributes, 16 name types, government IDs, and verified NSW addresses."
            data-notes-2="<strong>Step 2 (Family Ties, Source Links &amp; AI Audit Log):</strong> 43 definitions covering standardized kinship relationships, source lineage, protection orders, and AI review rationales."
            data-notes-3="<strong>Step 3 (One-Command Repeatable Build):</strong> Running ./run.sh --all executes all SQL stages and syncs all 118 glossary definitions to BigQuery.">
         <div class="slide-header">
           <div class="top-bar">
-            <span class="badge">8 · DATA GOVERNANCE · BIGQUERY KNOWLEDGE CATALOG</span>
+            <span class="badge">9 · DATA GOVERNANCE · BIGQUERY KNOWLEDGE CATALOG</span>
             <span class="gcp-pill">Glossary: <code>dcj_person_cdm_glossary</code></span>
           </div>
           <h2>118 plain-English <span class="hl">business definitions</span> linked to every table column</h2>
@@ -1763,7 +1874,7 @@ ROUND(COALESCE(1.0 / (60 + rank_exact_id), 0.0) + COALESCE(1.0 / (60 + rank_bq_v
     <div class="chrome-left">
       <button class="c-btn" onclick="show(0, 0)" title="Home">⌂ Home</button>
       <button class="c-btn" onclick="prev()" title="Previous (Left Arrow)">← Prev</button>
-      <span class="counter" id="ctr">1 / 8</span>
+      <span class="counter" id="ctr">1 / 10</span>
       <button class="c-btn" onclick="next()" title="Next (Right Arrow / Space)">Next →</button>
     </div>
     <div class="chrome-right">
