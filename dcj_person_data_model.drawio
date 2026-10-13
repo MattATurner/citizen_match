@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-07-15T12:00:00.000Z" agent="Dendrite" version="24.0.0" type="device">
+  <diagram id="Dendrite_Diagram" name="Architecture">
+    <mxGraphModel dx="1422" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3000" pageHeight="4000" math="0" shadow="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="cell_2" value="Google Cloud" style="swimlane;fontStyle=1;horizontal=1;startSize=30;collapsible=1;rounded=1;fillColor=#f8fafd;strokeColor=#c2d7f5;strokeWidth=1.5;fontColor=#202124;fontSize=14;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="1100" height="474" as="geometry" />
+        </mxCell>
+        <mxCell id="cell_3" value="1. Source Data Model" style="swimlane;fontStyle=1;horizontal=1;startSize=30;collapsible=1;rounded=1;fillColor=#e8f0fe;strokeColor=#8ab4f8;strokeWidth=1.5;fontColor=#202124;fontSize=14;shadow=1;" vertex="1" parent="cell_2">
+          <mxGeometry x="24" y="86" width="242" height="364" as="geometry" />
+        </mxCell>
+        <mxCell id="cell_4" value="2. Hybrid Match Engine" style="swimlane;fontStyle=1;horizontal=1;startSize=30;collapsible=1;rounded=1;fillColor=#e6f4ea;strokeColor=#81c995;strokeWidth=1.5;fontColor=#202124;fontSize=14;shadow=1;" vertex="1" parent="cell_2">
+          <mxGeometry x="294" y="86" width="242" height="364" as="geometry" />
+        </mxCell>
+        <mxCell id="cell_5" value="3. Gemini Adjudicator" style="swimlane;fontStyle=1;horizontal=1;startSize=30;collapsible=1;rounded=1;fillColor=#fef7e0;strokeColor=#fde293;strokeWidth=1.5;fontColor=#202124;fontSize=14;shadow=1;" vertex="1" parent="cell_2">
+          <mxGeometry x="564" y="86" width="242" height="364" as="geometry" />
+        </mxCell>
+        <mxCell id="cell_6" value="4. Target Model &amp; Graph" style="swimlane;fontStyle=1;horizontal=1;startSize=30;collapsible=1;rounded=1;fillColor=#f3e8fd;strokeColor=#c084fc;strokeWidth=1.5;fontColor=#202124;fontSize=14;shadow=1;" vertex="1" parent="cell_2">
+          <mxGeometry x="834" y="86" width="242" height="364" as="geometry" />
+        </mxCell>
+        <mxCell id="cell_7" value="&lt;b&gt;[BigQuery] Child Protection&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#64748B&#39; size=&#39;1&#39;&gt;ChildStory · 450 rows&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#dadce0;strokeWidth=1;fontColor=#202124;fontSize=13;shadow=1;" vertex="1" parent="cell_3">
+          <mxGeometry x="16" y="66" width="210" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cell_8" value="&lt;b&gt;[BigQuery] Family Preservation&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#64748B&#39; size=&#39;1&#39;&gt;InfoShare · 380 rows&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#dadce0;strokeWidth=1;fontColor=#202124;fontSize=13;shadow=1;" vertex="1" parent="cell_3">
+          <mxGeometry x="16" y="140" width="210" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cell_9" value="&lt;b&gt;[BigQuery] Youth Justice&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#64748B&#39; size=&#39;1&#39;&gt;KIMS / CNI · 320 rows&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#dadce0;strokeWidth=1;fontColor=#202124;fontSize=13;shadow=1;" vertex="1" parent="cell_3">
+          <mxGeometry x="16" y="214" width="210" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cell_10" value="&lt;b&gt;[MapsGeospatial] NSW GNAF Spine&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#64748B&#39; size=&#39;1&#39;&gt;Geocoded · 260 PIDs&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#dadce0;strokeWidth=1;fontColor=#202124;fontSize=13;shadow=1;" vertex="1" parent="cell_3">
+          <mxGeometry x="16" y="288" width="210" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cell_11" value="&lt;b&gt;[BigQuery] Bipartite IDF Graph&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#64748B&#39; size=&#39;1&#39;&gt;SLK-581 · CNI · NDIS · Hub Guard&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1a73e8;strokeWidth=2;fontColor=#202124;fontSize=13;shadow=1;" vertex="1" parent="cell_4">
+          <mxGeometry x="16" y="78.42857142857144" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="cell_12" value="&lt;b&gt;[Gemini] Gemini Platform Embed&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#64748B&#39; size=&#39;1&#39;&gt;AI.EMBED + VECTOR_SEARCH&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#dadce0;strokeWidth=1;fontColor=#202124;fontSize=13;shadow=1;" vertex="1" parent="cell_4">
+          <mxGeometry x="16" y="177" width="210" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cell_13" value="&lt;b&gt;[BigQuery] RRF + Kinship Scorer&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#64748B&#39; size=&#39;1&#39;&gt;Reciprocal Rank Fusion (k=60)&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1a73e8;strokeWidth=2;fontColor=#202124;fontSize=13;shadow=1;" vertex="1" parent="cell_4">
+          <mxGeometry x="16" y="271.57142857142856" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="cell_14" value="&lt;b&gt;[Dataflow] Two-Pass Clustering&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#64748B&#39; size=&#39;1&#39;&gt;Connected Components + Guard&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1a73e8;strokeWidth=2;fontColor=#202124;fontSize=13;shadow=1;" vertex="1" parent="cell_5">
+          <mxGeometry x="16" y="78.42857142857144" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="cell_15" value="&lt;b&gt;[CloudAuditLogs] Immutable Audit Ledger&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#64748B&#39; size=&#39;1&#39;&gt;Verdict · Evidence · Tokens&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#dadce0;strokeWidth=1;fontColor=#202124;fontSize=13;shadow=1;" vertex="1" parent="cell_5">
+          <mxGeometry x="16" y="177" width="210" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cell_16" value="&lt;b&gt;[Gemini] Gemini Platform Judge&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#64748B&#39; size=&#39;1&#39;&gt;AI.GENERATE · 391 Grey-Zone&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1a73e8;strokeWidth=2;fontColor=#202124;fontSize=13;shadow=1;" vertex="1" parent="cell_5">
+          <mxGeometry x="16" y="271.57142857142856" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="cell_17" value="&lt;b&gt;[BigQuery] 9 Mastered TDM Tables&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#64748B&#39; size=&#39;1&#39;&gt;599 Golden Persons · F1 0.997&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1a73e8;strokeWidth=2;fontColor=#202124;fontSize=13;shadow=1;" vertex="1" parent="cell_6">
+          <mxGeometry x="16" y="78.42857142857144" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="cell_18" value="&lt;b&gt;[BigQuery] Property Graph &amp; TVF&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#64748B&#39; size=&#39;1&#39;&gt;dcj_person_graph · fn_person_match&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1a73e8;strokeWidth=2;fontColor=#202124;fontSize=13;shadow=1;" vertex="1" parent="cell_6">
+          <mxGeometry x="16" y="177" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="cell_19" value="&lt;b&gt;[Dataplex] Knowledge Catalog&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#64748B&#39; size=&#39;1&#39;&gt;118 Glossary Terms &amp; Links&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#dadce0;strokeWidth=1;fontColor=#202124;fontSize=13;shadow=1;" vertex="1" parent="cell_6">
+          <mxGeometry x="16" y="275.57142857142856" width="210" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_20" value="ChildStory" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1a73e8;strokeWidth=2;fontColor=#334155;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="cell_7" target="cell_11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_21" value="InfoShare" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1a73e8;strokeWidth=2;fontColor=#334155;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="cell_8" target="cell_11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_22" value="KIMS / CNI" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1a73e8;strokeWidth=2;fontColor=#334155;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="cell_9" target="cell_11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_23" value="GNAF PIDs" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1a73e8;strokeWidth=2;fontColor=#334155;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="cell_10" target="cell_11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_24" value="1,150 Profiles" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1e8e3e;strokeWidth=2;fontColor=#334155;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="cell_11" target="cell_12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_25" value="Cosine Top-K" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1e8e3e;strokeWidth=2;fontColor=#334155;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="cell_12" target="cell_13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_26" value="391 Grey-Zone" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d97706;strokeWidth=2;fontColor=#334155;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="cell_13" target="cell_16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_27" value="405 Auto-Match" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1e8e3e;strokeWidth=2;fontColor=#334155;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="cell_13" target="cell_14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_28" value="JSON Verdicts" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d97706;strokeWidth=2;fontColor=#334155;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="cell_16" target="cell_15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_29" value="Audited Edges" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d97706;strokeWidth=2;fontColor=#334155;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="cell_15" target="cell_14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_30" value="599 Golden IDs" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7c3aed;strokeWidth=2;fontColor=#334155;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="cell_14" target="cell_17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_31" value="8 Nodes · 9 Edges" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7c3aed;strokeWidth=2;fontColor=#334155;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="cell_17" target="cell_18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_32" value="118 Terms" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7c3aed;strokeWidth=2;fontColor=#334155;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="cell_18" target="cell_19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
