@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="NSW Department of Communities and Justice (DCJ) — First Iteration Unified Person & Family Data Model, BigQuery Hybrid Search, Gemini Platform AI Review, BigQuery Property Graph, and BigQuery Knowledge Catalog." />
+  <meta name="description" content="NSW Department of Communities and Justice (DCJ) — First Iteration Unified Person & Family Data Model, BigQuery Hybrid & Vector Search, Gemini Platform AI Adjudicator (Gemini 3.5), BigQuery Property Graph, and BigQuery Knowledge Catalog." />
   <meta name="tags" content="NSW DCJ,Person Data Model,System Architecture,BigQuery Property Graph,Hybrid Search,Gemini Platform,Knowledge Catalog">
   <title>NSW DCJ — Unified Person &amp; Family Data Model on Google Cloud</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -992,8 +992,8 @@
               </div>
             </div>
             <div class="badge-group" style="margin-top: 4px; flex-wrap: wrap;">
-              <span class="badge">BigQuery Hybrid Search</span>
-              <span class="badge green">Gemini Platform AI Review</span>
+              <span class="badge">BigQuery Hybrid &amp; Vector Search</span>
+              <span class="badge green">Gemini Platform AI Adjudicator (Gemini 3.5)</span>
               <span class="badge amber">BigQuery Property Graph</span>
               <span class="badge">BigQuery Knowledge Catalog</span>
             </div>
@@ -1129,31 +1129,31 @@
             <div class="arch-zone z-green" data-active-step="2">
               <div class="arch-zone-hdr">
                 <div class="arch-zone-title"><span>2. Hybrid Person Match</span><span class="step-num" style="background:var(--secondary-light);color:var(--secondary);">02</span></div>
-                <div class="arch-zone-sub">Shared IDs + AI Search</div>
+                <div class="arch-zone-sub">Shared IDs + BigQuery Vector Search</div>
               </div>
               <div class="arch-item">
                 <div class="arch-item-title">Shared-ID &amp; Shelter Filter</div>
                 <div class="arch-item-desc">Gives high weight to unique IDs and flags shared crisis shelters (&gt;5 people)</div>
               </div>
               <div class="arch-item">
-                <div class="arch-item-title">AI Name &amp; Profile Search</div>
-                <div class="arch-item-desc"><strong>Gemini Platform</strong> vector search finds people across nicknames and typos</div>
+                <div class="arch-item-title">BigQuery Vector Search</div>
+                <div class="arch-item-desc">Native <strong>BigQuery Vector Search</strong> finds people across nicknames and typos</div>
               </div>
               <div class="arch-item">
                 <div class="arch-item-title">Combined Match Scoring</div>
-                <div class="arch-item-desc">Blends exact IDs, AI similarity, and shared family members</div>
+                <div class="arch-item-desc">Blends exact IDs, BigQuery vector similarity, and shared family members</div>
               </div>
             </div>
 
-            <!-- Zone 3: AI Review & Grouping -->
+            <!-- Zone 3: Gemini Platform AI Adjudicator -->
             <div class="arch-zone z-amber" data-active-step="3">
               <div class="arch-zone-hdr">
-                <div class="arch-zone-title"><span>3. AI Review &amp; Grouping</span><span class="step-num" style="background:var(--accent-light);color:#B4680E;">03</span></div>
-                <div class="arch-zone-sub">Gemini Platform + Audit Log</div>
+                <div class="arch-zone-title"><span>3. AI Adjudicator &amp; Grouping</span><span class="step-num" style="background:var(--accent-light);color:#B4680E;">03</span></div>
+                <div class="arch-zone-sub">Gemini Platform (Gemini 3.5)</div>
               </div>
               <div class="arch-item">
-                <div class="arch-item-title">Gemini Platform AI Review</div>
-                <div class="arch-item-desc">Reviews 391 borderline record pairs (foster surnames, twins, cultural names)</div>
+                <div class="arch-item-title">Gemini Platform AI Adjudicator</div>
+                <div class="arch-item-desc">Connects to <strong>Gemini 3.5</strong> on <strong>Gemini Platform</strong> to adjudicate 391 borderline pairs</div>
               </div>
               <div class="arch-item">
                 <div class="arch-item-title">Written Audit Log</div>
@@ -1410,17 +1410,17 @@
            SLIDE 5 (6/9): HYBRID PERSON MATCH ENGINE (4 STEPS)
            ===================================================================== -->
       <div class="s" data-idx="5" data-steps="4"
-           data-notes="<strong>Step 0 (Overview):</strong> Our 4-stage Hybrid Person Match Engine runs entirely inside BigQuery SQL."
+           data-notes="<strong>Step 0 (Overview):</strong> Our 4-stage Hybrid Person Match Engine runs inside BigQuery SQL and connects to Gemini 3.5 on Gemini Platform for borderline adjudication."
            data-notes-1="<strong>Step 1 (Shared-ID Filter):</strong> Scores how rare each shared ID, phone, or address is, and flags crisis shelters (&gt;5 people) so residents are never auto-merged."
-           data-notes-2="<strong>Step 2 (AI Vector Search):</strong> Uses Gemini Platform vector search to match records despite typos and nicknames."
-           data-notes-3="<strong>Step 3 (Combined Scoring):</strong> Combines exact ID rank and AI similarity rank, checks family relationships, and protects twins from auto-merging."
-           data-notes-4="<strong>Step 4 (Gemini Platform AI Review):</strong> Sends only the 391 borderline pairs to gemini-2.5-flash on Gemini Platform and writes a full explanation to the audit log.">
+           data-notes-2="<strong>Step 2 (BigQuery Vector Search):</strong> Uses native BigQuery Vector Search (AI.EMBED + VECTOR_SEARCH) to match records despite typos and nicknames."
+           data-notes-3="<strong>Step 3 (Combined Scoring):</strong> Combines exact ID rank and BigQuery Vector Search rank, checks family relationships, and protects twins from auto-merging."
+           data-notes-4="<strong>Step 4 (Gemini Platform AI Adjudicator):</strong> Sends only the 391 borderline pairs via BigQuery connection to Gemini 3.5 (gemini-3.5-flash) on Gemini Platform and writes a full explanation to the audit log.">
         <div class="slide-header">
           <div class="top-bar">
             <span class="badge">5 · HYBRID PERSON MATCH ENGINE</span>
-            <span class="gcp-pill">4-Stage Matching Pipeline in BigQuery</span>
+            <span class="gcp-pill">BigQuery Vector Search + Gemini Platform AI Adjudicator</span>
           </div>
-          <h2>Combine shared-ID rarity, <span class="hl">AI vector search</span>, family ties, and AI review</h2>
+          <h2>Combine shared-ID rarity, <span class="hl">BigQuery vector search</span>, and Gemini 3.5 adjudication</h2>
         </div>
 
         <div class="body">
@@ -1434,33 +1434,33 @@
 
             <div class="arch-node" data-active-step="2">
               <div class="step-meta"><span>STAGE 02</span><span class="step-num">02</span></div>
-              <h3>AI Vector Search</h3>
-              <p><strong>Handles typos &amp; nicknames:</strong> Uses <strong>Gemini Platform</strong> embeddings (<code>AI.EMBED</code>) to find similar profiles when names change.</p>
-              <span class="badge-inline green">Finds Similar Names</span>
+              <h3>BigQuery Vector Search</h3>
+              <p><strong>Handles typos &amp; nicknames:</strong> Native <strong>BigQuery Vector Search</strong> (<code>AI.EMBED</code> + <code>VECTOR_SEARCH</code>) finds similar profiles when names change.</p>
+              <span class="badge-inline green">BigQuery Native Vector Search</span>
             </div>
 
             <div class="arch-node" data-active-step="3">
               <div class="step-meta"><span>STAGE 03</span><span class="step-num">03</span></div>
               <h3>Combined Scoring</h3>
-              <p><strong>Merges ID + AI ranks:</strong> Boosts score when records share a mother or carer, and blocks auto-merging when twins share a birth date.</p>
+              <p><strong>Merges ID + vector ranks:</strong> Boosts score when records share a mother or carer, and blocks auto-merging when twins share a birth date.</p>
               <span class="badge-inline amber">Family &amp; Twin Safeguard</span>
             </div>
 
             <div class="arch-node" data-active-step="4">
               <div class="step-meta"><span>STAGE 04</span><span class="step-num">04</span></div>
-              <h3>Gemini AI Review</h3>
-              <p><strong>Written audit reasons:</strong> Reviews the 391 borderline pairs with <code>gemini-2.5-flash</code> on <strong>Gemini Platform</strong> and logs every decision.</p>
-              <span class="badge-inline">391 Borderline Pairs</span>
+              <h3>Gemini Platform Adjudicator</h3>
+              <p><strong>Written audit reasons:</strong> Adjudicates the 391 borderline pairs via BigQuery connection to <strong>Gemini 3.5</strong> on <strong>Gemini Platform</strong>.</p>
+              <span class="badge-inline">Gemini 3.5 · 391 Pairs</span>
             </div>
           </div>
 
           <div class="code-box scaffold-group">
-            <div class="code-chunk" data-active-step="1,2,3"><span class="c-cm">-- Stages 1 to 3: Combine exact ID match rank and Gemini Platform AI similarity rank</span>
-ROUND(COALESCE(1.0 / (60 + rank_exact_id), 0.0) + COALESCE(1.0 / (60 + rank_ai_similarity), 0.0), 6) <span class="c-kw">AS</span> combined_match_score,</div>
-            <div class="code-chunk" data-active-step="4"><span class="c-cm">-- Stage 4: Ask Gemini Platform to review borderline pairs and return a written explanation</span>
+            <div class="code-chunk" data-active-step="1,2,3"><span class="c-cm">-- Stages 1 to 3: Combine exact ID match rank and BigQuery Vector Search similarity rank</span>
+ROUND(COALESCE(1.0 / (60 + rank_exact_id), 0.0) + COALESCE(1.0 / (60 + rank_bq_vector_search), 0.0), 6) <span class="c-kw">AS</span> combined_match_score,</div>
+            <div class="code-chunk" data-active-step="4"><span class="c-cm">-- Stage 4: Gemini Platform AI Adjudicator via BigQuery connection to Gemini 3.5</span>
 <span class="c-fn">AI.GENERATE</span>(
   prompt =&gt; CONCAT(<span class="c-str">'Review whether these two NSW DCJ records belong to the same person... '</span>, pair_evidence_summary),
-  connection_id =&gt; <span class="c-str">'all-things-cdp.us-central1.dcj-conn'</span>, endpoint =&gt; <span class="c-str">'gemini-2.5-flash'</span>,
+  connection_id =&gt; <span class="c-str">'all-things-cdp.us-central1.dcj-conn'</span>, endpoint =&gt; <span class="c-str">'gemini-3.5-flash'</span>,
   output_schema =&gt; <span class="c-str">'verdict STRING, confidence FLOAT64, contradiction BOOL, rationale STRING, decisive_evidence STRING'</span>
 )</div>
           </div>
@@ -1575,7 +1575,7 @@ ROUND(COALESCE(1.0 / (60 + rank_exact_id), 0.0) + COALESCE(1.0 / (60 + rank_ai_s
            data-notes="<strong>Step 0 (Overview):</strong> We evaluated three matching methods against 600 known individuals (655 true cross-record pairs)."
            data-notes-1="<strong>Step 1 (Method 1 — Basic Linkage Key + Shared Address):</strong> Collapses 75 crisis shelter residents into a single person, causing 4,420 false links (12.8% precision)."
            data-notes-2="<strong>Step 2 (Method 2 — Strict ID Rules):</strong> Avoids the shelter merge, but falsely merges twins (120 false links) and misses 117 true matches."
-           data-notes-3="<strong>Step 3 (Method 3 — DCJ Hybrid Search + Gemini Platform AI Review):</strong> Finds 100% of true matches (655/655) with 99.4% accuracy and zero false merges across all 8 test scenarios.">
+           data-notes-3="<strong>Step 3 (Method 3 — BigQuery Hybrid &amp; Vector Search + Gemini Platform AI Adjudicator):</strong> Finds 100% of true matches (655/655) with 99.4% accuracy and zero false merges across all 8 test scenarios.">
         <div class="slide-header">
           <div class="top-bar">
             <span class="badge">7 · VERIFIED ACCURACY AGAINST 600 TRUE PEOPLE</span>
@@ -1623,7 +1623,7 @@ ROUND(COALESCE(1.0 / (60 + rank_exact_id), 0.0) + COALESCE(1.0 / (60 + rank_ai_s
                 <td>82.14%</td>
               </tr>
               <tr class="highlight-row" data-active-step="3">
-                <td><strong>3 · DCJ Hybrid Search + Gemini Platform AI Review</strong></td>
+                <td><strong>3 · BigQuery Hybrid &amp; Vector Search + Gemini Platform AI Adjudicator (Gemini 3.5)</strong></td>
                 <td><strong>599</strong></td>
                 <td><strong>4</strong></td>
                 <td><strong>0</strong></td>
@@ -1738,7 +1738,7 @@ ROUND(COALESCE(1.0 / (60 + rank_exact_id), 0.0) + COALESCE(1.0 / (60 + rank_ai_s
 
           <div class="scaffold-group">
             <div class="code-box" data-active-step="3">
-              <div class="code-chunk is-spotlight"><span class="c-cm"># Repeatable One-Command Build: Source Tables -> Hybrid Search -> Gemini Platform AI Review -> Property Graph -> Knowledge Catalog</span>
+              <div class="code-chunk is-spotlight"><span class="c-cm"># Repeatable One-Command Build: Source Tables -> BigQuery Vector Search -> Gemini Platform AI Adjudicator (Gemini 3.5) -> Property Graph -> Knowledge Catalog</span>
 ./run.sh --all</div>
             </div>
           </div>
