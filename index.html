@@ -254,7 +254,7 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      transition: all 0.22s ease;
+      transition: all 0.25s ease;
     }
 
     .card.accent-blue { border-top: 3px solid var(--blue); }
@@ -341,6 +341,7 @@
       border: 1px solid #1E293B;
       overflow: hidden;
       white-space: pre-wrap;
+      transition: all 0.25s ease;
     }
 
     code.inline {
@@ -389,10 +390,10 @@
       font-weight: 600;
     }
 
-    /* Progressive Build Mechanics */
+    /* Progressive Build & Focus-Spotlight Mechanics */
     [data-build] {
-      opacity: 0.16;
-      filter: grayscale(40%);
+      opacity: 0.14;
+      filter: grayscale(55%);
       transform: translateY(3px);
       transition: opacity 0.28s ease, transform 0.28s ease, filter 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
     }
@@ -405,6 +406,10 @@
 
     [data-build].current-step {
       box-shadow: 0 0 0 2px var(--blue), var(--shadow-md);
+    }
+
+    tr[data-build].current-step {
+      box-shadow: inset 4px 0 0 var(--blue);
     }
 
     .slide-footer {
@@ -533,8 +538,6 @@
   <meta name="tags" content="NSW DCJ,Person Data Model,BigQuery Property Graph,Hybrid Search,Gemini Platform,Knowledge Catalog">
   <meta name="deck-role" content="master">
   <meta name="catalog-visibility" content="visible">
-  <meta name="git-commit" content="0d085e8">
-  <meta name="published-at" content="2026-10-13T06:00:54Z">
 </head>
 <body>
   <div id="viewport">
@@ -595,12 +598,17 @@
       </section>
 
       <!-- ================================================================
-           SLIDE 2: THE CHALLENGE — SOURCE FRAGMENTATION & NAIVE MATCH FAILURES
+           SLIDE 2: THE CHALLENGE — 4-STEP PROGRESSIVE BUILD
            ================================================================ -->
-      <section class="slide" data-notes="Slide 2 explains why simple rule-based matching fails across DCJ's 14 source tables. Standard rules merge twins who share the same statistical linkage key (SLK-581) and falsely combine 75 unrelated residents staying at the same Women's Crisis Refuge into a single person record.">
+      <section class="slide" data-steps="4"
+        data-notes="Step 1 introduces the four disconnected source data domains (1,150 source records representing 600 real people)."
+        data-notes-1="Step 1 (4 Source Domains): Child Protection, Family Preservation, Youth Justice, and NSW Street Addresses each store partial person details with separate IDs."
+        data-notes-2="Step 2 (Failure Mode 1 — Shared Crisis Shelters): 25 unrelated families (75 records) stay at the same crisis shelter. Naive address matching merges all 75 people into one record."
+        data-notes-3="Step 3 (Failure Mode 2 — Twins): Same-sex twins share birth date, address, phone, and statistical linkage key (SLK-581). Standard rules falsely merge twins together."
+        data-notes-4="Step 4 (Failure Mode 3 — Cultural & Foster Names): Out-of-home care surname changes and traditional cultural names cause strict rules to miss 117 true matches.">
         <div class="slide-header">
           <div>
-            <div class="eyebrow">1 · The Challenge Across Source Systems</div>
+            <div class="eyebrow">1 · The Challenge Across Source Systems · Progressive Build (4 Steps)</div>
             <h2>Why Simple Matching Rules Fail Across Child, Family, and Youth Systems</h2>
             <p class="subtitle">Fourteen separate source tables record the same children, carers, and youth using different IDs, estimated birth dates, cultural names, and shared shelter addresses.</p>
           </div>
@@ -608,71 +616,54 @@
         </div>
 
         <div class="slide-body">
+          <!-- Step 1: The 4 Source Domains -->
           <div class="grid-4">
-            <div class="card accent-blue">
+            <div class="card accent-blue" data-build="1">
               <div class="card-title">
                 <span>Child Protection</span>
                 <span class="badge-pill">450 Records</span>
               </div>
-              <p><strong>ChildStory Case System</strong></p>
-              <ul>
-                <li>16 name types (legal, traditional skin names, foster, aliases)</li>
-                <li>78 family relationship labels</li>
-                <li>Domestic violence &amp; safety orders</li>
-              </ul>
+              <p><strong>ChildStory Case System:</strong> Stores 16 name types, 78 family relationship labels, and safety orders.</p>
             </div>
 
-            <div class="card accent-green">
+            <div class="card accent-green" data-build="1">
               <div class="card-title">
                 <span>Family Preservation</span>
                 <span class="badge-pill green">380 Records</span>
               </div>
-              <p><strong>InfoShare Partner Portal</strong></p>
-              <ul>
-                <li>Partner caseworkers record preferred names &amp; estimated birth years</li>
-                <li>Tracks household support groups</li>
-                <li>Partial links back to ChildStory</li>
-              </ul>
+              <p><strong>InfoShare Partner Portal:</strong> Partner caseworkers record preferred names, estimated birth years, and support groups.</p>
             </div>
 
-            <div class="card accent-amber">
+            <div class="card accent-amber" data-build="1">
               <div class="card-title">
                 <span>Youth Justice</span>
                 <span class="badge-pill amber">320 Records</span>
               </div>
-              <p><strong>Youth Case Management</strong></p>
-              <ul>
-                <li>Uses separate Youth Justice &amp; Police IDs</li>
-                <li>Contains street nicknames, spelling errors &amp; free-text addresses</li>
-                <li>Includes youth also in Child Protection</li>
-              </ul>
+              <p><strong>Youth Case Management:</strong> Separate Youth Justice IDs with nicknames, spelling drift, and free-text addresses.</p>
             </div>
 
-            <div class="card accent-purple">
+            <div class="card accent-purple" data-build="1">
               <div class="card-title">
                 <span>NSW Street Addresses</span>
                 <span class="badge-pill purple">260 Locations</span>
               </div>
-              <p><strong>National Address Register (GNAF)</strong></p>
-              <ul>
-                <li>Verified street addresses with map coordinates</li>
-                <li>Includes high-turnover crisis shelters &amp; youth refuges</li>
-              </ul>
+              <p><strong>National Address Register:</strong> Verified map coordinates including high-turnover crisis shelters and refuges.</p>
             </div>
           </div>
 
+          <!-- Steps 2, 3, 4: The 3 Failure Modes revealed one by one -->
           <div class="grid-3">
-            <div class="card accent-red">
-              <div class="card-title">Failure Mode 1 · Shared Crisis Shelters</div>
-              <p><strong>25 unrelated families (75 records)</strong> stay at the same crisis shelter. Naive address and phone matching falsely merges all 75 residents into one person (<strong>dropping accuracy to 12.8%</strong>).</p>
+            <div class="card accent-red" data-build="2">
+              <div class="card-title">1 · Shared Crisis Shelters</div>
+              <p><strong>75 unrelated residents merged:</strong> 25 families stay at the same crisis shelter. Naive address matching combines all 75 people into one record (<strong>12.8% precision</strong>).</p>
             </div>
-            <div class="card accent-red">
-              <div class="card-title">Failure Mode 2 · Twins with Matching Keys</div>
-              <p>Same-sex twins (e.g. <em>Jayden &amp; Jaxon Smith</em>, born <code class="inline">2011-05-14</code>) share the same birth date, address, phone, and government linkage key (<code class="inline">SLK-581</code>). Simple rules merge twins into one child.</p>
+            <div class="card accent-red" data-build="3">
+              <div class="card-title">2 · Twins with Matching Keys</div>
+              <p><strong>Co-residing twins collapsed:</strong> Same-sex twins share birth date, address, phone, and government linkage key (<code class="inline">SLK-581</code>), causing rule engines to merge them.</p>
             </div>
-            <div class="card accent-red">
-              <div class="card-title">Failure Mode 3 · Cultural &amp; Foster Names</div>
-              <p>Children in out-of-home care often take foster surnames, and Aboriginal and Torres Strait Islander clients use traditional skin names — causing strict rules to <strong>miss 117 true matches</strong>.</p>
+            <div class="card accent-red" data-build="4">
+              <div class="card-title">3 · Cultural &amp; Foster Names</div>
+              <p><strong>117 true matches missed:</strong> Foster surname changes and Aboriginal and Torres Strait Islander traditional skin names break exact name rules.</p>
             </div>
           </div>
         </div>
@@ -684,9 +675,14 @@
       </section>
 
       <!-- ================================================================
-           SLIDE 3: TARGET DATA MODEL (9 MASTER TABLES) — PROGRESSIVE BUILD
+           SLIDE 3: TARGET DATA MODEL (9 MASTER TABLES) — 4-STEP BUILD
            ================================================================ -->
-      <section class="slide" data-steps="4" data-notes="Slide 3 walks through the 9 master tables in the Target Data Model (dcj_tdm) across 4 steps: (1) Master Person, Group & Agency Records, (2) Full Name History & Government IDs, (3) Verified NSW Street Addresses & Move History, and (4) Source System Links, Family Ties & Safety Orders.">
+      <section class="slide" data-steps="4"
+        data-notes="Slide 3 walks through the 9 master tables in the Target Data Model (dcj_tdm) across 4 steps."
+        data-notes-1="Step 1: Master Person, Group & Agency Records resolve 1,150 source records into 599 Master People and 82 Groups/Organisations."
+        data-notes-2="Step 2: Full Name History (1,623 names) and Government IDs (1,517 IDs) preserve every alias, foster surname, and cultural name."
+        data-notes-3="Step 3: Verified NSW Street Addresses (260 locations) and Move History (630 residency links) track where each person lived over time."
+        data-notes-4="Step 4: Source System Links (1,150 links), Family Relationships (593 ties), and Safety Orders (45 events) maintain full lineage.">
         <div class="slide-header">
           <div>
             <div class="eyebrow">2 · Target Data Model · Progressive Build (4 Steps)</div>
@@ -704,10 +700,10 @@
                 <span>1 · Master Person, Group &amp; Agency Records</span>
                 <span class="badge-pill">599 People · 82 Groups/Orgs</span>
               </div>
-              <p>Resolves 1,150 source records into <strong>599 Master People</strong> plus 68 Family Preservation Groups and 14 Issuing Agencies.</p>
+              <p><strong>Single master profile:</strong> Resolves 1,150 source records into 599 Master People plus 68 Household Groups and 14 Agencies.</p>
               <ul>
-                <li><code class="inline">dcj_tdm.party</code> (<strong>681 rows</strong>): Holds every Person, Household Group, and Agency.</li>
-                <li><code class="inline">dcj_tdm.person</code> (<strong>599 rows</strong>): Keeps the verified birth date over estimated dates and flags protected individuals.</li>
+                <li><code class="inline">dcj_tdm.party</code> (<strong>681 rows</strong>) &amp; <code class="inline">dcj_tdm.person</code> (<strong>599 rows</strong>)</li>
+                <li>Keeps verified birth dates over estimates and flags protected people.</li>
               </ul>
             </div>
 
@@ -717,10 +713,10 @@
                 <span>2 · Full Name History &amp; Government IDs</span>
                 <span class="badge-pill green">1,623 Names · 1,517 IDs</span>
               </div>
-              <p>Retains every legal name, preferred name, foster name, and traditional cultural name with start and end dates.</p>
+              <p><strong>Every alias searchable:</strong> Retains legal names, preferred names, foster surnames, and cultural names with start/end dates.</p>
               <ul>
-                <li><code class="inline">dcj_tdm.person_name</code> (<strong>1,623 rows</strong>): Flags the current primary legal name while keeping all aliases searchable.</li>
-                <li><code class="inline">dcj_tdm.person_identity_instrument</code> (<strong>1,517 rows</strong>): Tracks ChildStory, Police, NDIS, and Statistical Linkage IDs.</li>
+                <li><code class="inline">dcj_tdm.person_name</code> (<strong>1,623 rows</strong> across 16 name types)</li>
+                <li><code class="inline">dcj_tdm.person_identity_instrument</code> (<strong>1,517 rows</strong> of government IDs)</li>
               </ul>
             </div>
 
@@ -730,10 +726,10 @@
                 <span>3 · Verified NSW Street Addresses &amp; Move History</span>
                 <span class="badge-pill amber">260 Addresses · 630 Stays</span>
               </div>
-              <p>Cleans free-text addresses and links each person to verified NSW property coordinates over time.</p>
+              <p><strong>Geocoded move history:</strong> Cleans free-text addresses and links each person to verified NSW property coordinates over time.</p>
               <ul>
-                <li><code class="inline">dcj_tdm.address_location</code> (<strong>260 rows</strong>): Verified NSW addresses with latitude and longitude.</li>
-                <li><code class="inline">dcj_tdm.address_relation</code> (<strong>630 rows</strong>): Tracks where each person lived and when, including temporary shelter stays.</li>
+                <li><code class="inline">dcj_tdm.address_location</code> (<strong>260 rows</strong> with lat/long)</li>
+                <li><code class="inline">dcj_tdm.address_relation</code> (<strong>630 rows</strong> including temporary shelter stays)</li>
               </ul>
             </div>
 
@@ -743,11 +739,10 @@
                 <span>4 · Source System Links, Family Ties &amp; Safety Orders</span>
                 <span class="badge-pill purple">1,150 Links · 593 Ties</span>
               </div>
-              <p>Preserves full traceability back to source systems alongside family relationships and active protection orders.</p>
+              <p><strong>Complete audit lineage:</strong> Links every master person back to source systems, family networks, and active protection orders.</p>
               <ul>
-                <li><code class="inline">dcj_tdm.person_source_linkage</code> (<strong>1,150 rows</strong>): Links every source record to its master <code class="inline">person_id</code>.</li>
-                <li><code class="inline">dcj_tdm.party_relationship</code> (<strong>593 rows</strong>): Standardizes 78 relationship types into clear family categories.</li>
-                <li><code class="inline">dcj_tdm.person_protection_event</code> (<strong>45 rows</strong>): Active safety &amp; domestic violence orders.</li>
+                <li><code class="inline">dcj_tdm.person_source_linkage</code> (<strong>1,150 rows</strong>)</li>
+                <li><code class="inline">dcj_tdm.party_relationship</code> (<strong>593 rows</strong>) &amp; <code class="inline">person_protection_event</code> (<strong>45 rows</strong>)</li>
               </ul>
             </div>
           </div>
@@ -760,12 +755,16 @@
       </section>
 
       <!-- ================================================================
-           SLIDE 4: TARGET GRAPH REPRESENTATION (dcj_person_graph)
+           SLIDE 4: TARGET GRAPH REPRESENTATION — 3-STEP BUILD
            ================================================================ -->
-      <section class="slide" data-notes="Slide 4 shows the BigQuery Property Graph (all-things-cdp.dcj_tdm.dcj_person_graph). Caseworkers and analysts can traverse from source records to master people, names, addresses, and multi-hop family relationships using standard graph queries in BigQuery.">
+      <section class="slide" data-steps="3"
+        data-notes="Slide 4 walks through the BigQuery Property Graph (dcj_person_graph) in 3 steps."
+        data-notes-1="Step 1 (Graph Structure): Shows how Source Records, Shared Identifiers, Master People, Names, Addresses, IDs, and Safety Orders connect as nodes and edges."
+        data-notes-2="Step 2 (Graph Query): Shows a simple BigQuery GRAPH_TABLE query that traverses family and support-group relationships."
+        data-notes-3="Step 3 (Live Graph Output): Returns immediate family, extended kinship, and twin household relationships across programs.">
         <div class="slide-header">
           <div>
-            <div class="eyebrow">3 · Connected Family &amp; Lineage Graph</div>
+            <div class="eyebrow">3 · Connected Family &amp; Lineage Graph · Progressive Build (3 Steps)</div>
             <h2>Query Family Networks and Record Lineage with BigQuery Property Graph</h2>
             <p class="subtitle">Connects master people, family relationships, addresses, government IDs, and match audit trails in a single BigQuery Property Graph.</p>
           </div>
@@ -774,10 +773,10 @@
 
         <div class="slide-body">
           <div class="grid-2" style="grid-template-columns: 1.08fr 0.92fr; gap: 18px;">
-            <!-- Left: SVG Property Graph Topology -->
-            <div class="card" style="justify-content: center; padding: 12px 14px;">
+            <!-- Step 1: Left SVG Property Graph Topology -->
+            <div class="card" data-build="1" style="justify-content: center; padding: 12px 14px;">
               <div class="card-title" style="font-size: 13.5px; margin-bottom: 4px;">
-                <span>How Records Connect in the Property Graph</span>
+                <span>1 · How Records Connect in the Property Graph</span>
                 <span class="badge-pill green">Master Entities + Match Audit</span>
               </div>
               <svg viewBox="0 0 600 340" style="width: 100%; height: 310px; background: var(--bg-alt); border-radius: 8px; border: 1px solid var(--border);">
@@ -846,9 +845,9 @@
               </svg>
             </div>
 
-            <!-- Right: Verified Graph Query & Output -->
+            <!-- Right: Step 2 (Query) & Step 3 (Output) -->
             <div style="display: flex; flex-direction: column; gap: 12px;">
-              <pre class="code-block">-- Trace Family &amp; Household Links in One Graph Query
+              <pre class="code-block" data-build="2">-- 2 · Trace Family &amp; Household Links in One Graph Query
 SELECT *
 FROM GRAPH_TABLE(
   `all-things-cdp.dcj_tdm.dcj_person_graph`
@@ -862,47 +861,53 @@ FROM GRAPH_TABLE(
   )
 ) LIMIT 4;</pre>
 
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>From Person</th>
-                    <th>Relationship</th>
-                    <th>Category</th>
-                    <th>Connected To</th>
-                    <th>Program</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><strong>Olivia Clark</strong></td>
-                    <td><code class="inline">Grandchild</code></td>
-                    <td>Extended Kinship</td>
-                    <td>Liam Clark</td>
-                    <td>Child Protection</td>
-                  </tr>
-                  <tr>
-                    <td><strong>Phoebe Mundy</strong></td>
-                    <td><code class="inline">Sister</code></td>
-                    <td>Immediate Family</td>
-                    <td>Chloe Mundy (Twin)</td>
-                    <td>Child Protection</td>
-                  </tr>
-                  <tr>
-                    <td><strong>Phoebe Mundy</strong></td>
-                    <td><code class="inline">Group Member</code></td>
-                    <td>Support Group</td>
-                    <td>Mundy Twin HH #29</td>
-                    <td>Family Preservation</td>
-                  </tr>
-                  <tr>
-                    <td><strong>Isla Young</strong></td>
-                    <td><code class="inline">Mother</code></td>
-                    <td>Immediate Family</td>
-                    <td>Xav Young</td>
-                    <td>Child Protection</td>
-                  </tr>
-                </tbody>
-              </table>
+              <div class="card" data-build="3" style="padding: 10px 12px;">
+                <div class="card-title" style="font-size: 13px;">
+                  <span>3 · Live Graph Query Results</span>
+                  <span class="badge-pill purple">Cross-Program Links</span>
+                </div>
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>From Person</th>
+                      <th>Relationship</th>
+                      <th>Category</th>
+                      <th>Connected To</th>
+                      <th>Program</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Olivia Clark</strong></td>
+                      <td><code class="inline">Grandchild</code></td>
+                      <td>Extended Kinship</td>
+                      <td>Liam Clark</td>
+                      <td>Child Protection</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Phoebe Mundy</strong></td>
+                      <td><code class="inline">Sister</code></td>
+                      <td>Immediate Family</td>
+                      <td>Chloe Mundy (Twin)</td>
+                      <td>Child Protection</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Phoebe Mundy</strong></td>
+                      <td><code class="inline">Group Member</code></td>
+                      <td>Support Group</td>
+                      <td>Mundy Twin HH #29</td>
+                      <td>Family Preservation</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Isla Young</strong></td>
+                      <td><code class="inline">Mother</code></td>
+                      <td>Immediate Family</td>
+                      <td>Xav Young</td>
+                      <td>Child Protection</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -914,9 +919,14 @@ FROM GRAPH_TABLE(
       </section>
 
       <!-- ================================================================
-           SLIDE 5: HYBRID PERSON MATCH ENGINE (PROGRESSIVE BUILD)
+           SLIDE 5: HYBRID PERSON MATCH ENGINE — 4-STEP BUILD
            ================================================================ -->
-      <section class="slide" data-steps="4" data-notes="Slide 5 explains the 4 stages of the Person Match Engine in plain English: (1) Shared-ID Rarity scoring that down-weights shared crisis shelters, (2) AI Similarity Search on Gemini Platform, (3) Combined Ranking that checks family context and protects twins from being merged, and (4) Gemini Platform AI Review for borderline matches.">
+      <section class="slide" data-steps="4"
+        data-notes="Slide 5 explains the 4 stages of the Person Match Engine."
+        data-notes-1="Step 1 (Shared-ID Rarity): Scores how rare each ID, phone, or address is and flags shared crisis shelters (>5 people) so residents are never auto-merged."
+        data-notes-2="Step 2 (AI Vector Search): Uses Gemini Platform embeddings (AI.EMBED) and VECTOR_SEARCH to find records despite typos or nicknames."
+        data-notes-3="Step 3 (Combined Ranking): Combines exact ID rank and AI similarity rank, checks shared family ties, and prevents twins from being auto-merged."
+        data-notes-4="Step 4 (Gemini Platform AI Review): Sends the 391 borderline pairs to gemini-2.5-flash on Gemini Platform and writes a full explanation to the audit table.">
         <div class="slide-header">
           <div>
             <div class="eyebrow">4 · Hybrid Person Match Engine · Progressive Build (4 Stages)</div>
@@ -933,12 +943,7 @@ FROM GRAPH_TABLE(
                 <span>1 · Shared-ID Rarity</span>
                 <span class="badge-pill">2,754 Keys</span>
               </div>
-              <p><strong>Down-Weights Shared Shelters</strong></p>
-              <ul>
-                <li>Scores how rare each shared ID, phone number, or address is across all records.</li>
-                <li>Unique IDs (Police, NDIS, ChildStory) get high weight.</li>
-                <li>Addresses or phones shared by more than 5 people are flagged as <strong>Crisis Shelters</strong> so residents are never auto-merged.</li>
-              </ul>
+              <p><strong>Suppresses shared shelters:</strong> Unique government IDs get high weight, while addresses shared by &gt;5 people are flagged as <strong>Crisis Shelters</strong>.</p>
             </div>
 
             <div class="card accent-green" data-build="2">
@@ -946,11 +951,7 @@ FROM GRAPH_TABLE(
                 <span>2 · AI Vector Search</span>
                 <span class="badge-pill green">Gemini Platform</span>
               </div>
-              <p><strong>Finds Matches Despite Typos</strong></p>
-              <ul>
-                <li>Generates <strong>Gemini Platform</strong> text embeddings (<code class="inline">AI.EMBED</code>) automatically as records arrive.</li>
-                <li>Finds similar person profiles even when names are abbreviated, phonetic, or reordered.</li>
-              </ul>
+              <p><strong>Handles typos &amp; nicknames:</strong> Generates <strong>Gemini Platform</strong> embeddings (<code class="inline">AI.EMBED</code>) to find similar person profiles even when names drift.</p>
             </div>
 
             <div class="card accent-amber" data-build="3">
@@ -958,12 +959,7 @@ FROM GRAPH_TABLE(
                 <span>3 · Combined Ranking</span>
                 <span class="badge-pill amber">Family &amp; Twin Check</span>
               </div>
-              <p><strong>Merges Keyword + AI Scores</strong></p>
-              <ul>
-                <li>Combines exact ID rank and AI similarity rank using Reciprocal Rank Fusion (<code class="inline">RRF</code>).</li>
-                <li>Boosts confidence when two records share the same mother, carer, or household group.</li>
-                <li><strong>Twin Safeguard</strong> blocks automatic merging when birth dates match but first names differ.</li>
-              </ul>
+              <p><strong>Merges keyword + AI ranks:</strong> Boosts score when records share a mother or carer, and blocks auto-merging when twins share a birth date.</p>
             </div>
 
             <div class="card accent-purple" data-build="4">
@@ -971,15 +967,11 @@ FROM GRAPH_TABLE(
                 <span>4 · Gemini AI Review</span>
                 <span class="badge-pill purple">391 Borderline Pairs</span>
               </div>
-              <p><strong>Auditable Decisions with Reasons</strong></p>
-              <ul>
-                <li>Sends only the 391 borderline pairs to <code class="inline">gemini-2.5-flash</code> on <strong>Gemini Platform</strong> (<code class="inline">AI.GENERATE</code>).</li>
-                <li>Records a structured verdict, confidence score, and plain-English explanation in an immutable audit table.</li>
-              </ul>
+              <p><strong>Written audit reasons:</strong> Reviews the 391 borderline pairs with <code class="inline">gemini-2.5-flash</code> on <strong>Gemini Platform</strong> and logs every decision.</p>
             </div>
           </div>
 
-          <pre class="code-block">-- Combine Keyword + AI Ranks (RRF) and Review Borderline Pairs with Gemini Platform
+          <pre class="code-block" data-build="4">-- Stage 40 Combined Ranking + Stage 50 Gemini Platform AI Review
 ROUND(COALESCE(1.0 / (60 + rank_lexical), 0.0) + COALESCE(1.0 / (60 + rank_semantic), 0.0), 6) AS rrf_score,
 AI.GENERATE(
   prompt =&gt; CONCAT('Review whether these two NSW DCJ records belong to the same person... ', pair_evidence_dossier),
@@ -996,23 +988,27 @@ AI.GENERATE(
       </section>
 
       <!-- ================================================================
-           SLIDE 6: REAL-TIME SEARCH FUNCTION & AUDIT TRAIL
+           SLIDE 6: REAL-TIME SEARCH FUNCTION & AUDIT TRAIL — 2-STEP BUILD
            ================================================================ -->
-      <section class="slide" data-notes="Slide 6 shows the callable BigQuery function dcj_tdm.fn_person_match for real-time intake search alongside real rows from the person_match_adjudications audit table.">
+      <section class="slide" data-steps="2"
+        data-notes="Slide 6 demonstrates real-time person search and the AI audit log in 2 steps."
+        data-notes-1="Step 1 (Real-Time Search Function): Calling dcj_tdm.fn_person_match for 'Lachie Smith' finds Master Person PER-698E72DBC085 linked across ChildStory, InfoShare, and Youth Justice."
+        data-notes-2="Step 2 (AI Review Audit Log): Shows how person_match_adjudications records the written reason for foster surname matches, twin non-matches, and cultural name matches.">
         <div class="slide-header">
           <div>
-            <div class="eyebrow">5 · Real-Time Search &amp; Auditable AI Decisions</div>
+            <div class="eyebrow">5 · Real-Time Search &amp; Auditable AI Decisions · Progressive Build (2 Steps)</div>
             <h2>Search Across Systems in Real Time with a Full Audit Trail</h2>
-            <p class="subtitle">Caseworkers and intake portals can call one SQL function to find matching master person records and inspect the written reason behind every AI decision.</p>
+            <p class="subtitle">Caseworkers and intake portals call one SQL function to find matching master person records and inspect the written reason behind every AI decision.</p>
           </div>
           <span class="badge-pill green">Live SQL Function + Immutable Audit Log</span>
         </div>
 
         <div class="slide-body">
           <div class="grid-2">
-            <div class="card accent-blue">
+            <!-- Step 1: Real-Time Search TVF -->
+            <div class="card accent-blue" data-build="1">
               <div class="card-title">
-                <span>Real-Time Search: <code class="inline">dcj_tdm.fn_person_match(...)</code></span>
+                <span>1 · Real-Time Search: <code class="inline">dcj_tdm.fn_person_match(...)</code></span>
                 <span class="badge-pill">3 Systems Linked</span>
               </div>
               <pre class="code-block">SELECT match_rank, person_id, primary_full_name,
@@ -1051,9 +1047,10 @@ FROM `all-things-cdp.dcj_tdm.fn_person_match`(
               </table>
             </div>
 
-            <div class="card accent-purple">
+            <!-- Step 2: Immutable Audit Log -->
+            <div class="card accent-purple" data-build="2">
               <div class="card-title">
-                <span>AI Review Audit Log: <code class="inline">person_match_adjudications</code></span>
+                <span>2 · AI Review Audit Log: <code class="inline">person_match_adjudications</code></span>
                 <span class="badge-pill purple">391 Audited Pairs</span>
               </div>
               <p>Every borderline match decision records the model version (<code class="inline">gemini-2.5-flash</code>), confidence score, and plain-English explanation:</p>
@@ -1094,12 +1091,17 @@ FROM `all-things-cdp.dcj_tdm.fn_person_match`(
       </section>
 
       <!-- ================================================================
-           SLIDE 7: 3-METHOD BENCHMARK & 8-SCENARIO SCORECARD
+           SLIDE 7: 3-METHOD BENCHMARK & 8-SCENARIO SCORECARD — 4-STEP BUILD
            ================================================================ -->
-      <section class="slide" data-notes="Slide 7 compares three matching methods against the 600 true people (655 true cross-record pairs) in dcj_truth. Our Hybrid Search + Gemini Platform AI Review pipeline reaches 99.4% accuracy (100% recall) with zero false shelter or twin merges.">
+      <section class="slide" data-steps="4"
+        data-notes="Slide 7 compares three matching methods across 4 progressive steps."
+        data-notes-1="Step 1 (Method 1 — Basic Linkage Key + Shared Address): Collapses 75 crisis shelter residents into a single person, causing 4,420 false links (12.8% precision)."
+        data-notes-2="Step 2 (Method 2 — Strict ID Rules): Avoids the shelter merge, but falsely merges twins (120 false links) and misses 117 true matches where names or birth dates drifted."
+        data-notes-3="Step 3 (Method 3 — DCJ Hybrid Search + Gemini Platform AI Review): Finds 100% of true links (655/655) with 99.4% precision and zero runaway group merges."
+        data-notes-4="Step 4 (8 Test Scenarios): Achieves 100% recall across all 8 planted child, family, and youth test scenarios.">
         <div class="slide-header">
           <div>
-            <div class="eyebrow">6 · Verified Accuracy Against 600 True People</div>
+            <div class="eyebrow">6 · Verified Accuracy Against 600 True People · Progressive Build (4 Steps)</div>
             <h2>99.4% Match Accuracy and Zero False Merges Across All 8 Test Scenarios</h2>
             <p class="subtitle">Tested against <strong>600 known individuals (655 true record pairs)</strong> across 1,150 source records.</p>
           </div>
@@ -1119,11 +1121,11 @@ FROM `all-things-cdp.dcj_tdm.fn_person_match`(
                 <th>Missed Links</th>
                 <th>Precision</th>
                 <th>Recall</th>
-                <th>Overall Score (F1)</th>
+                <th>Overall Score</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
+              <tr data-build="1">
                 <td><strong>1 · Basic Linkage Key + Shared Address/Phone</strong></td>
                 <td>233</td>
                 <td style="color: var(--red); font-weight:700;">75 (Shelter Merge)</td>
@@ -1135,7 +1137,7 @@ FROM `all-things-cdp.dcj_tdm.fn_person_match`(
                 <td>98.78%</td>
                 <td><strong>0.2261</strong></td>
               </tr>
-              <tr>
+              <tr data-build="2">
                 <td><strong>2 · Strict ID Rules + Linkage Key Only</strong></td>
                 <td>641</td>
                 <td>4</td>
@@ -1147,7 +1149,7 @@ FROM `all-things-cdp.dcj_tdm.fn_person_match`(
                 <td>82.14%</td>
                 <td><strong>0.8195</strong></td>
               </tr>
-              <tr class="highlight-row">
+              <tr class="highlight-row" data-build="3">
                 <td><strong>3 · DCJ Hybrid Search + Gemini Platform AI Review</strong></td>
                 <td><strong>599</strong></td>
                 <td><strong>4</strong></td>
@@ -1163,35 +1165,35 @@ FROM `all-things-cdp.dcj_tdm.fn_person_match`(
           </table>
 
           <div class="grid-4" style="margin-top: 4px;">
-            <div class="card accent-green" style="padding: 10px 14px;">
+            <div class="card accent-green" data-build="4" style="padding: 10px 14px;">
               <div class="card-title" style="font-size: 13px;"><span>Multi-System Youth</span><span class="badge-pill green">100%</span></div>
               <p><strong>135 / 135</strong> true pairs linked across Child Protection, Family Preservation &amp; Youth Justice.</p>
             </div>
-            <div class="card accent-green" style="padding: 10px 14px;">
+            <div class="card accent-green" data-build="4" style="padding: 10px 14px;">
               <div class="card-title" style="font-size: 13px;"><span>Twin Siblings</span><span class="badge-pill green">100% · 0 False</span></div>
               <p><strong>60 / 60</strong> true pairs linked; <strong>0 twins</strong> falsely merged together.</p>
             </div>
-            <div class="card accent-green" style="padding: 10px 14px;">
+            <div class="card accent-green" data-build="4" style="padding: 10px 14px;">
               <div class="card-title" style="font-size: 13px;"><span>Crisis Shelter Residents</span><span class="badge-pill green">100% · 0 False</span></div>
               <p><strong>25 / 25</strong> true pairs linked; <strong>0 false merges</strong> across 75 shelter residents.</p>
             </div>
-            <div class="card accent-green" style="padding: 10px 14px;">
+            <div class="card accent-green" data-build="4" style="padding: 10px 14px;">
               <div class="card-title" style="font-size: 13px;"><span>Traditional Cultural Names</span><span class="badge-pill green">100%</span></div>
               <p><strong>80 / 80</strong> true pairs matched across traditional skin names and legal names.</p>
             </div>
-            <div class="card accent-blue" style="padding: 10px 14px;">
+            <div class="card accent-blue" data-build="4" style="padding: 10px 14px;">
               <div class="card-title" style="font-size: 13px;"><span>Foster &amp; Adoptive Surnames</span><span class="badge-pill">100%</span></div>
               <p><strong>35 / 35</strong> true pairs linked across birth and foster carer surnames.</p>
             </div>
-            <div class="card accent-blue" style="padding: 10px 14px;">
+            <div class="card accent-blue" data-build="4" style="padding: 10px 14px;">
               <div class="card-title" style="font-size: 13px;"><span>Estimated vs Verified DOB</span><span class="badge-pill">100%</span></div>
               <p><strong>35 / 35</strong> true pairs matched when partner intake recorded <code class="inline">YYYY-01-01</code>.</p>
             </div>
-            <div class="card accent-blue" style="padding: 10px 14px;">
+            <div class="card accent-blue" data-build="4" style="padding: 10px 14px;">
               <div class="card-title" style="font-size: 13px;"><span>Protected Person Moves</span><span class="badge-pill">100%</span></div>
               <p><strong>30 / 30</strong> true pairs linked across suppressed addresses and safe relocations.</p>
             </div>
-            <div class="card accent-blue" style="padding: 10px 14px;">
+            <div class="card accent-blue" data-build="4" style="padding: 10px 14px;">
               <div class="card-title" style="font-size: 13px;"><span>Extended Kinship Carers</span><span class="badge-pill">100%</span></div>
               <p><strong>210 / 210</strong> true pairs linked across grandparents, aunts/uncles &amp; households.</p>
             </div>
@@ -1205,12 +1207,16 @@ FROM `all-things-cdp.dcj_tdm.fn_person_match`(
       </section>
 
       <!-- ================================================================
-           SLIDE 8: BIGQUERY KNOWLEDGE CATALOG BUSINESS GLOSSARY
+           SLIDE 8: BIGQUERY KNOWLEDGE CATALOG — 3-STEP BUILD
            ================================================================ -->
-      <section class="slide" data-notes="Slide 8 covers the BigQuery Knowledge Catalog Business Glossary (dcj_person_cdm_glossary). All 114 data columns and 4 executive metrics have plain-English definitions attached directly to the physical BigQuery tables.">
+      <section class="slide" data-steps="3"
+        data-notes="Slide 8 covers the BigQuery Knowledge Catalog Business Glossary across 3 progressive steps."
+        data-notes-1="Step 1 (Core Person, Names & Street Addresses): 75 business definitions covering master person attributes, 16 name types, government IDs, and verified NSW addresses."
+        data-notes-2="Step 2 (Family Ties, Source Links & AI Audit Log): 43 business definitions covering standardized kinship relationships, source lineage, protection orders, and AI review rationales."
+        data-notes-3="Step 3 (Repeatable One-Command Pipeline): ./run.sh --all executes all SQL stages and syncs all 118 glossary definitions to BigQuery.">
         <div class="slide-header">
           <div>
-            <div class="eyebrow">7 · Data Governance · BigQuery Knowledge Catalog</div>
+            <div class="eyebrow">7 · Data Governance · BigQuery Knowledge Catalog · Progressive Build (3 Steps)</div>
             <h2>118 Plain-English Business Definitions Linked to Every Table Column</h2>
             <p class="subtitle">Every column and metric in the Target Data Model is documented in <strong>BigQuery Knowledge Catalog</strong> and synced directly to the BigQuery tables.</p>
           </div>
@@ -1219,56 +1225,56 @@ FROM `all-things-cdp.dcj_tdm.fn_person_match`(
 
         <div class="slide-body">
           <div class="grid-3">
-            <div class="card accent-blue">
+            <div class="card accent-blue" data-build="1">
               <div class="card-title">
                 <span>1 · Core Person &amp; Party</span>
                 <span class="badge-pill">16 Definitions</span>
               </div>
-              <p>Defines master person fields (<code class="inline">person_id</code>, birth date certainty, Indigenous status, protection flags) and safety coverage metrics.</p>
+              <p><strong>Master person attributes:</strong> Defines <code class="inline">person_id</code>, birth date certainty, Indigenous status, and protection flags.</p>
             </div>
 
-            <div class="card accent-green">
+            <div class="card accent-green" data-build="1">
               <div class="card-title">
                 <span>2 · Names &amp; Government IDs</span>
                 <span class="badge-pill green">25 Definitions</span>
               </div>
-              <p>Defines all 16 name usage types and external identifiers (ChildStory ID, Police CNI, NDIS number, and Statistical Linkage Key).</p>
+              <p><strong>Aliases &amp; external keys:</strong> Defines all 16 name usage types plus ChildStory, Police, NDIS, and Linkage keys.</p>
             </div>
 
-            <div class="card accent-amber">
+            <div class="card accent-amber" data-build="1">
               <div class="card-title">
                 <span>3 · Street Addresses &amp; Moves</span>
                 <span class="badge-pill amber">34 Definitions</span>
               </div>
-              <p>Defines verified NSW address fields, map coordinates, residency start/end dates, and address verification metrics.</p>
+              <p><strong>Verified NSW locations:</strong> Defines street components, map coordinates, and residency start/end dates.</p>
             </div>
 
-            <div class="card accent-purple">
+            <div class="card accent-purple" data-build="2">
               <div class="card-title">
                 <span>4 · Family &amp; Kinship Ties</span>
                 <span class="badge-pill purple">10 Definitions</span>
               </div>
-              <p>Defines how 78 source relationship labels map into standard Immediate Family, Extended Kinship, and Care categories.</p>
+              <p><strong>Standardized relationships:</strong> Maps 78 source relationship labels into Immediate Family, Kinship, and Care.</p>
             </div>
 
-            <div class="card accent-blue">
+            <div class="card accent-blue" data-build="2">
               <div class="card-title">
                 <span>5 · Source Links &amp; Safety Orders</span>
                 <span class="badge-pill">17 Definitions</span>
               </div>
-              <p>Defines source system lineage (<code class="inline">person_source_linkage</code>), protection events, and cross-program overlap metrics.</p>
+              <p><strong>Lineage &amp; safety:</strong> Defines source system traceability (<code class="inline">person_source_linkage</code>) and protection events.</p>
             </div>
 
-            <div class="card accent-green">
+            <div class="card accent-green" data-build="2">
               <div class="card-title">
                 <span>6 · AI Match &amp; Audit Log</span>
                 <span class="badge-pill green">16 Definitions</span>
               </div>
-              <p>Defines AI review fields (<code class="inline">verdict</code>, <code class="inline">confidence</code>, <code class="inline">rationale</code>, <code class="inline">decisive_evidence</code>) and matching accuracy metrics.</p>
+              <p><strong>Explainable AI fields:</strong> Defines <code class="inline">verdict</code>, <code class="inline">confidence</code>, <code class="inline">rationale</code>, <code class="inline">decisive_evidence</code>, and match accuracy KPIs.</p>
             </div>
           </div>
 
-          <div class="card" style="background: var(--surface-2);">
+          <div class="card" data-build="3" style="background: var(--surface-2);">
             <div class="card-title" style="font-size: 14px;">
               <span>One-Command Pipeline Execution (<code class="inline">./run.sh</code>)</span>
               <span class="badge-pill">Repeatable End-to-End Build</span>
@@ -1345,7 +1351,8 @@ FROM `all-things-cdp.dcj_tdm.fn_person_match`(
         const maxSteps = totalStepsFor(active);
         updateBuildItems(active, currentStep);
         counter.textContent = (currentSlide + 1) + ' / ' + slides.length + (maxSteps > 1 ? ' (Step ' + currentStep + '/' + maxSteps + ')' : '');
-        notesContent.textContent = active.getAttribute('data-notes') || '';
+        const stepNote = active.getAttribute('data-notes-' + currentStep);
+        notesContent.textContent = stepNote || active.getAttribute('data-notes') || '';
       }
 
       function next() {
