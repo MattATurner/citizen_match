@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="NSW Department of Communities and Justice (DCJ) — First Iteration Unified Person & Family Data Model, BigQuery Hybrid Search, Gemini Platform AI Review, BigQuery Property Graph, and BigQuery Knowledge Catalog." />
-  <meta name="tags" content="NSW DCJ,Person Data Model,BigQuery Property Graph,Hybrid Search,Gemini Platform,Knowledge Catalog">
+  <meta name="tags" content="NSW DCJ,Person Data Model,System Architecture,BigQuery Property Graph,Hybrid Search,Gemini Platform,Knowledge Catalog">
   <title>NSW DCJ — Unified Person &amp; Family Data Model on Google Cloud</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -313,6 +313,7 @@
       border-radius: 6px;
       margin-top: auto;
       align-self: flex-start;
+      white-space: nowrap;
     }
 
     .badge-inline.green {
@@ -450,6 +451,111 @@
       grid-template-columns: 1fr 1fr;
       gap: 20px;
       flex: 0 0 auto;
+    }
+
+    /* 4-Zone System Architecture Diagram Layout */
+    .arch-diagram-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      flex: 0 0 auto;
+      align-items: stretch;
+    }
+
+    .arch-zone {
+      background: var(--surface-alt);
+      border: 1.5px solid var(--border);
+      border-top: 4px solid var(--primary);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .arch-zone.z-green { border-top-color: var(--secondary); }
+    .arch-zone.z-amber { border-top-color: var(--accent); }
+    .arch-zone.z-purple { border-top-color: var(--gcp-purple); }
+
+    .arch-zone-hdr {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .arch-zone-title {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .arch-zone-sub {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .arch-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3.5px solid var(--primary);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
+    .arch-zone.z-green .arch-item { border-left-color: var(--secondary); }
+    .arch-zone.z-amber .arch-item { border-left-color: var(--accent); }
+    .arch-zone.z-purple .arch-item { border-left-color: var(--gcp-purple); }
+
+    .arch-item-title {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.25;
+    }
+
+    .arch-item-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.35;
+    }
+
+    .arch-flow-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      flex: 0 0 auto;
+    }
+
+    .arch-flow-step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .arch-flow-step strong {
+      color: var(--primary);
+      font-family: 'Google Sans', sans-serif;
     }
 
     .arch-node, .card {
@@ -919,28 +1025,28 @@
           <!-- Top Anchor Row: 4 Source Systems -->
           <div class="arch-grid scaffold-group">
             <div class="arch-node" data-active-step="1,2,3">
-              <div class="step-meta"><span>SOURCE 01</span><span class="step-num">CP</span></div>
+              <div class="step-meta"><span>SOURCE 01</span><span class="step-num">01</span></div>
               <h3>Child Protection</h3>
               <p><strong>ChildStory system:</strong> 450 records across 16 name types, 78 relationship labels, and safety orders.</p>
               <span class="badge-inline">450 Records</span>
             </div>
 
             <div class="arch-node" data-active-step="1,2,3">
-              <div class="step-meta"><span>SOURCE 02</span><span class="step-num">FP</span></div>
+              <div class="step-meta"><span>SOURCE 02</span><span class="step-num">02</span></div>
               <h3>Family Preservation</h3>
               <p><strong>InfoShare portal:</strong> 380 partner records with preferred names, estimated birth years, and groups.</p>
               <span class="badge-inline green">380 Records</span>
             </div>
 
             <div class="arch-node" data-active-step="3">
-              <div class="step-meta"><span>SOURCE 03</span><span class="step-num">YJ</span></div>
+              <div class="step-meta"><span>SOURCE 03</span><span class="step-num">03</span></div>
               <h3>Youth Justice</h3>
-              <p><strong>Case management:</strong> 320 youth records with street nicknames, spelling drift, and separate IDs.</p>
+              <p><strong>Case management:</strong> 320 youth records with street nicknames, spelling variations, and separate IDs.</p>
               <span class="badge-inline amber">320 Records</span>
             </div>
 
             <div class="arch-node" data-active-step="1">
-              <div class="step-meta"><span>SOURCE 04</span><span class="step-num">NSW</span></div>
+              <div class="step-meta"><span>SOURCE 04</span><span class="step-num">04</span></div>
               <h3>NSW Street Addresses</h3>
               <p><strong>Address register:</strong> 260 verified map locations including high-turnover crisis shelters.</p>
               <span class="badge-inline">260 Locations</span>
@@ -977,17 +1083,131 @@
       </div>
 
       <!-- =====================================================================
-           SLIDE 2 (3/8): TARGET DATA MODEL — 9 MASTER TABLES (4 STEPS)
+           SLIDE 2 (3/9): END-TO-END SYSTEM ARCHITECTURE DIAGRAM (4 STEPS)
            ===================================================================== -->
       <div class="s" data-idx="2" data-steps="4"
+           data-notes="<strong>Step 0 (Overview):</strong> This is the end-to-end Google Cloud System Architecture flowing from the 4 DCJ source programs to the unified Master Person tables, Family Property Graph, and Knowledge Catalog."
+           data-notes-1="<strong>Step 1 (1. Source Systems):</strong> Ingests 1,150 source records across Child Protection (ChildStory), Family Preservation (InfoShare), Youth Justice, and 260 verified NSW street addresses."
+           data-notes-2="<strong>Step 2 (2. Hybrid Person Match):</strong> Filters out shared crisis shelters, uses Gemini Platform AI vector search to find matching names across nicknames, and combines exact IDs with family ties."
+           data-notes-3="<strong>Step 3 (3. AI Review &amp; Grouping):</strong> Sends 391 borderline record pairs to Gemini Platform for review, logs a written explanation for every decision, and groups confirmed records into 599 Master People."
+           data-notes-4="<strong>Step 4 (4. Unified View &amp; Graph):</strong> Populates 9 Master Person tables, the BigQuery Property Graph for family and lineage queries, and 118 plain-English business definitions in BigQuery Knowledge Catalog.">
+        <div class="slide-header">
+          <div class="top-bar">
+            <span class="badge">2 · END-TO-END SYSTEM ARCHITECTURE</span>
+            <span class="gcp-pill">Google Cloud · BigQuery &amp; Gemini Platform</span>
+          </div>
+          <h2>How four source systems become <span class="hl">one trusted person and family view</span></h2>
+        </div>
+
+        <div class="body">
+          <div class="arch-diagram-grid scaffold-group">
+            <!-- Zone 1: Source Systems -->
+            <div class="arch-zone" data-active-step="1">
+              <div class="arch-zone-hdr">
+                <div class="arch-zone-title"><span>1. Source Systems</span><span class="step-num">01</span></div>
+                <div class="arch-zone-sub">4 Programs · 1,150 Records</div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">Child Protection</div>
+                <div class="arch-item-desc">ChildStory · 450 person, family &amp; safety records</div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">Family Preservation</div>
+                <div class="arch-item-desc">InfoShare · 380 partner &amp; group records</div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">Youth Justice</div>
+                <div class="arch-item-desc">Case System · 320 youth &amp; address records</div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">NSW Street Addresses</div>
+                <div class="arch-item-desc">260 verified map locations &amp; shelters</div>
+              </div>
+            </div>
+
+            <!-- Zone 2: Hybrid Person Match -->
+            <div class="arch-zone z-green" data-active-step="2">
+              <div class="arch-zone-hdr">
+                <div class="arch-zone-title"><span>2. Hybrid Person Match</span><span class="step-num" style="background:var(--secondary-light);color:var(--secondary);">02</span></div>
+                <div class="arch-zone-sub">Shared IDs + AI Search</div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">Shared-ID &amp; Shelter Filter</div>
+                <div class="arch-item-desc">Gives high weight to unique IDs and flags shared crisis shelters (&gt;5 people)</div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">AI Name &amp; Profile Search</div>
+                <div class="arch-item-desc"><strong>Gemini Platform</strong> vector search finds people across nicknames and typos</div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">Combined Match Scoring</div>
+                <div class="arch-item-desc">Blends exact IDs, AI similarity, and shared family members</div>
+              </div>
+            </div>
+
+            <!-- Zone 3: AI Review & Grouping -->
+            <div class="arch-zone z-amber" data-active-step="3">
+              <div class="arch-zone-hdr">
+                <div class="arch-zone-title"><span>3. AI Review &amp; Grouping</span><span class="step-num" style="background:var(--accent-light);color:#B4680E;">03</span></div>
+                <div class="arch-zone-sub">Gemini Platform + Audit Log</div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">Gemini Platform AI Review</div>
+                <div class="arch-item-desc">Reviews 391 borderline record pairs (foster surnames, twins, cultural names)</div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">Written Audit Log</div>
+                <div class="arch-item-desc">Stores every match decision, confidence score, and plain-English reason</div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">Person Record Grouping</div>
+                <div class="arch-item-desc">Links confirmed matches into 599 Master People while keeping twins separate</div>
+              </div>
+            </div>
+
+            <!-- Zone 4: Unified View & Graph -->
+            <div class="arch-zone z-purple" data-active-step="4">
+              <div class="arch-zone-hdr">
+                <div class="arch-zone-title"><span>4. Unified View &amp; Graph</span><span class="step-num" style="background:var(--gcp-purple-light);color:var(--gcp-purple);">04</span></div>
+                <div class="arch-zone-sub">Master Data, Graph &amp; Glossary</div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">9 Master Person Tables</div>
+                <div class="arch-item-desc">599 Master People with full name, address, ID, and safety history</div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">Family Graph &amp; Live Search</div>
+                <div class="arch-item-desc"><strong>BigQuery Property Graph</strong> and real-time search across programs</div>
+              </div>
+              <div class="arch-item">
+                <div class="arch-item-title">BigQuery Knowledge Catalog</div>
+                <div class="arch-item-desc">118 plain-English business definitions linked to every table column</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Flow Summary Strip -->
+          <div class="arch-flow-bar scaffold-group">
+            <div class="arch-flow-step" data-active-step="1"><span><strong>Step 1:</strong> Ingest 1,150 Records</span><span>&rarr;</span></div>
+            <div class="arch-flow-step" data-active-step="2"><span><strong>Step 2:</strong> Score Candidate Pairs</span><span>&rarr;</span></div>
+            <div class="arch-flow-step" data-active-step="3"><span><strong>Step 3:</strong> Audit 391 Borderline Pairs</span><span>&rarr;</span></div>
+            <div class="arch-flow-step" data-active-step="4"><span><strong>Step 4:</strong> Serve 599 Master People</span><span>&#10003;</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =====================================================================
+           SLIDE 3 (4/9): TARGET DATA MODEL — 9 MASTER TABLES (4 STEPS)
+           ===================================================================== -->
+      <div class="s" data-idx="3" data-steps="4"
            data-notes="<strong>Step 0 (Overview):</strong> The Target Data Model organizes 9 master tables into 4 domains. Press Next to spotlight each domain."
            data-notes-1="<strong>Step 1 (Master Person &amp; Party):</strong> Resolves 1,150 source records into 599 Master People plus 68 Household Groups and 14 Agencies."
            data-notes-2="<strong>Step 2 (Full Name History &amp; Government IDs):</strong> Retains all 1,623 known legal, foster, and cultural names alongside 1,517 government IDs."
-           data-notes-3="<strong>Step 3 (Verified Street Addresses &amp; Move History):</strong> Links people across 260 geocoded NSW street addresses and 630 residency periods."
+           data-notes-3="<strong>Step 3 (Verified Street Addresses &amp; Move History):</strong> Links people across 260 verified NSW street addresses and 630 residency periods."
            data-notes-4="<strong>Step 4 (Source Links, Family Ties &amp; Safety Orders):</strong> Connects 1,150 source records, 593 standardized family relationships, and 45 active safety orders.">
         <div class="slide-header">
           <div class="top-bar">
-            <span class="badge">2 · TARGET DATA MODEL (9 MASTER TABLES)</span>
+            <span class="badge">3 · TARGET DATA MODEL (9 MASTER TABLES)</span>
             <span class="gcp-pill">Dataset: <code>all-things-cdp.dcj_tdm</code></span>
           </div>
           <h2>Nine master tables keep <span class="hl">one best record per person</span> plus full history</h2>
@@ -1010,14 +1230,14 @@
             </div>
 
             <div class="card" data-active-step="3" style="min-height: 215px; border-top-color: var(--accent);">
-              <div class="step-meta"><span>DOMAIN 03 · GEOSPATIAL ADDRESSES</span><span class="step-num" style="background:var(--accent-light);color:#B4680E;">03</span></div>
+              <div class="step-meta"><span>DOMAIN 03 · STREET ADDRESSES</span><span class="step-num" style="background:var(--accent-light);color:#B4680E;">03</span></div>
               <h3>Verified NSW Street Addresses &amp; Move History</h3>
-              <p><strong>Geocoded move history:</strong> Standardizes free-text street addresses and tracks where each person lived and when, including temporary crisis shelter stays.</p>
+              <p><strong>Verified move history:</strong> Standardizes free-text street addresses and tracks where each person lived and when, including temporary crisis shelter stays.</p>
               <span class="badge-inline amber"><code>address_location</code> (260) · <code>address_relation</code> (630)</span>
             </div>
 
             <div class="card" data-active-step="4" style="min-height: 215px; border-top-color: var(--gcp-purple);">
-              <div class="step-meta"><span>DOMAIN 04 · LINEAGE, KINSHIP &amp; SAFETY</span><span class="step-num" style="background:var(--gcp-purple-light);color:var(--gcp-purple);">04</span></div>
+              <div class="step-meta"><span>DOMAIN 04 · LINEAGE, FAMILY &amp; SAFETY</span><span class="step-num" style="background:var(--gcp-purple-light);color:var(--gcp-purple);">04</span></div>
               <h3>Source System Links, Family Ties &amp; Safety Orders</h3>
               <p><strong>Complete audit lineage:</strong> Maps every source record to its master person, standardizes 78 relationship labels into clear family categories, and tracks active protection orders.</p>
               <span class="badge-inline"><code>person_source_linkage</code> (1,150) · <code>party_relationship</code> (593) · <code>protection_event</code> (45)</span>
@@ -1027,15 +1247,15 @@
       </div>
 
       <!-- =====================================================================
-           SLIDE 3 (4/8): TARGET PROPERTY GRAPH — CLEAN LAYOUT (2 STEPS)
+           SLIDE 4 (5/9): TARGET PROPERTY GRAPH — PLAIN ENGLISH LABELS (2 STEPS)
            ===================================================================== -->
-      <div class="s" data-idx="3" data-steps="2"
+      <div class="s" data-idx="4" data-steps="2"
            data-notes="<strong>Step 0 (Overview):</strong> On the left is the BigQuery Property Graph connecting all 9 master tables and the match audit trail. On the right is a live graph query."
-           data-notes-1="<strong>Step 1 (Graph Topology):</strong> Source records link to Master People, who connect outward to Known Names, Street Addresses, Government IDs, Safety Orders, and Family Relationships."
+           data-notes-1="<strong>Step 1 (Graph Connections):</strong> Source records link to Master People, who connect outward to Known Names, Street Addresses, Government IDs, Safety Orders, and Family Relationships."
            data-notes-2="<strong>Step 2 (Live Graph Query &amp; Results):</strong> A single BigQuery GRAPH_TABLE query traverses immediate family, extended kinship, and twin support groups across programs.">
         <div class="slide-header">
           <div class="top-bar">
-            <span class="badge">3 · CONNECTED FAMILY &amp; LINEAGE GRAPH</span>
+            <span class="badge">4 · CONNECTED FAMILY &amp; LINEAGE GRAPH</span>
             <span class="gcp-pill">Graph: <code>dcj_tdm.dcj_person_graph</code></span>
           </div>
           <h2>Traverse family networks and record lineage in <span class="hl">BigQuery Property Graph</span></h2>
@@ -1043,9 +1263,9 @@
 
         <div class="body">
           <div class="grid2 scaffold-group" style="grid-template-columns: 1.05fr 0.95fr; gap: 20px; align-items: stretch;">
-            <!-- Left Card: Clean Collision-Free SVG Graph Topology -->
+            <!-- Left Card: Clean Collision-Free SVG Graph Topology with Plain-English Labels -->
             <div class="card" data-active-step="1" style="padding: 16px;">
-              <div class="step-meta"><span>PROPERTY GRAPH SCHEMA</span><span class="badge-inline green" style="margin:0;">8 Node Types · 9 Edge Types</span></div>
+              <div class="step-meta"><span>PROPERTY GRAPH CONNECTIONS</span><span class="badge-inline green" style="margin:0;">8 Record Types · 9 Link Types</span></div>
               <h3>How Master Records &amp; Audit Trails Connect</h3>
               <svg viewBox="0 0 560 360" style="width: 100%; height: 355px; background: var(--surface-alt); border-radius: 10px; border: 1px solid var(--border); margin-top: 4px;">
                 <defs>
@@ -1054,85 +1274,84 @@
                   </marker>
                 </defs>
 
-                <!-- Orthogonal & Diagonal Connectors -->
-                <!-- SourceRecord -> Master Person -->
+                <!-- Source Record -> Master Person -->
                 <line x1="150" y1="98" x2="212" y2="164" stroke="#1A73E8" stroke-width="2" marker-end="url(#arr)" />
-                <rect x="148" y="126" width="70" height="15" rx="4" fill="#E8F0FE" />
-                <text x="183" y="137" text-anchor="middle" font-size="8.5" font-weight="700" fill="#1A73E8">RESOLVES_TO</text>
+                <rect x="144" y="125" width="76" height="16" rx="4" fill="#E8F0FE" />
+                <text x="182" y="136" text-anchor="middle" font-size="9.5" font-weight="700" fill="#1A73E8">Links to Master</text>
 
-                <!-- SourceRecord -> Shared Identifier -->
+                <!-- Source Record -> Shared Identifier -->
                 <line x1="85" y1="114" x2="85" y2="252" stroke="#1E8E3E" stroke-width="2" marker-end="url(#arr)" />
-                <rect x="38" y="178" width="94" height="16" rx="4" fill="#E6F4EA" />
-                <text x="85" y="189" text-anchor="middle" font-size="9" font-weight="700" fill="#1E8E3E">HAS_IDENTIFIER</text>
+                <rect x="36" y="176" width="98" height="16" rx="4" fill="#E6F4EA" />
+                <text x="85" y="187" text-anchor="middle" font-size="9.5" font-weight="700" fill="#1E8E3E">Shares ID / Phone</text>
 
-                <!-- SourceRecord self-loop COMPARED_WITH -->
+                <!-- Source Record self-loop Compared in Audit -->
                 <path d="M 60 66 C 35 28, 135 28, 110 66" fill="none" stroke="#F9AB00" stroke-width="2" marker-end="url(#arr)" />
-                <text x="85" y="30" text-anchor="middle" font-size="9" font-weight="700" fill="#B4680E">COMPARED_WITH (Audit)</text>
+                <text x="85" y="30" text-anchor="middle" font-size="9.5" font-weight="700" fill="#B4680E">Compared in Audit</text>
 
-                <!-- Master Person -> Party -->
+                <!-- Master Person -> Family & Groups -->
                 <line x1="280" y1="152" x2="280" y2="86" stroke="#7C3AED" stroke-width="2" marker-end="url(#arr)" />
-                <rect x="225" y="108" width="110" height="16" rx="4" fill="#F3E8FD" />
-                <text x="280" y="119" text-anchor="middle" font-size="9" font-weight="700" fill="#7C3AED">PARTY_RELATIONSHIP</text>
+                <rect x="228" y="108" width="104" height="16" rx="4" fill="#F3E8FD" />
+                <text x="280" y="119" text-anchor="middle" font-size="9.5" font-weight="700" fill="#7C3AED">Family Relationship</text>
 
                 <!-- Master Person -> Safety Order -->
                 <line x1="280" y1="208" x2="280" y2="274" stroke="#D93025" stroke-width="2" marker-end="url(#arr)" />
-                <rect x="218" y="236" width="124" height="16" rx="4" fill="#FCE8E6" />
-                <text x="280" y="247" text-anchor="middle" font-size="8.8" font-weight="700" fill="#D93025">HAS_PROTECTION_EVENT</text>
+                <rect x="232" y="236" width="96" height="16" rx="4" fill="#FCE8E6" />
+                <text x="280" y="247" text-anchor="middle" font-size="9.5" font-weight="700" fill="#D93025">Has Safety Order</text>
 
-                <!-- Master Person -> PersonName -->
+                <!-- Master Person -> Known Names -->
                 <line x1="348" y1="162" x2="418" y2="92" stroke="#1A73E8" stroke-width="2" marker-end="url(#arr)" />
-                <rect x="354" y="112" width="62" height="16" rx="4" fill="#E8F0FE" />
-                <text x="385" y="123" text-anchor="middle" font-size="9" font-weight="700" fill="#1A73E8">HAS_NAME</text>
+                <rect x="348" y="112" width="74" height="16" rx="4" fill="#E8F0FE" />
+                <text x="385" y="123" text-anchor="middle" font-size="9.5" font-weight="700" fill="#1A73E8">Known Name</text>
 
                 <!-- Master Person -> Street Address -->
                 <line x1="348" y1="180" x2="418" y2="180" stroke="#1E8E3E" stroke-width="2" marker-end="url(#arr)" />
                 <rect x="355" y="160" width="56" height="16" rx="4" fill="#E6F4EA" />
-                <text x="383" y="171" text-anchor="middle" font-size="9" font-weight="700" fill="#1E8E3E">LIVES_AT</text>
+                <text x="383" y="171" text-anchor="middle" font-size="9.5" font-weight="700" fill="#1E8E3E">Lives At</text>
 
                 <!-- Master Person -> Government ID -->
                 <line x1="348" y1="198" x2="418" y2="268" stroke="#F9AB00" stroke-width="2" marker-end="url(#arr)" />
-                <rect x="348" y="214" width="96" height="16" rx="4" fill="#FEF7E0" />
-                <text x="396" y="225" text-anchor="middle" font-size="8.8" font-weight="700" fill="#B4680E">HOLDS_INSTRUMENT</text>
+                <rect x="354" y="214" width="80" height="16" rx="4" fill="#FEF7E0" />
+                <text x="394" y="225" text-anchor="middle" font-size="9.5" font-weight="700" fill="#B4680E">Holds Gov ID</text>
 
                 <!-- Nodes -->
                 <rect x="20" y="66" width="130" height="48" rx="8" fill="#FFFFFF" stroke="#1A73E8" stroke-width="2" />
-                <text x="85" y="87" text-anchor="middle" font-size="11.5" font-weight="700" fill="#202124">SourceRecord</text>
-                <text x="85" y="103" text-anchor="middle" font-size="9.5" fill="#5F6368">1,150 Source Records</text>
+                <text x="85" y="87" text-anchor="middle" font-size="12" font-weight="700" fill="#202124">Source Record</text>
+                <text x="85" y="103" text-anchor="middle" font-size="10" fill="#5F6368">1,150 Source Records</text>
 
                 <rect x="20" y="256" width="130" height="48" rx="8" fill="#FFFFFF" stroke="#1E8E3E" stroke-width="2" />
-                <text x="85" y="277" text-anchor="middle" font-size="11.5" font-weight="700" fill="#202124">Shared Identifier</text>
-                <text x="85" y="293" text-anchor="middle" font-size="9.5" fill="#5F6368">2,754 Keys &amp; Phones</text>
+                <text x="85" y="277" text-anchor="middle" font-size="12" font-weight="700" fill="#202124">Shared ID / Phone</text>
+                <text x="85" y="293" text-anchor="middle" font-size="10" fill="#5F6368">2,754 Keys &amp; Phones</text>
 
                 <rect x="212" y="34" width="136" height="48" rx="8" fill="#FFFFFF" stroke="#7C3AED" stroke-width="2" />
-                <text x="280" y="55" text-anchor="middle" font-size="11.5" font-weight="700" fill="#202124">Party (Person/Group)</text>
-                <text x="280" y="71" text-anchor="middle" font-size="9.5" fill="#5F6368">681 People &amp; Groups</text>
+                <text x="280" y="55" text-anchor="middle" font-size="12" font-weight="700" fill="#202124">Family &amp; Groups</text>
+                <text x="280" y="71" text-anchor="middle" font-size="10" fill="#5F6368">681 People &amp; Groups</text>
 
                 <rect x="212" y="152" width="136" height="56" rx="10" fill="#E8F0FE" stroke="#1A73E8" stroke-width="2.5" />
-                <text x="280" y="176" text-anchor="middle" font-size="12.5" font-weight="800" fill="#1A73E8">Master Person</text>
-                <text x="280" y="194" text-anchor="middle" font-size="10" font-weight="600" fill="#202124">599 Resolved People</text>
+                <text x="280" y="176" text-anchor="middle" font-size="13" font-weight="800" fill="#1A73E8">Master Person</text>
+                <text x="280" y="194" text-anchor="middle" font-size="10.5" font-weight="600" fill="#202124">599 Resolved People</text>
 
                 <rect x="212" y="278" width="136" height="48" rx="8" fill="#FFFFFF" stroke="#D93025" stroke-width="2" />
-                <text x="280" y="299" text-anchor="middle" font-size="11.5" font-weight="700" fill="#202124">Safety Order</text>
-                <text x="280" y="315" text-anchor="middle" font-size="9.5" fill="#5F6368">45 Protection Events</text>
+                <text x="280" y="299" text-anchor="middle" font-size="12" font-weight="700" fill="#202124">Safety Order</text>
+                <text x="280" y="315" text-anchor="middle" font-size="10" fill="#5F6368">45 Protection Events</text>
 
                 <rect x="422" y="56" width="124" height="48" rx="8" fill="#FFFFFF" stroke="#1A73E8" stroke-width="2" />
-                <text x="484" y="77" text-anchor="middle" font-size="11.5" font-weight="700" fill="#202124">PersonName</text>
-                <text x="484" y="93" text-anchor="middle" font-size="9.5" fill="#5F6368">1,623 Known Names</text>
+                <text x="484" y="77" text-anchor="middle" font-size="12" font-weight="700" fill="#202124">Known Names</text>
+                <text x="484" y="93" text-anchor="middle" font-size="10" fill="#5F6368">1,623 Name Records</text>
 
                 <rect x="422" y="156" width="124" height="48" rx="8" fill="#FFFFFF" stroke="#1E8E3E" stroke-width="2" />
-                <text x="484" y="177" text-anchor="middle" font-size="11.5" font-weight="700" fill="#202124">Street Address</text>
-                <text x="484" y="193" text-anchor="middle" font-size="9.5" fill="#5F6368">260 NSW Addresses</text>
+                <text x="484" y="177" text-anchor="middle" font-size="12" font-weight="700" fill="#202124">Street Address</text>
+                <text x="484" y="193" text-anchor="middle" font-size="10" fill="#5F6368">260 NSW Addresses</text>
 
                 <rect x="422" y="256" width="124" height="48" rx="8" fill="#FFFFFF" stroke="#F9AB00" stroke-width="2" />
-                <text x="484" y="277" text-anchor="middle" font-size="11.5" font-weight="700" fill="#202124">Government ID</text>
-                <text x="484" y="293" text-anchor="middle" font-size="9.5" fill="#5F6368">1,517 Linked IDs</text>
+                <text x="484" y="277" text-anchor="middle" font-size="12" font-weight="700" fill="#202124">Government ID</text>
+                <text x="484" y="293" text-anchor="middle" font-size="10" fill="#5F6368">1,517 Linked IDs</text>
               </svg>
             </div>
 
-            <!-- Right Card: Live Graph Query + Results (Cleanly Contained Inside One Card) -->
+            <!-- Right Card: Live Graph Query + Results -->
             <div class="card" data-active-step="2" style="padding: 16px; border-top-color: var(--secondary); justify-content: space-between;">
               <div>
-                <div class="step-meta"><span>ISO GQL GRAPH QUERY</span><span class="badge-inline" style="margin:0;">Live Query Output</span></div>
+                <div class="step-meta"><span>FAMILY &amp; LINEAGE GRAPH QUERY</span><span class="badge-inline" style="margin:0;">Live Query Output</span></div>
                 <h3>Trace Family &amp; Support Groups in One Query</h3>
               </div>
 
@@ -1171,7 +1390,7 @@
                   <tr>
                     <td><strong>Phoebe Mundy</strong></td>
                     <td><code>Group Member</code></td>
-                    <td>Mundy Twin HH #29</td>
+                    <td>Mundy Family Group</td>
                     <td>Family Preservation</td>
                   </tr>
                   <tr>
@@ -1188,18 +1407,18 @@
       </div>
 
       <!-- =====================================================================
-           SLIDE 4 (5/8): HYBRID PERSON MATCH ENGINE (4 STEPS)
+           SLIDE 5 (6/9): HYBRID PERSON MATCH ENGINE (4 STEPS)
            ===================================================================== -->
-      <div class="s" data-idx="4" data-steps="4"
+      <div class="s" data-idx="5" data-steps="4"
            data-notes="<strong>Step 0 (Overview):</strong> Our 4-stage Hybrid Person Match Engine runs entirely inside BigQuery SQL."
-           data-notes-1="<strong>Step 1 (Shared-ID Rarity):</strong> Scores how rare each shared ID, phone, or address is, and flags crisis shelters (&gt;5 people) so residents are never auto-merged."
-           data-notes-2="<strong>Step 2 (AI Vector Search):</strong> Uses Gemini Platform embeddings (AI.EMBED) and VECTOR_SEARCH to match records despite typos and nicknames."
-           data-notes-3="<strong>Step 3 (Combined Ranking):</strong> Combines exact ID rank and AI similarity rank, checks family relationships, and protects twins from auto-merging."
+           data-notes-1="<strong>Step 1 (Shared-ID Filter):</strong> Scores how rare each shared ID, phone, or address is, and flags crisis shelters (&gt;5 people) so residents are never auto-merged."
+           data-notes-2="<strong>Step 2 (AI Vector Search):</strong> Uses Gemini Platform vector search to match records despite typos and nicknames."
+           data-notes-3="<strong>Step 3 (Combined Scoring):</strong> Combines exact ID rank and AI similarity rank, checks family relationships, and protects twins from auto-merging."
            data-notes-4="<strong>Step 4 (Gemini Platform AI Review):</strong> Sends only the 391 borderline pairs to gemini-2.5-flash on Gemini Platform and writes a full explanation to the audit log.">
         <div class="slide-header">
           <div class="top-bar">
-            <span class="badge">4 · HYBRID PERSON MATCH ENGINE</span>
-            <span class="gcp-pill">SQL Stages 20 &rarr; 50</span>
+            <span class="badge">5 · HYBRID PERSON MATCH ENGINE</span>
+            <span class="gcp-pill">4-Stage Matching Pipeline in BigQuery</span>
           </div>
           <h2>Combine shared-ID rarity, <span class="hl">AI vector search</span>, family ties, and AI review</h2>
         </div>
@@ -1207,28 +1426,28 @@
         <div class="body">
           <div class="arch-grid scaffold-group">
             <div class="arch-node" data-active-step="1">
-              <div class="step-meta"><span>STAGE 20</span><span class="step-num">01</span></div>
-              <h3>Shared-ID Rarity</h3>
+              <div class="step-meta"><span>STAGE 01</span><span class="step-num">01</span></div>
+              <h3>Shared-ID Filter</h3>
               <p><strong>Suppresses shared shelters:</strong> Unique government IDs get high weight, while addresses shared by &gt;5 people are flagged as crisis shelters.</p>
-              <span class="badge-inline">2,754 Identifier Nodes</span>
+              <span class="badge-inline">Flags Shared Shelters</span>
             </div>
 
             <div class="arch-node" data-active-step="2">
-              <div class="step-meta"><span>STAGE 30</span><span class="step-num">02</span></div>
+              <div class="step-meta"><span>STAGE 02</span><span class="step-num">02</span></div>
               <h3>AI Vector Search</h3>
-              <p><strong>Handles typos &amp; nicknames:</strong> Generates <strong>Gemini Platform</strong> embeddings (<code>AI.EMBED</code>) to find similar profiles when names drift.</p>
-              <span class="badge-inline green">768-d Embeddings</span>
+              <p><strong>Handles typos &amp; nicknames:</strong> Uses <strong>Gemini Platform</strong> embeddings (<code>AI.EMBED</code>) to find similar profiles when names change.</p>
+              <span class="badge-inline green">Finds Similar Names</span>
             </div>
 
             <div class="arch-node" data-active-step="3">
-              <div class="step-meta"><span>STAGE 40</span><span class="step-num">03</span></div>
-              <h3>Combined Ranking</h3>
-              <p><strong>Merges keyword + AI ranks:</strong> Boosts score when records share a mother or carer, and blocks auto-merging when twins share a birth date.</p>
+              <div class="step-meta"><span>STAGE 03</span><span class="step-num">03</span></div>
+              <h3>Combined Scoring</h3>
+              <p><strong>Merges ID + AI ranks:</strong> Boosts score when records share a mother or carer, and blocks auto-merging when twins share a birth date.</p>
               <span class="badge-inline amber">Family &amp; Twin Safeguard</span>
             </div>
 
             <div class="arch-node" data-active-step="4">
-              <div class="step-meta"><span>STAGE 50</span><span class="step-num">04</span></div>
+              <div class="step-meta"><span>STAGE 04</span><span class="step-num">04</span></div>
               <h3>Gemini AI Review</h3>
               <p><strong>Written audit reasons:</strong> Reviews the 391 borderline pairs with <code>gemini-2.5-flash</code> on <strong>Gemini Platform</strong> and logs every decision.</p>
               <span class="badge-inline">391 Borderline Pairs</span>
@@ -1236,11 +1455,11 @@
           </div>
 
           <div class="code-box scaffold-group">
-            <div class="code-chunk" data-active-step="1,2,3"><span class="c-cm">-- Stages 20-40: Shared-ID Rarity + Gemini Platform Vector Search + Combined Ranking (RRF)</span>
-ROUND(COALESCE(1.0 / (60 + rank_lexical), 0.0) + COALESCE(1.0 / (60 + rank_semantic), 0.0), 6) <span class="c-kw">AS</span> rrf_score,</div>
-            <div class="code-chunk" data-active-step="4"><span class="c-cm">-- Stage 50: Structured Gemini Platform AI Review (391 Borderline Pairs)</span>
+            <div class="code-chunk" data-active-step="1,2,3"><span class="c-cm">-- Stages 1 to 3: Combine exact ID match rank and Gemini Platform AI similarity rank</span>
+ROUND(COALESCE(1.0 / (60 + rank_exact_id), 0.0) + COALESCE(1.0 / (60 + rank_ai_similarity), 0.0), 6) <span class="c-kw">AS</span> combined_match_score,</div>
+            <div class="code-chunk" data-active-step="4"><span class="c-cm">-- Stage 4: Ask Gemini Platform to review borderline pairs and return a written explanation</span>
 <span class="c-fn">AI.GENERATE</span>(
-  prompt =&gt; CONCAT(<span class="c-str">'Review whether these two NSW DCJ records belong to the same person... '</span>, pair_evidence_dossier),
+  prompt =&gt; CONCAT(<span class="c-str">'Review whether these two NSW DCJ records belong to the same person... '</span>, pair_evidence_summary),
   connection_id =&gt; <span class="c-str">'all-things-cdp.us-central1.dcj-conn'</span>, endpoint =&gt; <span class="c-str">'gemini-2.5-flash'</span>,
   output_schema =&gt; <span class="c-str">'verdict STRING, confidence FLOAT64, contradiction BOOL, rationale STRING, decisive_evidence STRING'</span>
 )</div>
@@ -1249,27 +1468,27 @@ ROUND(COALESCE(1.0 / (60 + rank_lexical), 0.0) + COALESCE(1.0 / (60 + rank_seman
       </div>
 
       <!-- =====================================================================
-           SLIDE 5 (6/8): REAL-TIME SEARCH FUNCTION & AUDIT LOG (2 STEPS)
+           SLIDE 6 (7/9): REAL-TIME SEARCH FUNCTION & AUDIT LOG (2 STEPS)
            ===================================================================== -->
-      <div class="s" data-idx="5" data-steps="2"
-           data-notes="<strong>Step 0 (Overview):</strong> Frontline intake systems call a single SQL function to search across programs, backed by an immutable AI audit log."
+      <div class="s" data-idx="6" data-steps="2"
+           data-notes="<strong>Step 0 (Overview):</strong> Frontline intake systems call a single SQL function to search across programs, backed by a permanent AI audit log."
            data-notes-1="<strong>Step 1 (Real-Time Search Function):</strong> Calling dcj_tdm.fn_person_match for 'Lachie Smith' finds Master Person PER-698E72DBC085 across ChildStory, InfoShare, and Youth Justice."
-           data-notes-2="<strong>Step 2 (Immutable AI Audit Log):</strong> Every borderline match decision records the model version, confidence score, and plain-English explanation.">
+           data-notes-2="<strong>Step 2 (Written Audit Log):</strong> Every borderline match decision records the model version, confidence score, and plain-English explanation.">
         <div class="slide-header">
           <div class="top-bar">
-            <span class="badge">5 · REAL-TIME SEARCH &amp; AUDITABLE AI DECISIONS</span>
-            <span class="gcp-pill">TVF: <code>dcj_tdm.fn_person_match</code></span>
+            <span class="badge">6 · REAL-TIME SEARCH &amp; AUDITABLE AI DECISIONS</span>
+            <span class="gcp-pill">Live Search: <code>dcj_tdm.fn_person_match</code></span>
           </div>
           <h2>Search across systems in real time with a <span class="hl">written audit trail</span></h2>
         </div>
 
         <div class="body">
           <div class="grid2 scaffold-group">
-            <!-- Left Card: Real-Time Search TVF -->
+            <!-- Left Card: Real-Time Search Function -->
             <div class="card" data-active-step="1" style="justify-content: space-between;">
               <div>
                 <div class="step-meta"><span>REAL-TIME INTAKE SEARCH</span><span class="badge-inline" style="margin:0;">3 Systems Linked</span></div>
-                <h3>Callable SQL Function: <code>fn_person_match(...)</code></h3>
+                <h3>Callable SQL Search: <code>fn_person_match(...)</code></h3>
               </div>
 
               <div class="code-box" style="padding: 10px 14px; font-size: 11px;">
@@ -1294,27 +1513,27 @@ ROUND(COALESCE(1.0 / (60 + rank_lexical), 0.0) + COALESCE(1.0 / (60 + rank_seman
                 <tbody>
                   <tr class="highlight-row">
                     <td><strong>#1</strong></td>
-                    <td><code>PER-698E72DBC085</code><br/>Lachlan James Smith</td>
-                    <td>ChildStory <code>CS-10001</code><br/>InfoShare <code>FP-CL-50001</code><br/>Youth Justice <code>YJ-30001</code></td>
+                    <td><strong>Lachlan James Smith</strong><br/><code style="white-space:nowrap;">PER-698E72DBC085</code></td>
+                    <td>ChildStory · InfoShare · Youth Justice</td>
                     <td><strong>94.6%</strong></td>
-                    <td><span class="badge-inline green">AUTO_LINK</span></td>
+                    <td><span class="badge-inline green">Auto-Link</span></td>
                   </tr>
                   <tr>
                     <td><strong>#2</strong></td>
-                    <td><code>PER-97D8A14FED04</code><br/>Lachlan Smith (b. 1975)</td>
-                    <td>ChildStory <code>CS-10341</code><br/>InfoShare <code>FP-CL-50316</code></td>
+                    <td><strong>Lachlan Smith (b. 1975)</strong><br/><code style="white-space:nowrap;">PER-97D8A14FED04</code></td>
+                    <td>ChildStory · InfoShare</td>
                     <td><strong>67.2%</strong></td>
-                    <td><span class="badge-inline amber">REVIEW</span></td>
+                    <td><span class="badge-inline amber">Review</span></td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <!-- Right Card: Immutable Audit Log -->
+            <!-- Right Card: Written Audit Log -->
             <div class="card" data-active-step="2" style="border-top-color: var(--secondary); justify-content: space-between;">
               <div>
-                <div class="step-meta"><span>IMMUTABLE AUDIT LOG</span><span class="badge-inline green" style="margin:0;">391 Audited Pairs</span></div>
-                <h3>Explainable Verdicts: <code>person_match_adjudications</code></h3>
+                <div class="step-meta"><span>WRITTEN AUDIT LOG</span><span class="badge-inline green" style="margin:0;">391 Audited Pairs</span></div>
+                <h3>Explainable Decisions: <code>person_match_adjudications</code></h3>
                 <p style="margin-top: 4px;">Every borderline decision stores the model version, confidence score, and plain-English reason:</p>
               </div>
 
@@ -1328,18 +1547,18 @@ ROUND(COALESCE(1.0 / (60 + rank_lexical), 0.0) + COALESCE(1.0 / (60 + rank_seman
                 </thead>
                 <tbody>
                   <tr class="highlight-row">
-                    <td><code>CP-REC-10096</code> &harr;<br/><code>FP-REC-20079</code></td>
-                    <td><strong>MATCH</strong><br/>98% Conf</td>
-                    <td>Birth date, gender, and ChildStory ID <code>CS-10066</code> match; surname change reflects foster placement.</td>
+                    <td><strong>ChildStory &harr; InfoShare</strong><br/><span style="font-size:11px;color:var(--text-muted);">Foster Care Placement</span></td>
+                    <td><strong>MATCH</strong><br/>98% Confidence</td>
+                    <td>Birth date, gender, and ChildStory ID match; surname change reflects foster placement.</td>
                   </tr>
                   <tr>
-                    <td><code>CP-REC-10051</code> &harr;<br/><code>CP-REC-10052</code></td>
-                    <td><strong>NO MATCH</strong><br/>99% Conf</td>
+                    <td><strong>ChildStory Twin Pair</strong><br/><span style="font-size:11px;color:var(--text-muted);">Same Birth Date &amp; Home</span></td>
+                    <td><strong>NO MATCH</strong><br/>99% Confidence</td>
                     <td>Shared birth date and address belong to co-residing twins with distinct first names and separate IDs.</td>
                   </tr>
                   <tr class="highlight-row">
-                    <td><code>CP-REC-10126</code> &harr;<br/><code>YJ-REC-30079</code></td>
-                    <td><strong>MATCH</strong><br/>96% Conf</td>
+                    <td><strong>ChildStory &harr; Youth Justice</strong><br/><span style="font-size:11px;color:var(--text-muted);">Cultural Name Alias</span></td>
+                    <td><strong>MATCH</strong><br/>96% Confidence</td>
                     <td>Youth Justice record uses traditional cultural name listed as an alias in ChildStory; address and birth date match.</td>
                   </tr>
                 </tbody>
@@ -1350,17 +1569,17 @@ ROUND(COALESCE(1.0 / (60 + rank_lexical), 0.0) + COALESCE(1.0 / (60 + rank_seman
       </div>
 
       <!-- =====================================================================
-           SLIDE 6 (7/8): 3-METHOD BENCHMARK & 8-SCENARIO SCORECARD (3 STEPS)
+           SLIDE 7 (8/9): 3-METHOD BENCHMARK & 8-SCENARIO SCORECARD (3 STEPS)
            ===================================================================== -->
-      <div class="s" data-idx="6" data-steps="3"
+      <div class="s" data-idx="7" data-steps="3"
            data-notes="<strong>Step 0 (Overview):</strong> We evaluated three matching methods against 600 known individuals (655 true cross-record pairs)."
            data-notes-1="<strong>Step 1 (Method 1 — Basic Linkage Key + Shared Address):</strong> Collapses 75 crisis shelter residents into a single person, causing 4,420 false links (12.8% precision)."
            data-notes-2="<strong>Step 2 (Method 2 — Strict ID Rules):</strong> Avoids the shelter merge, but falsely merges twins (120 false links) and misses 117 true matches."
-           data-notes-3="<strong>Step 3 (Method 3 — DCJ Hybrid Search + Gemini Platform AI Review):</strong> Finds 100% of true matches (655/655) with 99.4% precision and zero false merges across all 8 test scenarios.">
+           data-notes-3="<strong>Step 3 (Method 3 — DCJ Hybrid Search + Gemini Platform AI Review):</strong> Finds 100% of true matches (655/655) with 99.4% accuracy and zero false merges across all 8 test scenarios.">
         <div class="slide-header">
           <div class="top-bar">
-            <span class="badge">6 · VERIFIED ACCURACY AGAINST 600 TRUE PEOPLE</span>
-            <span class="gcp-pill">100% of True Matches Found · 0 Runaway Merges</span>
+            <span class="badge">7 · VERIFIED ACCURACY AGAINST 600 TRUE PEOPLE</span>
+            <span class="gcp-pill">100% of True Matches Found · 0 False Shelter Merges</span>
           </div>
           <h2><span class="hl-green">99.4% match accuracy</span> and zero false merges across all 8 test scenarios</h2>
         </div>
@@ -1369,15 +1588,15 @@ ROUND(COALESCE(1.0 / (60 + rank_lexical), 0.0) + COALESCE(1.0 / (60 + rank_seman
           <table class="data-table">
             <thead>
               <tr>
-                <th>Matching Method (<code>v_dcj_method_comparison</code>)</th>
+                <th>Matching Method Compared</th>
                 <th>People Found (True = 600)</th>
                 <th>Largest Group</th>
                 <th>Runaway Merges (&gt;6)</th>
                 <th>Correct Links</th>
                 <th>False Links</th>
                 <th>Missed Links</th>
-                <th>Precision</th>
-                <th>Recall</th>
+                <th>Accuracy (Precision)</th>
+                <th>Completeness (Recall)</th>
               </tr>
             </thead>
             <tbody class="scaffold-group">
@@ -1463,16 +1682,16 @@ ROUND(COALESCE(1.0 / (60 + rank_lexical), 0.0) + COALESCE(1.0 / (60 + rank_seman
       </div>
 
       <!-- =====================================================================
-           SLIDE 7 (8/8): BIGQUERY KNOWLEDGE CATALOG BUSINESS GLOSSARY (3 STEPS)
+           SLIDE 8 (9/9): BIGQUERY KNOWLEDGE CATALOG BUSINESS GLOSSARY (3 STEPS)
            ===================================================================== -->
-      <div class="s" data-idx="7" data-steps="3"
+      <div class="s" data-idx="8" data-steps="3"
            data-notes="<strong>Step 0 (Overview):</strong> All 118 business definitions and metrics are governed in BigQuery Knowledge Catalog."
            data-notes-1="<strong>Step 1 (Core Person, Names &amp; Street Addresses):</strong> 75 definitions covering master person attributes, 16 name types, government IDs, and verified NSW addresses."
            data-notes-2="<strong>Step 2 (Family Ties, Source Links &amp; AI Audit Log):</strong> 43 definitions covering standardized kinship relationships, source lineage, protection orders, and AI review rationales."
            data-notes-3="<strong>Step 3 (One-Command Repeatable Build):</strong> Running ./run.sh --all executes all SQL stages and syncs all 118 glossary definitions to BigQuery.">
         <div class="slide-header">
           <div class="top-bar">
-            <span class="badge">7 · DATA GOVERNANCE · BIGQUERY KNOWLEDGE CATALOG</span>
+            <span class="badge">8 · DATA GOVERNANCE · BIGQUERY KNOWLEDGE CATALOG</span>
             <span class="gcp-pill">Glossary: <code>dcj_person_cdm_glossary</code></span>
           </div>
           <h2>118 plain-English <span class="hl">business definitions</span> linked to every table column</h2>
@@ -1489,7 +1708,7 @@ ROUND(COALESCE(1.0 / (60 + rank_lexical), 0.0) + COALESCE(1.0 / (60 + rank_seman
             <div class="card" data-active-step="1,3">
               <div class="step-meta"><span>CATEGORY 02</span><span class="badge-inline green" style="margin:0;">25 Definitions</span></div>
               <h3>Names &amp; Government IDs</h3>
-              <p><strong>Aliases &amp; external keys:</strong> Defines all 16 name usage types plus ChildStory, Police, NDIS, and Linkage keys.</p>
+              <p><strong>Aliases &amp; external IDs:</strong> Defines all 16 name types (legal, preferred, foster, cultural) and government reference numbers.</p>
             </div>
 
             <div class="card" data-active-step="1,3">
@@ -1513,7 +1732,7 @@ ROUND(COALESCE(1.0 / (60 + rank_lexical), 0.0) + COALESCE(1.0 / (60 + rank_seman
             <div class="card" data-active-step="2,3" style="border-top-color: var(--secondary);">
               <div class="step-meta"><span>CATEGORY 06</span><span class="badge-inline amber" style="margin:0;">16 Definitions</span></div>
               <h3>AI Match &amp; Audit Log</h3>
-              <p><strong>Explainable AI fields:</strong> Defines <code>verdict</code>, <code>confidence</code>, <code>rationale</code>, <code>decisive_evidence</code>, and accuracy KPIs.</p>
+              <p><strong>Explainable AI fields:</strong> Defines <code>verdict</code>, <code>confidence</code>, <code>rationale</code>, <code>decisive_evidence</code>, and accuracy metrics.</p>
             </div>
           </div>
 
