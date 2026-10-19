@@ -1,0 +1,522 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1872 1210" width="100%" height="100%">
+<defs>
+
+    <style>
+      .fd-font { font-family: 'Inter', 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+      .fd-mono { font-family: 'JetBrains Mono', 'Roboto Mono', ui-monospace, SFMono-Regular, monospace; }
+    </style>
+    <filter id="card-shadow" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0F172A" flood-opacity="0.06"/>
+    </filter>
+  
+</defs>
+<rect x="0" y="0" width="1872" height="1210" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+<text x="48" y="38" class="fd-font" font-size="18" font-weight="700" fill="#0F172A">DCJ — NSW DCJ Unified Person Data Model &amp; Hybrid Match</text>
+<text x="48" y="58" class="fd-font" font-size="12" font-weight="500" fill="#64748B">Functional Hierarchy Diagram (FHD) · Root: DCJ-00</text>
+<line x1="936.0" y1="158.0" x2="936.0" y2="184.0" stroke="#64748B" stroke-width="1.75"/>
+<line x1="258.0" y1="184.0" x2="1614.0" y2="184.0" stroke="#64748B" stroke-width="1.75"/>
+<line x1="258.0" y1="184.0" x2="258.0" y2="210.0" stroke="#64748B" stroke-width="1.75"/>
+<line x1="710.0" y1="184.0" x2="710.0" y2="210.0" stroke="#64748B" stroke-width="1.75"/>
+<line x1="1162.0" y1="184.0" x2="1162.0" y2="210.0" stroke="#64748B" stroke-width="1.75"/>
+<line x1="1614.0" y1="184.0" x2="1614.0" y2="210.0" stroke="#64748B" stroke-width="1.75"/>
+<line x1="60.0" y1="282.0" x2="60.0" y2="950.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="60.0" y1="334.0" x2="70.0" y2="334.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="60.0" y1="598.0" x2="70.0" y2="598.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="60.0" y1="862.0" x2="70.0" y2="862.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="60.0" y1="950.0" x2="70.0" y2="950.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="82.0" y1="370.0" x2="82.0" y2="510.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="82.0" y1="422.0" x2="92.0" y2="422.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="82.0" y1="510.0" x2="92.0" y2="510.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="82.0" y1="634.0" x2="82.0" y2="774.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="82.0" y1="686.0" x2="92.0" y2="686.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="82.0" y1="774.0" x2="92.0" y2="774.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="82.0" y1="986.0" x2="82.0" y2="1126.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="82.0" y1="1038.0" x2="92.0" y2="1038.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="82.0" y1="1126.0" x2="92.0" y2="1126.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="512.0" y1="282.0" x2="512.0" y2="1038.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="512.0" y1="334.0" x2="522.0" y2="334.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="512.0" y1="598.0" x2="522.0" y2="598.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="512.0" y1="862.0" x2="522.0" y2="862.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="512.0" y1="950.0" x2="522.0" y2="950.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="512.0" y1="1038.0" x2="522.0" y2="1038.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="534.0" y1="370.0" x2="534.0" y2="510.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="534.0" y1="422.0" x2="544.0" y2="422.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="534.0" y1="510.0" x2="544.0" y2="510.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="534.0" y1="634.0" x2="534.0" y2="774.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="534.0" y1="686.0" x2="544.0" y2="686.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="534.0" y1="774.0" x2="544.0" y2="774.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="964.0" y1="282.0" x2="964.0" y2="1038.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="964.0" y1="334.0" x2="974.0" y2="334.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="964.0" y1="598.0" x2="974.0" y2="598.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="964.0" y1="686.0" x2="974.0" y2="686.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="964.0" y1="1038.0" x2="974.0" y2="1038.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="986.0" y1="370.0" x2="986.0" y2="510.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="986.0" y1="422.0" x2="996.0" y2="422.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="986.0" y1="510.0" x2="996.0" y2="510.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="986.0" y1="722.0" x2="986.0" y2="950.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="986.0" y1="774.0" x2="996.0" y2="774.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="986.0" y1="862.0" x2="996.0" y2="862.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="986.0" y1="950.0" x2="996.0" y2="950.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="1416.0" y1="282.0" x2="1416.0" y2="598.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="1416.0" y1="334.0" x2="1426.0" y2="334.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="1416.0" y1="422.0" x2="1426.0" y2="422.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="1416.0" y1="510.0" x2="1426.0" y2="510.0" stroke="#94A3B8" stroke-width="1.5"/>
+<line x1="1416.0" y1="598.0" x2="1426.0" y2="598.0" stroke="#94A3B8" stroke-width="1.5"/>
+<g filter="url(#card-shadow)">
+<rect x="706.0" y="84.0" width="460.0" height="74.0" rx="6" fill="#0F172A" stroke="#0F172A" stroke-width="1.75"/>
+<rect x="706.0" y="84.0" width="5" height="74.0" rx="2.5" fill="#38BDF8"/>
+<rect x="718.0" y="95.0" width="57.0" height="20" rx="4" fill="#1E293B"/>
+<text x="746.5" y="109.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#38BDF8">DCJ-00</text>
+<rect x="1105.0" y="96.0" width="51.0" height="18" rx="4" fill="#1E293B"/>
+<text x="1130.5" y="108.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#E2E8F0">DOMAIN</text>
+<text x="783.0" y="109.5" class="fd-font" font-size="12" font-weight="700" fill="#FFFFFF">NSW DCJ Unified Person Data Model &amp; Hybrid Match</text>
+<text x="718.0" y="130.0" class="fd-font" font-size="10.8" font-weight="400" fill="#CBD5E1">Unifies Child Protection, Family Preservation, and Youth Justice records</text>
+<text x="718.0" y="144.0" class="fd-font" font-size="10.8" font-weight="400" fill="#CBD5E1">into a 9-table Target Data Model and Property Graph.</text>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="48.0" y="210.0" width="420.0" height="72.0" rx="6" fill="#F8FAFC" stroke="#1A73E8" stroke-width="1.75"/>
+<rect x="48.0" y="210.0" width="5" height="72.0" rx="2.5" fill="#1A73E8"/>
+<rect x="60.0" y="221.0" width="57.0" height="20" rx="4" fill="#E8F0FE"/>
+<text x="88.5" y="235.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#174EA6">DCJ-01</text>
+<rect x="407.0" y="222.0" width="51.0" height="18" rx="4" fill="#E8F0FE"/>
+<text x="432.5" y="234.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#174EA6">DOMAIN</text>
+<text x="125.0" y="235.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Stage 1: Multi-Agency SDM Ingestion &amp; Stan…</text>
+<text x="60.0" y="256.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Ingests ChildStory, InfoShare, and KIMS source records,</text>
+<text x="60.0" y="270.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">standardizes keys, and builds the Bipartite Identifier Graph.</text>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="70.0" y="298.0" width="398.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="70.0" y="298.0" width="5" height="72.0" rx="2.5" fill="#0891B2"/>
+<rect x="82.0" y="309.0" width="79.5" height="20" rx="4" fill="#F1F5F9"/>
+<text x="121.8" y="323.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-01-01</text>
+<rect x="407.0" y="310.0" width="51.0" height="18" rx="4" fill="#CFFAFE"/>
+<text x="432.5" y="322.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#155E75">INGEST</text>
+<text x="169.5" y="323.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Multi-Agency SDM Ingestion &amp; Schema…</text>
+<text x="82.0" y="344.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Ingests raw person, household, address, and relationship feeds</text>
+<text x="82.0" y="358.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">from ChildStory, InfoShare, and KIMS into dcj_sdm.</text>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="92.0" y="386.0" width="376.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="92.0" y="386.0" width="5" height="72.0" rx="2.5" fill="#0891B2"/>
+<rect x="104.0" y="397.0" width="102.0" height="20" rx="4" fill="#F1F5F9"/>
+<text x="155.0" y="411.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-01-01-01</text>
+<rect x="407.0" y="398.0" width="51.0" height="18" rx="4" fill="#CFFAFE"/>
+<text x="432.5" y="410.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#155E75">INGEST</text>
+<text x="214.0" y="411.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">ChildStory &amp; KIMS Person-Add…</text>
+<text x="104.0" y="432.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Captures Child Protection and Youth Justice person</text>
+<text x="104.0" y="446.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">profiles, aliases, CNI/NDIS IDs, addresses, and kinsh...</text>
+<polygon points="454.0,441.5 458.5,446.0 454.0,450.5 449.5,446.0" fill="none" stroke="#0891B2" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="454.0" cy="446.0" r="1.2" fill="#0891B2"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="92.0" y="474.0" width="376.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="92.0" y="474.0" width="5" height="72.0" rx="2.5" fill="#0891B2"/>
+<rect x="104.0" y="485.0" width="102.0" height="20" rx="4" fill="#F1F5F9"/>
+<text x="155.0" y="499.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-01-01-02</text>
+<rect x="407.0" y="486.0" width="51.0" height="18" rx="4" fill="#CFFAFE"/>
+<text x="432.5" y="498.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#155E75">INGEST</text>
+<text x="214.0" y="499.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">InfoShare Household Group &amp;…</text>
+<text x="104.0" y="520.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Ingests Family Preservation client profiles, household</text>
+<text x="104.0" y="534.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">group memberships (GRP-*), and service provider...</text>
+<polygon points="454.0,529.5 458.5,534.0 454.0,538.5 449.5,534.0" fill="none" stroke="#0891B2" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="454.0" cy="534.0" r="1.2" fill="#0891B2"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="70.0" y="562.0" width="398.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="70.0" y="562.0" width="5" height="72.0" rx="2.5" fill="#2563EB"/>
+<rect x="82.0" y="573.0" width="79.5" height="20" rx="4" fill="#F1F5F9"/>
+<text x="121.8" y="587.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-01-02</text>
+<rect x="407.0" y="574.0" width="51.0" height="18" rx="4" fill="#DBEAFE"/>
+<text x="432.5" y="586.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#1E40AF">BIZ FN</text>
+<text x="169.5" y="587.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Name, Phone, GNAF &amp; SLK-581 Normali…</text>
+<text x="82.0" y="608.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Normalizes diacritics, phonetic tokens, mobile numbers, GNAF</text>
+<text x="82.0" y="622.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">PIDs, and AIHW SLK-581 linkage keys via SQL UDFs.</text>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="92.0" y="650.0" width="376.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="92.0" y="650.0" width="5" height="72.0" rx="2.5" fill="#2563EB"/>
+<rect x="104.0" y="661.0" width="102.0" height="20" rx="4" fill="#F1F5F9"/>
+<text x="155.0" y="675.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-01-02-01</text>
+<rect x="407.0" y="662.0" width="51.0" height="18" rx="4" fill="#DBEAFE"/>
+<text x="432.5" y="674.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#1E40AF">BIZ FN</text>
+<text x="214.0" y="675.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Diacritic, Phonetic &amp; AIHW S…</text>
+<text x="104.0" y="696.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Executes fold_diacritics, SOUNDEX, norm_phone, and</text>
+<text x="104.0" y="710.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">compute_slk581 UDFs across all 1,150 source records.</text>
+<polygon points="454.0,705.5 458.5,710.0 454.0,714.5 449.5,710.0" fill="none" stroke="#2563EB" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="454.0" cy="710.0" r="1.2" fill="#2563EB"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="92.0" y="738.0" width="376.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="92.0" y="738.0" width="5" height="72.0" rx="2.5" fill="#2563EB"/>
+<rect x="104.0" y="749.0" width="102.0" height="20" rx="4" fill="#F1F5F9"/>
+<text x="155.0" y="763.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-01-02-02</text>
+<rect x="407.0" y="750.0" width="51.0" height="18" rx="4" fill="#DBEAFE"/>
+<text x="432.5" y="762.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#1E40AF">BIZ FN</text>
+<text x="214.0" y="763.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">NSW GNAF Address &amp; Relations…</text>
+<text x="104.0" y="784.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Standardizes street suffixes, binds GNAF PIDs with</text>
+<text x="104.0" y="798.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">lat/lon coordinates, and maps 78 relationship types i...</text>
+<polygon points="454.0,793.5 458.5,798.0 454.0,802.5 449.5,798.0" fill="none" stroke="#2563EB" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="454.0" cy="798.0" r="1.2" fill="#2563EB"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="70.0" y="826.0" width="398.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="70.0" y="826.0" width="5" height="72.0" rx="2.5" fill="#059669"/>
+<rect x="82.0" y="837.0" width="79.5" height="20" rx="4" fill="#F1F5F9"/>
+<text x="121.8" y="851.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-01-03</text>
+<rect x="414.0" y="838.0" width="44.0" height="18" rx="4" fill="#D1FAE5"/>
+<text x="436.0" y="850.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#065F46">CRUD</text>
+<text x="169.5" y="851.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Staged Source Profile Store (stg_sou…</text>
+<text x="82.0" y="872.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Maintains the 1,150 unified source profiles and serialized</text>
+<text x="82.0" y="886.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">natural-language match_key dossiers in dcj_match.</text>
+<polygon points="454.0,881.5 458.5,886.0 454.0,890.5 449.5,886.0" fill="none" stroke="#059669" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="454.0" cy="886.0" r="1.2" fill="#059669"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="70.0" y="914.0" width="398.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="70.0" y="914.0" width="5" height="72.0" rx="2.5" fill="#2563EB"/>
+<rect x="82.0" y="925.0" width="79.5" height="20" rx="4" fill="#F1F5F9"/>
+<text x="121.8" y="939.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-01-04</text>
+<rect x="407.0" y="926.0" width="51.0" height="18" rx="4" fill="#DBEAFE"/>
+<text x="432.5" y="938.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#1E40AF">BIZ FN</text>
+<text x="169.5" y="939.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Bipartite Identifier Graph &amp; Crisis…</text>
+<text x="82.0" y="960.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Constructs the Bipartite Identifier Graph (has_identifier,</text>
+<text x="82.0" y="974.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">identifier) with IDF rarity weights and hub suppression.</text>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="92.0" y="1002.0" width="376.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="92.0" y="1002.0" width="5" height="72.0" rx="2.5" fill="#2563EB"/>
+<rect x="104.0" y="1013.0" width="102.0" height="20" rx="4" fill="#F1F5F9"/>
+<text x="155.0" y="1027.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-01-04-01</text>
+<rect x="407.0" y="1014.0" width="51.0" height="18" rx="4" fill="#DBEAFE"/>
+<text x="432.5" y="1026.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#1E40AF">BIZ FN</text>
+<text x="214.0" y="1027.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Bipartite Identifier &amp; IDF R…</text>
+<text x="104.0" y="1048.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Extracts 5,143 profile-to-identifier edges and</text>
+<text x="104.0" y="1062.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">calculates LN(1 + N/df) rarity weights across 2,754...</text>
+<polygon points="454.0,1057.5 458.5,1062.0 454.0,1066.5 449.5,1062.0" fill="none" stroke="#2563EB" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="454.0" cy="1062.0" r="1.2" fill="#2563EB"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="92.0" y="1090.0" width="376.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="92.0" y="1090.0" width="5" height="72.0" rx="2.5" fill="#2563EB"/>
+<rect x="104.0" y="1101.0" width="102.0" height="20" rx="4" fill="#F1F5F9"/>
+<text x="155.0" y="1115.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-01-04-02</text>
+<rect x="407.0" y="1102.0" width="51.0" height="18" rx="4" fill="#DBEAFE"/>
+<text x="432.5" y="1114.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#1E40AF">BIZ FN</text>
+<text x="214.0" y="1115.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Crisis Refuge &amp; Group Home H…</text>
+<text x="104.0" y="1136.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Flags shared crisis refuges and residential care homes</text>
+<text x="104.0" y="1150.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">(df &gt; 5) with is_hub = TRUE to prevent hairball...</text>
+<polygon points="454.0,1145.5 458.5,1150.0 454.0,1154.5 449.5,1150.0" fill="none" stroke="#2563EB" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="454.0" cy="1150.0" r="1.2" fill="#2563EB"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="500.0" y="210.0" width="420.0" height="72.0" rx="6" fill="#F8FAFC" stroke="#1A73E8" stroke-width="1.75"/>
+<rect x="500.0" y="210.0" width="5" height="72.0" rx="2.5" fill="#1A73E8"/>
+<rect x="512.0" y="221.0" width="57.0" height="20" rx="4" fill="#E8F0FE"/>
+<text x="540.5" y="235.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#174EA6">DCJ-02</text>
+<rect x="859.0" y="222.0" width="51.0" height="18" rx="4" fill="#E8F0FE"/>
+<text x="884.5" y="234.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#174EA6">DOMAIN</text>
+<text x="577.0" y="235.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Stage 2: Hybrid Retrieval, RRF Scoring &amp; G…</text>
+<text x="512.0" y="256.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Combines BigQuery Vector Search, Reciprocal Rank Fusion (RRF), and</text>
+<text x="512.0" y="270.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">the Gemini Platform AI Adjudicator (Gemini 3.5).</text>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="522.0" y="298.0" width="398.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="522.0" y="298.0" width="5" height="72.0" rx="2.5" fill="#2563EB"/>
+<rect x="534.0" y="309.0" width="79.5" height="20" rx="4" fill="#F1F5F9"/>
+<text x="573.8" y="323.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-02-01</text>
+<rect x="859.0" y="310.0" width="51.0" height="18" rx="4" fill="#DBEAFE"/>
+<text x="884.5" y="322.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#1E40AF">BIZ FN</text>
+<text x="621.5" y="323.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Autonomous Profile Embedding &amp; BigQ…</text>
+<text x="534.0" y="344.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Generates autonomous AI.EMBED vector embeddings</text>
+<text x="534.0" y="358.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">(text-embedding-005) and executes native BigQuery...</text>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="544.0" y="386.0" width="376.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="544.0" y="386.0" width="5" height="72.0" rx="2.5" fill="#2563EB"/>
+<rect x="556.0" y="397.0" width="102.0" height="20" rx="4" fill="#F1F5F9"/>
+<text x="607.0" y="411.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-02-01-01</text>
+<rect x="859.0" y="398.0" width="51.0" height="18" rx="4" fill="#DBEAFE"/>
+<text x="884.5" y="410.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#1E40AF">BIZ FN</text>
+<text x="666.0" y="411.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Autonomous Dossier Embedding…</text>
+<text x="556.0" y="432.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Maintains 768-dimensional text-embedding-005 vectors on</text>
+<text x="556.0" y="446.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">dcj_match.source_profile_search via GENERATED ALWAYS...</text>
+<polygon points="906.0,441.5 910.5,446.0 906.0,450.5 901.5,446.0" fill="none" stroke="#2563EB" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="906.0" cy="446.0" r="1.2" fill="#2563EB"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="544.0" y="474.0" width="376.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="544.0" y="474.0" width="5" height="72.0" rx="2.5" fill="#2563EB"/>
+<rect x="556.0" y="485.0" width="102.0" height="20" rx="4" fill="#F1F5F9"/>
+<text x="607.0" y="499.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-02-01-02</text>
+<rect x="859.0" y="486.0" width="51.0" height="18" rx="4" fill="#DBEAFE"/>
+<text x="884.5" y="498.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#1E40AF">BIZ FN</text>
+<text x="666.0" y="499.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Top-K Semantic Candidate Ret…</text>
+<text x="556.0" y="520.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Retrieves top-15 nearest neighbor profiles per record</text>
+<text x="556.0" y="534.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">using native BigQuery VECTOR_SEARCH cosine similarity.</text>
+<polygon points="906.0,529.5 910.5,534.0 906.0,538.5 901.5,534.0" fill="none" stroke="#2563EB" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="906.0" cy="534.0" r="1.2" fill="#2563EB"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="522.0" y="562.0" width="398.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="522.0" y="562.0" width="5" height="72.0" rx="2.5" fill="#2563EB"/>
+<rect x="534.0" y="573.0" width="79.5" height="20" rx="4" fill="#F1F5F9"/>
+<text x="573.8" y="587.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-02-02</text>
+<rect x="859.0" y="574.0" width="51.0" height="18" rx="4" fill="#DBEAFE"/>
+<text x="884.5" y="586.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#1E40AF">BIZ FN</text>
+<text x="621.5" y="587.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Reciprocal Rank Fusion (RRF), Kinsh…</text>
+<text x="534.0" y="608.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Fuses lexical IDF and vector rankings via RRF (k=60), adds</text>
+<text x="534.0" y="622.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">2-hop kinship boosts, and flags twin SLK-581 collisions.</text>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="544.0" y="650.0" width="376.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="544.0" y="650.0" width="5" height="72.0" rx="2.5" fill="#2563EB"/>
+<rect x="556.0" y="661.0" width="102.0" height="20" rx="4" fill="#F1F5F9"/>
+<text x="607.0" y="675.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-02-02-01</text>
+<rect x="859.0" y="662.0" width="51.0" height="18" rx="4" fill="#DBEAFE"/>
+<text x="884.5" y="674.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#1E40AF">BIZ FN</text>
+<text x="666.0" y="675.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Lexical + Semantic RRF Score…</text>
+<text x="556.0" y="696.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Combines non-hub bipartite IDF weights and BigQuery</text>
+<text x="556.0" y="710.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Vector Search ranks using Reciprocal Rank Fusion.</text>
+<polygon points="906.0,705.5 910.5,710.0 906.0,714.5 901.5,710.0" fill="none" stroke="#2563EB" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="906.0" cy="710.0" r="1.2" fill="#2563EB"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="544.0" y="738.0" width="376.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="544.0" y="738.0" width="5" height="72.0" rx="2.5" fill="#2563EB"/>
+<rect x="556.0" y="749.0" width="102.0" height="20" rx="4" fill="#F1F5F9"/>
+<text x="607.0" y="763.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-02-02-02</text>
+<rect x="859.0" y="750.0" width="51.0" height="18" rx="4" fill="#DBEAFE"/>
+<text x="884.5" y="762.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#1E40AF">BIZ FN</text>
+<text x="666.0" y="763.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">2-Hop Kinship Boost &amp; Twin S…</text>
+<text x="556.0" y="784.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Boosts pairs sharing a parent/carer or household group</text>
+<text x="556.0" y="798.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">and diverts same-DOB twin SLK-581 collisions to...</text>
+<polygon points="906.0,793.5 910.5,798.0 906.0,802.5 901.5,798.0" fill="none" stroke="#2563EB" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="906.0" cy="798.0" r="1.2" fill="#2563EB"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="522.0" y="826.0" width="398.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="522.0" y="826.0" width="5" height="72.0" rx="2.5" fill="#7C3AED"/>
+<rect x="534.0" y="837.0" width="79.5" height="20" rx="4" fill="#F1F5F9"/>
+<text x="573.8" y="851.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-02-03</text>
+<rect x="865.5" y="838.0" width="44.5" height="18" rx="4" fill="#EDE9FE"/>
+<text x="887.8" y="850.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#5B21B6">AGENT</text>
+<text x="621.5" y="851.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Gemini Platform AI Adjudicator (gemi…</text>
+<text x="534.0" y="872.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Adjudicates 391 borderline GREY_ZONE pairs via AI.GENERATE</text>
+<text x="534.0" y="886.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">on Gemini 3.5 with structured JSON verdicts and rationale.</text>
+<polygon points="906.0,881.5 910.5,886.0 906.0,890.5 901.5,886.0" fill="none" stroke="#7C3AED" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="906.0" cy="886.0" r="1.2" fill="#7C3AED"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="522.0" y="914.0" width="398.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="522.0" y="914.0" width="5" height="72.0" rx="2.5" fill="#059669"/>
+<rect x="534.0" y="925.0" width="79.5" height="20" rx="4" fill="#F1F5F9"/>
+<text x="573.8" y="939.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-02-04</text>
+<rect x="866.0" y="926.0" width="44.0" height="18" rx="4" fill="#D1FAE5"/>
+<text x="888.0" y="938.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#065F46">CRUD</text>
+<text x="621.5" y="939.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Immutable AI Adjudication Audit Ledg…</text>
+<text x="534.0" y="960.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Records all Gemini 3.5 verdicts, confidence scores, prompt</text>
+<text x="534.0" y="974.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">hashes, and steward overrides in person_match_adjudications.</text>
+<polygon points="906.0,969.5 910.5,974.0 906.0,978.5 901.5,974.0" fill="none" stroke="#059669" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="906.0" cy="974.0" r="1.2" fill="#059669"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="522.0" y="1002.0" width="398.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="522.0" y="1002.0" width="5" height="72.0" rx="2.5" fill="#D97706"/>
+<rect x="534.0" y="1013.0" width="79.5" height="20" rx="4" fill="#F1F5F9"/>
+<text x="573.8" y="1027.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-02-05</text>
+<rect x="839.5" y="1014.0" width="70.5" height="18" rx="4" fill="#FEF3C7"/>
+<text x="874.8" y="1026.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#92400E">UI / HITL</text>
+<text x="621.5" y="1027.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Data Steward Grey-Zone &amp; Split/M…</text>
+<text x="534.0" y="1048.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Provides Human-in-the-Loop review of Gemini 3.5 rationales,</text>
+<text x="534.0" y="1062.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">side-by-side source dossiers, and manual split/merge...</text>
+<polygon points="906.0,1057.5 910.5,1062.0 906.0,1066.5 901.5,1062.0" fill="none" stroke="#D97706" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="906.0" cy="1062.0" r="1.2" fill="#D97706"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="952.0" y="210.0" width="420.0" height="72.0" rx="6" fill="#F8FAFC" stroke="#1A73E8" stroke-width="1.75"/>
+<rect x="952.0" y="210.0" width="5" height="72.0" rx="2.5" fill="#1A73E8"/>
+<rect x="964.0" y="221.0" width="57.0" height="20" rx="4" fill="#E8F0FE"/>
+<text x="992.5" y="235.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#174EA6">DCJ-03</text>
+<rect x="1311.0" y="222.0" width="51.0" height="18" rx="4" fill="#E8F0FE"/>
+<text x="1336.5" y="234.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#174EA6">DOMAIN</text>
+<text x="1029.0" y="235.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Stage 3: Graph Clustering, Golden Survivor…</text>
+<text x="964.0" y="256.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Clusters verified pairs via Two-Pass Connected Components and</text>
+<text x="964.0" y="270.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">populates the pure 9-table Target Data Model and Property Graph.</text>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="974.0" y="298.0" width="398.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="974.0" y="298.0" width="5" height="72.0" rx="2.5" fill="#2563EB"/>
+<rect x="986.0" y="309.0" width="79.5" height="20" rx="4" fill="#F1F5F9"/>
+<text x="1025.8" y="323.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-03-01</text>
+<rect x="1311.0" y="310.0" width="51.0" height="18" rx="4" fill="#DBEAFE"/>
+<text x="1336.5" y="322.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#1E40AF">BIZ FN</text>
+<text x="1073.5" y="323.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Two-Pass Connected Components &amp; Con…</text>
+<text x="986.0" y="344.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Executes iterative label propagation (sp_connected_components)</text>
+<text x="986.0" y="358.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">in dcj_match with Pass-2 contradiction pruning.</text>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="996.0" y="386.0" width="376.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="996.0" y="386.0" width="5" height="72.0" rx="2.5" fill="#2563EB"/>
+<rect x="1008.0" y="397.0" width="102.0" height="20" rx="4" fill="#F1F5F9"/>
+<text x="1059.0" y="411.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-03-01-01</text>
+<rect x="1311.0" y="398.0" width="51.0" height="18" rx="4" fill="#DBEAFE"/>
+<text x="1336.5" y="410.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#1E40AF">BIZ FN</text>
+<text x="1118.0" y="411.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Pass-1 Graph Label Propagati…</text>
+<text x="1008.0" y="432.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Propagates minimum component_id labels across verified</text>
+<text x="1008.0" y="446.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">match edges until convergence in dcj_match.cc_pass1.</text>
+<polygon points="1358.0,441.5 1362.5,446.0 1358.0,450.5 1353.5,446.0" fill="none" stroke="#2563EB" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="1358.0" cy="446.0" r="1.2" fill="#2563EB"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="996.0" y="474.0" width="376.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="996.0" y="474.0" width="5" height="72.0" rx="2.5" fill="#2563EB"/>
+<rect x="1008.0" y="485.0" width="102.0" height="20" rx="4" fill="#F1F5F9"/>
+<text x="1059.0" y="499.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-03-01-02</text>
+<rect x="1311.0" y="486.0" width="51.0" height="18" rx="4" fill="#DBEAFE"/>
+<text x="1336.5" y="498.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#1E40AF">BIZ FN</text>
+<text x="1118.0" y="499.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Twin &amp; Contradiction Edge Pr…</text>
+<text x="1008.0" y="520.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Detects internal NO_MATCH contradictions in cc_pass1,</text>
+<text x="1008.0" y="534.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">prunes weak bridges, and re-runs Pass-2 clustering in...</text>
+<polygon points="1358.0,529.5 1362.5,534.0 1358.0,538.5 1353.5,534.0" fill="none" stroke="#2563EB" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="1358.0" cy="534.0" r="1.2" fill="#2563EB"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="974.0" y="562.0" width="398.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="974.0" y="562.0" width="5" height="72.0" rx="2.5" fill="#2563EB"/>
+<rect x="986.0" y="573.0" width="79.5" height="20" rx="4" fill="#F1F5F9"/>
+<text x="1025.8" y="587.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-03-02</text>
+<rect x="1311.0" y="574.0" width="51.0" height="18" rx="4" fill="#DBEAFE"/>
+<text x="1336.5" y="586.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#1E40AF">BIZ FN</text>
+<text x="1073.5" y="587.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Golden Person Survivorship &amp; Protec…</text>
+<text x="986.0" y="608.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Resolves golden demographic attributes</text>
+<text x="986.0" y="622.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">(dcj_match.field_survivorship) and rolls up Domestic...</text>
+<polygon points="1358.0,617.5 1362.5,622.0 1358.0,626.5 1353.5,622.0" fill="none" stroke="#2563EB" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="1358.0" cy="622.0" r="1.2" fill="#2563EB"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="974.0" y="650.0" width="398.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="974.0" y="650.0" width="5" height="72.0" rx="2.5" fill="#059669"/>
+<rect x="986.0" y="661.0" width="79.5" height="20" rx="4" fill="#F1F5F9"/>
+<text x="1025.8" y="675.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-03-03</text>
+<rect x="1318.0" y="662.0" width="44.0" height="18" rx="4" fill="#D1FAE5"/>
+<text x="1340.0" y="674.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#065F46">CRUD</text>
+<text x="1073.5" y="675.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">9-Table Target Data Model Persistenc…</text>
+<text x="986.0" y="696.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Persists the 9 mastered Target Data Model tables in</text>
+<text x="986.0" y="710.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">all-things-cdp.dcj_tdm with zero working-table clutter.</text>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="996.0" y="738.0" width="376.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="996.0" y="738.0" width="5" height="72.0" rx="2.5" fill="#059669"/>
+<rect x="1008.0" y="749.0" width="102.0" height="20" rx="4" fill="#F1F5F9"/>
+<text x="1059.0" y="763.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-03-03-01</text>
+<rect x="1318.0" y="750.0" width="44.0" height="18" rx="4" fill="#D1FAE5"/>
+<text x="1340.0" y="762.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#065F46">CRUD</text>
+<text x="1118.0" y="763.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Core Party, Golden Person &amp; S…</text>
+<text x="1008.0" y="784.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Maintains dcj_tdm.party (681), dcj_tdm.person (599</text>
+<text x="1008.0" y="798.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">golden rows), and dcj_tdm.person_source_linkage (1,150).</text>
+<polygon points="1358.0,793.5 1362.5,798.0 1358.0,802.5 1353.5,798.0" fill="none" stroke="#059669" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="1358.0" cy="798.0" r="1.2" fill="#059669"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="996.0" y="826.0" width="376.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="996.0" y="826.0" width="5" height="72.0" rx="2.5" fill="#059669"/>
+<rect x="1008.0" y="837.0" width="102.0" height="20" rx="4" fill="#F1F5F9"/>
+<text x="1059.0" y="851.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-03-03-02</text>
+<rect x="1318.0" y="838.0" width="44.0" height="18" rx="4" fill="#D1FAE5"/>
+<text x="1340.0" y="850.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#065F46">CRUD</text>
+<text x="1118.0" y="851.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Multi-Name, Identity Instrume…</text>
+<text x="1008.0" y="872.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Maintains dcj_tdm.person_name (1,623),</text>
+<text x="1008.0" y="886.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">person_identity_instrument (1,517), address_location...</text>
+<polygon points="1358.0,881.5 1362.5,886.0 1358.0,890.5 1353.5,886.0" fill="none" stroke="#059669" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="1358.0" cy="886.0" r="1.2" fill="#059669"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="996.0" y="914.0" width="376.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="996.0" y="914.0" width="5" height="72.0" rx="2.5" fill="#059669"/>
+<rect x="1008.0" y="925.0" width="102.0" height="20" rx="4" fill="#F1F5F9"/>
+<text x="1059.0" y="939.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-03-03-03</text>
+<rect x="1318.0" y="926.0" width="44.0" height="18" rx="4" fill="#D1FAE5"/>
+<text x="1340.0" y="938.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#065F46">CRUD</text>
+<text x="1118.0" y="939.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Harmonised Kinship Relationsh…</text>
+<text x="1008.0" y="960.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Maintains dcj_tdm.party_relationship (593 harmonised</text>
+<text x="1008.0" y="974.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">kinship/group edges) and person_protection_event (45...</text>
+<polygon points="1358.0,969.5 1362.5,974.0 1358.0,978.5 1353.5,974.0" fill="none" stroke="#059669" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="1358.0" cy="974.0" r="1.2" fill="#059669"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="974.0" y="1002.0" width="398.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="974.0" y="1002.0" width="5" height="72.0" rx="2.5" fill="#2563EB"/>
+<rect x="986.0" y="1013.0" width="79.5" height="20" rx="4" fill="#F1F5F9"/>
+<text x="1025.8" y="1027.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-03-04</text>
+<rect x="1311.0" y="1014.0" width="51.0" height="18" rx="4" fill="#DBEAFE"/>
+<text x="1336.5" y="1026.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#1E40AF">BIZ FN</text>
+<text x="1073.5" y="1027.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Target BigQuery Property Graph (dcj…</text>
+<text x="986.0" y="1048.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Exposes all-things-cdp.dcj_tdm.dcj_person_graph with 8 Node</text>
+<text x="986.0" y="1062.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Labels and 9 Edge Labels for ISO GQL traversal.</text>
+<polygon points="1358.0,1057.5 1362.5,1062.0 1358.0,1066.5 1353.5,1062.0" fill="none" stroke="#2563EB" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="1358.0" cy="1062.0" r="1.2" fill="#2563EB"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="1404.0" y="210.0" width="420.0" height="72.0" rx="6" fill="#F8FAFC" stroke="#1A73E8" stroke-width="1.75"/>
+<rect x="1404.0" y="210.0" width="5" height="72.0" rx="2.5" fill="#1A73E8"/>
+<rect x="1416.0" y="221.0" width="57.0" height="20" rx="4" fill="#E8F0FE"/>
+<text x="1444.5" y="235.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#174EA6">DCJ-04</text>
+<rect x="1763.0" y="222.0" width="51.0" height="18" rx="4" fill="#E8F0FE"/>
+<text x="1788.5" y="234.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#174EA6">DOMAIN</text>
+<text x="1481.0" y="235.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Stage 4: Real-Time Intake TVF, Knowledge C…</text>
+<text x="1416.0" y="256.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Serves real-time intake resolution via fn_person_match, governs</text>
+<text x="1416.0" y="270.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">118 Knowledge Catalog terms, and powers Caseworker 360.</text>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="1426.0" y="298.0" width="398.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="1426.0" y="298.0" width="5" height="72.0" rx="2.5" fill="#2563EB"/>
+<rect x="1438.0" y="309.0" width="79.5" height="20" rx="4" fill="#F1F5F9"/>
+<text x="1477.8" y="323.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-04-01</text>
+<rect x="1763.0" y="310.0" width="51.0" height="18" rx="4" fill="#DBEAFE"/>
+<text x="1788.5" y="322.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#1E40AF">BIZ FN</text>
+<text x="1525.5" y="323.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Callable Real-Time Person Match TVF…</text>
+<text x="1438.0" y="344.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Executes real-time hybrid lexical + BigQuery Vector Search +</text>
+<text x="1438.0" y="358.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">RRF intake lookup via dcj_match.fn_person_match.</text>
+<polygon points="1810.0,353.5 1814.5,358.0 1810.0,362.5 1805.5,358.0" fill="none" stroke="#2563EB" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="1810.0" cy="358.0" r="1.2" fill="#2563EB"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="1426.0" y="386.0" width="398.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="1426.0" y="386.0" width="5" height="72.0" rx="2.5" fill="#059669"/>
+<rect x="1438.0" y="397.0" width="79.5" height="20" rx="4" fill="#F1F5F9"/>
+<text x="1477.8" y="411.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-04-02</text>
+<rect x="1770.0" y="398.0" width="44.0" height="18" rx="4" fill="#D1FAE5"/>
+<text x="1792.0" y="410.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#065F46">CRUD</text>
+<text x="1525.5" y="411.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">BigQuery Knowledge Catalog Glossary…</text>
+<text x="1438.0" y="432.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Governs 6 categories, 118 Business Glossary terms &amp; KPIs,</text>
+<text x="1438.0" y="446.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">and 118 Schema.&lt;Column&gt; EntryLinks in Knowledge Catalog.</text>
+<polygon points="1810.0,441.5 1814.5,446.0 1810.0,450.5 1805.5,446.0" fill="none" stroke="#059669" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="1810.0" cy="446.0" r="1.2" fill="#059669"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="1426.0" y="474.0" width="398.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="1426.0" y="474.0" width="5" height="72.0" rx="2.5" fill="#7C3AED"/>
+<rect x="1438.0" y="485.0" width="79.5" height="20" rx="4" fill="#F1F5F9"/>
+<text x="1477.8" y="499.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-04-03</text>
+<rect x="1769.5" y="486.0" width="44.5" height="18" rx="4" fill="#EDE9FE"/>
+<text x="1791.8" y="498.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#5B21B6">AGENT</text>
+<text x="1525.5" y="499.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Conversational Analytics &amp; Caseworke…</text>
+<text x="1438.0" y="520.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Assists caseworkers with natural-language ISO GQL kinship</text>
+<text x="1438.0" y="534.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">queries grounded in BigQuery Knowledge Catalog.</text>
+<polygon points="1810.0,529.5 1814.5,534.0 1810.0,538.5 1805.5,534.0" fill="none" stroke="#7C3AED" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="1810.0" cy="534.0" r="1.2" fill="#7C3AED"/>
+</g>
+<g filter="url(#card-shadow)">
+<rect x="1426.0" y="562.0" width="398.0" height="72.0" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.25"/>
+<rect x="1426.0" y="562.0" width="5" height="72.0" rx="2.5" fill="#D97706"/>
+<rect x="1438.0" y="573.0" width="79.5" height="20" rx="4" fill="#F1F5F9"/>
+<text x="1477.8" y="587.0" text-anchor="middle" class="fd-mono" font-size="10.5" font-weight="700" fill="#0F172A">DCJ-04-04</text>
+<rect x="1743.5" y="574.0" width="70.5" height="18" rx="4" fill="#FEF3C7"/>
+<text x="1778.8" y="586.0" text-anchor="middle" class="fd-mono" font-size="9.5" font-weight="700" fill="#92400E">UI / HITL</text>
+<text x="1525.5" y="587.5" class="fd-font" font-size="12" font-weight="700" fill="#0F172A">Caseworker 360 Graph Explorer &amp;…</text>
+<text x="1438.0" y="608.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">Visualizes multi-agency child/family graphs and tracks</text>
+<text x="1438.0" y="622.0" class="fd-font" font-size="10.8" font-weight="400" fill="#475569">3-method precision/recall (0.9970 F1) across all 8...</text>
+<polygon points="1810.0,617.5 1814.5,622.0 1810.0,626.5 1805.5,622.0" fill="none" stroke="#D97706" stroke-width="1.5"><title>Atomic Delivery Unit (Sealed Module · Cannot be decomposed further)</title></polygon>
+<circle cx="1810.0" cy="622.0" r="1.2" fill="#D97706"/>
+</g>
+</svg>
