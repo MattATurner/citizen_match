@@ -17,6 +17,8 @@
 - **Dendrite Source**: [dcj_person_data_model.dendrite](file:///usr/local/google/home/mattturner/Customers/dcj/dcj_person_data_model.dendrite)
 - **Draw.io Export**: [dcj_person_data_model.drawio](file:///usr/local/google/home/mattturner/Customers/dcj/dcj_person_data_model.drawio)
 - **Executive HTML Presentation**: [index.html](file:///usr/local/google/home/mattturner/Customers/dcj/index.html)
+- **Simplified Novice Walkthrough Presentation**: [novice_walkthrough.html](file:///usr/local/google/home/mattturner/Customers/dcj/novice_walkthrough.html)
+- **BigQuery Studio Python Notebook (`cdp-walkthrough`)**: [cdp-walkthrough.ipynb](file:///usr/local/google/home/mattturner/Customers/dcj/notebooks/cdp-walkthrough.ipynb) — Deployed to `projects/all-things-cdp/locations/us-central1/repositories/cdp-walkthrough` via [deploy_notebook_to_bq_studio.py](file:///usr/local/google/home/mattturner/Customers/dcj/scripts/deploy_notebook_to_bq_studio.py) ([Open in BigQuery Studio](https://console.cloud.google.com/bigquery?project=all-things-cdp&ws=!1m7!1m6!12m5!1m3!1sall-things-cdp!2sus-central1!3scdp-walkthrough!2e2))
 
 ---
 
