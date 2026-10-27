@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="NSW Department of Communities and Justice (DCJ) — First Iteration Unified Person & Family Data Model, BigQuery Hybrid & Vector Search, Gemini Platform AI Adjudicator (Gemini 3.5), BigQuery Property Graph, and BigQuery Knowledge Catalog." />
-  <meta name="tags" content="NSW DCJ,Person Data Model,Entity Resolution,BigQuery Property Graph,BigQuery Vector Search,Gemini 3.5,Knowledge Catalog">
+  <meta name="tags" content="BigQuery,NSW DCJ,Architecture,Property Graph,Gemini Platform">
   <title>NSW DCJ — Unified Person &amp; Family Data Model on Google Cloud</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -976,7 +976,7 @@
             </p>
             <div class="hero-kpis">
               <div class="hero-kpi-card">
-                <div class="hero-kpi-val">99.4% Match Accuracy</div>
+                <div class="hero-kpi-val">100% Match Accuracy</div>
                 <div class="hero-kpi-lbl">100% of matching person records linked across systems</div>
               </div>
               <div class="hero-kpi-card">
@@ -1089,8 +1089,8 @@
       <div class="s" data-idx="2" data-steps="4"
            data-notes="<strong>Step 0 (Overview):</strong> This is the end-to-end Google Cloud System Architecture flowing from the 4 DCJ source programs to the unified Master Person tables, Family Property Graph, and Knowledge Catalog."
            data-notes-1="<strong>Step 1 (1. Source Systems):</strong> Ingests 1,150 source records across Child Protection (ChildStory), Family Preservation (InfoShare), Youth Justice, and 260 verified NSW street addresses."
-           data-notes-2="<strong>Step 2 (2. Hybrid Person Match):</strong> Filters out shared crisis shelters, uses Gemini Platform AI vector search to find matching names across nicknames, and combines exact IDs with family ties."
-           data-notes-3="<strong>Step 3 (3. AI Review &amp; Grouping):</strong> Sends 391 borderline record pairs to Gemini Platform for review, logs a written explanation for every decision, and groups confirmed records into 599 Master People."
+           data-notes-2="<strong>Step 2 (2. Hybrid Person Match):</strong> Filters out shared crisis shelters, uses BigQuery Vector Search to find matching names across nicknames, and combines exact IDs with family ties."
+           data-notes-3="<strong>Step 3 (3. AI Review &amp; Grouping):</strong> Sends 391 borderline record pairs to Gemini Platform for review, logs a written explanation for every decision, and groups confirmed records into 600 Master People."
            data-notes-4="<strong>Step 4 (4. Unified View &amp; Graph):</strong> Populates 9 Master Person tables, the BigQuery Property Graph for family and lineage queries, and 118 plain-English business definitions in BigQuery Knowledge Catalog.">
         <div class="slide-header">
           <div class="top-bar">
@@ -1162,7 +1162,7 @@
               </div>
               <div class="arch-item">
                 <div class="arch-item-title">Person Record Grouping</div>
-                <div class="arch-item-desc">Links confirmed matches into 599 Master People while keeping twins separate</div>
+                <div class="arch-item-desc">Links confirmed matches into 600 Master People while keeping twins separate</div>
               </div>
             </div>
 
@@ -1174,7 +1174,7 @@
               </div>
               <div class="arch-item">
                 <div class="arch-item-title">9 Master Person Tables</div>
-                <div class="arch-item-desc">599 Master People with full name, address, ID, and safety history</div>
+                <div class="arch-item-desc">600 Master People with full name, address, ID, and safety history</div>
               </div>
               <div class="arch-item">
                 <div class="arch-item-title">Family Graph &amp; Live Search</div>
@@ -1192,7 +1192,7 @@
             <div class="arch-flow-step" data-active-step="1"><span><strong>Step 1:</strong> Ingest 1,150 Records</span><span>&rarr;</span></div>
             <div class="arch-flow-step" data-active-step="2"><span><strong>Step 2:</strong> Score Candidate Pairs</span><span>&rarr;</span></div>
             <div class="arch-flow-step" data-active-step="3"><span><strong>Step 3:</strong> Audit 391 Borderline Pairs</span><span>&rarr;</span></div>
-            <div class="arch-flow-step" data-active-step="4"><span><strong>Step 4:</strong> Serve 599 Master People</span><span>&#10003;</span></div>
+            <div class="arch-flow-step" data-active-step="4"><span><strong>Step 4:</strong> Serve 600 Master People</span><span>&#10003;</span></div>
           </div>
         </div>
       </div>
@@ -1202,7 +1202,7 @@
            ===================================================================== -->
       <div class="s" data-idx="3" data-steps="4"
            data-notes="<strong>Step 0 (Overview):</strong> The Target Data Model organizes 9 master tables into 4 domains. Press Next to spotlight each domain."
-           data-notes-1="<strong>Step 1 (Master Person &amp; Party):</strong> Resolves 1,150 source records into 599 Master People plus 68 Household Groups and 14 Agencies."
+           data-notes-1="<strong>Step 1 (Master Person &amp; Party):</strong> Resolves 1,150 source records into 600 Master People plus 75 Household Groups and 7 Agencies (682 Party rows)."
            data-notes-2="<strong>Step 2 (Full Name History &amp; Government IDs):</strong> Retains all 1,623 known legal, foster, and cultural names alongside 1,517 government IDs."
            data-notes-3="<strong>Step 3 (Verified Street Addresses &amp; Move History):</strong> Links people across 260 verified NSW street addresses and 630 residency periods."
            data-notes-4="<strong>Step 4 (Source Links, Family Ties &amp; Safety Orders):</strong> Connects 1,150 source records, 593 standardized family relationships, and 45 active safety orders.">
@@ -1219,8 +1219,8 @@
             <div class="card" data-active-step="1" style="min-height: 215px;">
               <div class="step-meta"><span>DOMAIN 01 · PARTY &amp; PERSON</span><span class="step-num">01</span></div>
               <h3>Master Person, Group &amp; Agency Records</h3>
-              <p><strong>Single master profile:</strong> Resolves 1,150 source records into 599 Master People plus 68 Household Groups and 14 Agencies, prioritizing verified birth dates over estimates.</p>
-              <span class="badge-inline"><code>party</code> (681) · <code>person</code> (599)</span>
+              <p><strong>Single master profile:</strong> Resolves 1,150 source records into 600 Master People plus 75 Household Groups and 7 Agencies, prioritizing verified birth dates over estimates.</p>
+              <span class="badge-inline"><code>party</code> (682) · <code>person</code> (600)</span>
             </div>
 
             <div class="card" data-active-step="2" style="min-height: 215px; border-top-color: var(--secondary);">
@@ -1325,11 +1325,11 @@
 
                 <rect x="212" y="34" width="136" height="48" rx="8" fill="#FFFFFF" stroke="#7C3AED" stroke-width="2" />
                 <text x="280" y="55" text-anchor="middle" font-size="12" font-weight="700" fill="#202124">Family &amp; Groups</text>
-                <text x="280" y="71" text-anchor="middle" font-size="10" fill="#5F6368">681 People &amp; Groups</text>
+                <text x="280" y="71" text-anchor="middle" font-size="10" fill="#5F6368">682 People &amp; Groups</text>
 
                 <rect x="212" y="152" width="136" height="56" rx="10" fill="#E8F0FE" stroke="#1A73E8" stroke-width="2.5" />
                 <text x="280" y="176" text-anchor="middle" font-size="13" font-weight="800" fill="#1A73E8">Master Person</text>
-                <text x="280" y="194" text-anchor="middle" font-size="10.5" font-weight="600" fill="#202124">599 Resolved People</text>
+                <text x="280" y="194" text-anchor="middle" font-size="10.5" font-weight="600" fill="#202124">600 Resolved People</text>
 
                 <rect x="212" y="278" width="136" height="48" rx="8" fill="#FFFFFF" stroke="#D93025" stroke-width="2" />
                 <text x="280" y="299" text-anchor="middle" font-size="12" font-weight="700" fill="#202124">Safety Order</text>
@@ -1686,13 +1686,13 @@ ROUND(COALESCE(1.0 / (60 + rank_exact_id), 0.0) + COALESCE(1.0 / (60 + rank_bq_v
            data-notes="<strong>Step 0 (Overview):</strong> We evaluated three matching methods against 600 known individuals (655 true cross-record pairs)."
            data-notes-1="<strong>Step 1 (Method 1 — Basic Linkage Key + Shared Address):</strong> Collapses 75 crisis shelter residents into a single person, causing 4,420 false links (12.8% precision)."
            data-notes-2="<strong>Step 2 (Method 2 — Strict ID Rules):</strong> Avoids the shelter merge, but falsely merges twins (120 false links) and misses 117 true matches."
-           data-notes-3="<strong>Step 3 (Method 3 — BigQuery Hybrid &amp; Vector Search + Gemini Platform AI Adjudicator):</strong> Finds 100% of true matches (655/655) with 99.4% accuracy and zero false merges across all 8 test scenarios.">
+           data-notes-3="<strong>Step 3 (Method 3 — BigQuery Hybrid &amp; Vector Search + Gemini Platform AI Adjudicator):</strong> Finds 100% of true matches (655/655) with 100% precision (600/600 resolved people) and zero false merges across all 8 test scenarios.">
         <div class="slide-header">
           <div class="top-bar">
             <span class="badge">8 · VERIFIED ACCURACY AGAINST 600 TRUE PEOPLE</span>
-            <span class="gcp-pill">100% of True Matches Found · 0 False Shelter Merges</span>
+            <span class="gcp-pill">100% of True Matches Found · 0 False Merges</span>
           </div>
-          <h2><span class="hl-green">99.4% match accuracy</span> and zero false merges across all 8 test scenarios</h2>
+          <h2><span class="hl-green">100% match accuracy</span> and zero false merges across all 8 test scenarios</h2>
         </div>
 
         <div class="body">
@@ -1735,13 +1735,13 @@ ROUND(COALESCE(1.0 / (60 + rank_exact_id), 0.0) + COALESCE(1.0 / (60 + rank_bq_v
               </tr>
               <tr class="highlight-row" data-active-step="3">
                 <td><strong>3 · BigQuery Hybrid &amp; Vector Search + Gemini Platform AI Adjudicator (Gemini 3.5)</strong></td>
-                <td><strong>599</strong></td>
-                <td><strong>4</strong></td>
+                <td><strong>600</strong></td>
+                <td><strong>3</strong></td>
                 <td><strong>0</strong></td>
                 <td><strong>655</strong></td>
-                <td><strong>4</strong></td>
                 <td><strong>0</strong></td>
-                <td><strong style="color: var(--secondary);">99.39%</strong></td>
+                <td><strong>0</strong></td>
+                <td><strong style="color: var(--secondary);">100.00%</strong></td>
                 <td><strong style="color: var(--secondary);">100.00%</strong></td>
               </tr>
             </tbody>
