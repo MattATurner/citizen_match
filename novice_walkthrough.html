@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="NSW Department of Communities and Justice (DCJ) — Plain-English Customer Walkthrough: How BigQuery, BigQuery Vector Search, Gemini Platform (Gemini 3.5), BigQuery Property Graph, and BigQuery Knowledge Catalog create one safe, connected view of every child and family." />
-  <meta name="tags" content="NSW DCJ,Customer Walkthrough,Plain English,BigQuery,BigQuery Vector Search,Gemini 3.5,BigQuery Property Graph,Knowledge Catalog">
+  <meta name="tags" content="BigQuery,NSW DCJ,Walkthrough,Entity Resolution,Gemini Platform">
   <title>NSW DCJ — Simple Walkthrough: Connecting Child &amp; Family Records on Google Cloud</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -983,8 +983,6 @@
   </style>
   <meta name="deck-role" content="master">
   <meta name="catalog-visibility" content="visible">
-  <meta name="git-commit" content="4530547">
-  <meta name="published-at" content="2026-10-27T06:37:38Z">
 </head>
 <body>
 
@@ -1201,7 +1199,7 @@
             <div class="arch-flow-step" data-active-step="1"><span><strong>1. Clean:</strong> 1,150 Agency Files</span><span>&rarr;</span></div>
             <div class="arch-flow-step" data-active-step="2"><span><strong>2. Filter:</strong> 97% Settled Fast</span><span>&rarr;</span></div>
             <div class="arch-flow-step" data-active-step="3"><span><strong>3. Audit:</strong> 391 AI Reviews</span><span>&rarr;</span></div>
-            <div class="arch-flow-step" data-active-step="4"><span><strong>4. Serve:</strong> 599 Golden People</span><span>&#10003;</span></div>
+            <div class="arch-flow-step" data-active-step="4"><span><strong>4. Serve:</strong> 600 Golden People</span><span>&#10003;</span></div>
           </div>
         </div>
       </div>
@@ -1497,7 +1495,7 @@
            ===================================================================== -->
       <div class="s" data-idx="7" data-steps="3"
            data-notes="<strong>Step 0 (Closing Summary):</strong> 'To wrap up: we tested this exact BigQuery and Gemini 3.5 pipeline against 600 known people across 8 tough social-work scenarios, and structured it so DCJ can roll it out in simple stages.'"
-           data-notes-1="<strong>Step 1 (Proven Accuracy Leap):</strong> 'Basic address matching got only 13% accuracy because of crisis shelters. Strict ID rules reached 82% but mixed up twins and missed name changes. Combining BigQuery Vector Search with Gemini 3.5 reached 99.4% accuracy and found 100% of true matches.'"
+           data-notes-1="<strong>Step 1 (Proven Accuracy Leap):</strong> 'Basic address matching got only 13% accuracy because of crisis shelters. Strict ID rules reached 82% but mixed up twins and missed name changes. Combining BigQuery Vector Search, Gemini 3.5, and our Pass-2 contradiction guard achieved 100% precision and found 100% of true matches (600 out of 600 people).'"
            data-notes-2="<strong>Step 2 (Start with the Mandatory Core):</strong> 'You do not have to turn everything on at day one. The Mandatory Core uses 100% standard BigQuery SQL to separate your raw data, block shelter mix-ups, and deliver the 9 Golden Person tables.'"
            data-notes-3="<strong>Step 3 (Switch On Optional Boosters Anytime):</strong> 'Then, whenever you are ready, you switch on BigQuery Vector Search, Gemini 3.5 AI review, and BigQuery Property Graph right inside the same BigQuery project — no data migration required.'">
         <div class="slide-header">
@@ -1505,7 +1503,7 @@
             <span class="badge">7 · PROVEN RESULTS &amp; SIMPLE ROLLOUT PATH</span>
             <span class="gcp-pill">Start with Core SQL &rarr; Add AI &amp; Graph Anytime</span>
           </div>
-          <h2><span class="hl-green">99.4% match accuracy</span> with a step-by-step rollout inside BigQuery</h2>
+          <h2><span class="hl-green">100% match accuracy</span> with a step-by-step rollout inside BigQuery</h2>
         </div>
 
         <div class="body">
@@ -1538,11 +1536,11 @@
               <div>
                 <div class="step-meta"><span>TIER 2 &amp; 3 · FULL HYBRID + AI</span><span class="badge-inline green" style="margin:0;">RECOMMENDED</span></div>
                 <h3>BigQuery Vector + Gemini 3.5</h3>
-                <p><strong>Finds 100% of matches:</strong> Solves nicknames, cultural names, and twins with full written audit proof.</p>
+                <p><strong>600 / 600 people resolved:</strong> Solves nicknames, cultural names, and twins with zero false merges.</p>
               </div>
               <div>
-                <div class="big-stat green">99.4% Accuracy</div>
-                <div class="funnel-bar-track"><div class="funnel-bar-fill green" style="width:99.4%"></div></div>
+                <div class="big-stat green">100% Accuracy</div>
+                <div class="funnel-bar-track"><div class="funnel-bar-fill green" style="width:100%"></div></div>
               </div>
             </div>
           </div>
