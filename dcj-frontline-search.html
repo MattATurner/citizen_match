@@ -1,0 +1,3504 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NSW DCJ — Frontline Person &amp; Property Search</title>
+  <meta name="description" content="Google Search-style Frontline Person and Property Intelligence for NSW DCJ across ChildStory, InfoShare Family Preservation, and KIMS Youth Justice — backed by live BigQuery Hybrid Search (fn_person_match), ISO GQL Property Graph (dcj_person_graph), and Gemini Platform Adjudication Audit History." />
+  <meta name="tags" content="NSW DCJ, Frontline Search, Entity Resolution, Property Graph, BigQuery Vector Search, Gemini Platform, Knowledge Catalog" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+  <style>
+    :root {
+      --bg: #FFFFFF;
+      --bg-canvas: #F8FAFC;
+      --surface: #FFFFFF;
+      --surface-subtle: #F1F5F9;
+      --surface-hover: #F8FAFC;
+      --border: #E2E8F0;
+      --border-strong: #CBD5E1;
+      --text: #0F172A;
+      --text-secondary: #475569;
+      --text-muted: #64748B;
+      --blue: #1A73E8;
+      --blue-hover: #1557B0;
+      --blue-soft: #E8F0FE;
+      --blue-text: #174EA6;
+      --emerald: #0D9488;
+      --emerald-solid: #059669;
+      --emerald-soft: #ECFDF5;
+      --emerald-text: #065F46;
+      --amber: #D97706;
+      --amber-soft: #FEF3C7;
+      --amber-text: #92400E;
+      --crimson: #DC2626;
+      --crimson-soft: #FEF2F2;
+      --crimson-text: #991B1B;
+      --slate-node: #334155;
+      --omnibox-shadow: 0 2px 8px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(203, 213, 225, 0.85);
+      --omnibox-shadow-focus: 0 6px 20px rgba(26, 115, 232, 0.14), 0 0 0 1.5px #1A73E8;
+      --card-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
+      --modal-shadow: 0 20px 50px rgba(15, 23, 42, 0.22);
+    }
+
+    html[data-theme="dark"] {
+      --bg: #0F172A;
+      --bg-canvas: #0B1120;
+      --surface: #131C2E;
+      --surface-subtle: #1E293B;
+      --surface-hover: #1B263B;
+      --border: #263449;
+      --border-strong: #334155;
+      --text: #F1F5F9;
+      --text-secondary: #CBD5E1;
+      --text-muted: #94A3B8;
+      --blue: #38BDF8;
+      --blue-hover: #0EA5E9;
+      --blue-soft: rgba(56, 189, 248, 0.14);
+      --blue-text: #7DD3FC;
+      --emerald: #2DD4BF;
+      --emerald-solid: #10B981;
+      --emerald-soft: rgba(16, 185, 129, 0.14);
+      --emerald-text: #6EE7B7;
+      --amber: #FBBF24;
+      --amber-soft: rgba(245, 158, 11, 0.15);
+      --amber-text: #FDE68A;
+      --crimson: #F87171;
+      --crimson-soft: rgba(239, 68, 68, 0.15);
+      --crimson-text: #FCA5A5;
+      --slate-node: #64748B;
+      --omnibox-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), 0 0 0 1px #334155;
+      --omnibox-shadow-focus: 0 8px 24px rgba(56, 189, 248, 0.18), 0 0 0 1.5px #38BDF8;
+      --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Watermark-free Google Maps Simple-View desaturation */
+    .leaflet-tile-pane {
+      filter: grayscale(82%) contrast(96%) brightness(102%);
+    }
+    html[data-theme="dark"] .leaflet-tile-pane {
+      filter: grayscale(88%) invert(90%) hue-rotate(185deg) contrast(92%) brightness(90%);
+    }
+
+    /* Top Civic Bar (Landing State) */
+    .top-utility {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      font-size: 13px;
+      border-bottom: 1px solid transparent;
+    }
+    .civic-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .nsw-crest {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      background: #002664;
+      color: #FFFFFF;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Google Sans', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.4px;
+    }
+    .utility-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10B981;
+      display: inline-block;
+    }
+    .pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      font-family: inherit;
+    }
+    .pill-btn:hover {
+      background: var(--surface-subtle);
+      border-color: var(--border-strong);
+      color: var(--text);
+    }
+
+    /* =========================================================
+       HERO GOOGLE-SEARCH LANDING VIEW
+       ========================================================= */
+    #hero-view {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 76px);
+      padding: 20px 24px 80px;
+      transition: opacity 0.2s ease;
+    }
+    body.has-results #hero-view {
+      display: none;
+    }
+    body.has-results #top-landing-bar {
+      display: none;
+    }
+
+    .hero-wordmark {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .hero-wordmark h1 {
+      margin: 0;
+      font-family: 'Google Sans', 'Inter', sans-serif;
+      font-size: clamp(34px, 5vw, 50px);
+      font-weight: 700;
+      letter-spacing: -1.1px;
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .wordmark-dcj {
+      color: #1A73E8;
+    }
+    html[data-theme="dark"] .wordmark-dcj {
+      color: #38BDF8;
+    }
+    .wordmark-tag {
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 8px;
+      background: var(--blue-soft);
+      color: var(--blue-text);
+      letter-spacing: 0;
+      vertical-align: middle;
+    }
+    .hero-wordmark p {
+      margin: 10px auto 0;
+      max-width: 660px;
+      font-size: 14.5px;
+      line-height: 1.55;
+      color: var(--text-secondary);
+    }
+
+    /* Google Omnibox Container */
+    .omnibox-shell {
+      position: relative;
+      width: 100%;
+      max-width: 740px;
+    }
+    .omnibox-bar {
+      display: flex;
+      align-items: center;
+      background: var(--surface);
+      border-radius: 28px;
+      height: 54px;
+      padding: 0 8px 0 18px;
+      box-shadow: var(--omnibox-shadow);
+      transition: box-shadow 0.18s ease;
+      gap: 8px;
+    }
+    .omnibox-bar:focus-within {
+      box-shadow: var(--omnibox-shadow-focus);
+    }
+    .omnibox-icon {
+      color: var(--text-muted);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+    }
+    .omnibox-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 16px;
+      font-family: inherit;
+      min-width: 0;
+    }
+    .omnibox-input::placeholder {
+      color: var(--text-muted);
+    }
+    .omnibox-mode-select {
+      border: 1px solid var(--border);
+      background: var(--surface-subtle);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 999px;
+      outline: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .icon-action-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+      flex-shrink: 0;
+    }
+    .icon-action-btn:hover, .icon-action-btn.active {
+      background: var(--surface-subtle);
+      color: var(--blue);
+    }
+    .omnibox-submit {
+      height: 40px;
+      padding: 0 20px;
+      border-radius: 999px;
+      border: none;
+      background: #1A73E8;
+      color: #FFFFFF;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: 'Google Sans', inherit;
+      transition: background 0.15s ease;
+      flex-shrink: 0;
+    }
+    .omnibox-submit:hover {
+      background: #1557B0;
+    }
+
+    /* Autocomplete Dropdown */
+    .autocomplete-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 14px 34px rgba(15, 23, 42, 0.16);
+      z-index: 900;
+      overflow: hidden;
+      display: none;
+    }
+    .autocomplete-menu.open {
+      display: block;
+    }
+    .ac-group-title {
+      padding: 8px 16px 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      background: var(--surface-subtle);
+    }
+    .ac-item {
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.12s ease;
+    }
+    .ac-item:last-child { border-bottom: none; }
+    .ac-item:hover { background: var(--surface-hover); }
+    .ac-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .ac-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ac-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Structured Intake Probe Drawer (9-arg fn_person_match) */
+    .structured-drawer {
+      margin-top: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 18px;
+      box-shadow: var(--card-shadow);
+      display: none;
+    }
+    .structured-drawer.open {
+      display: block;
+    }
+    .structured-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .structured-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+    }
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .field-group label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .field-group input, .field-group select {
+      padding: 7px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-canvas);
+      color: var(--text);
+      font-size: 12.5px;
+      font-family: inherit;
+      outline: none;
+    }
+    .field-group input:focus, .field-group select:focus {
+      border-color: var(--blue);
+    }
+
+    /* Quick Frontline Scenario Chips */
+    .scenario-section {
+      margin-top: 28px;
+      max-width: 820px;
+      width: 100%;
+    }
+    .scenario-label {
+      text-align: center;
+      font-size: 11.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .scenario-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
+    .scenario-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 12.5px;
+      cursor: pointer;
+      transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+      font-family: inherit;
+    }
+    .scenario-chip:hover {
+      background: var(--blue-soft);
+      border-color: var(--blue);
+      transform: translateY(-1px);
+    }
+    .scenario-chip strong {
+      font-weight: 600;
+    }
+    .scenario-chip span {
+      color: var(--text-muted);
+      font-size: 11.5px;
+    }
+
+    /* =========================================================
+       STICKY GOOGLE SERP HEADER + RESULTS WORKSPACE
+       ========================================================= */
+    #results-shell {
+      display: none;
+      min-height: 100vh;
+      background: var(--bg-canvas);
+    }
+    body.has-results #results-shell {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .serp-header {
+      position: sticky;
+      top: 0;
+      z-index: 600;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .serp-top-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 12px 24px 8px;
+      flex-wrap: wrap;
+    }
+    .serp-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--text);
+      font-family: 'Google Sans', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: -0.4px;
+      flex-shrink: 0;
+    }
+    .serp-omnibox-wrap {
+      flex: 1;
+      max-width: 680px;
+      min-width: 280px;
+      position: relative;
+    }
+    .serp-omnibox-wrap .omnibox-bar {
+      height: 44px;
+      padding: 0 6px 0 14px;
+    }
+    .serp-omnibox-wrap .omnibox-input {
+      font-size: 14.5px;
+    }
+    .serp-omnibox-wrap .omnibox-submit {
+      height: 34px;
+      padding: 0 16px;
+      font-size: 13px;
+    }
+    .serp-right-tools {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Google Search Navigation Tabs */
+    .serp-tabs-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      gap: 16px;
+      overflow-x: auto;
+    }
+    .serp-tabs {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .serp-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 14px;
+      border: none;
+      border-bottom: 3px solid transparent;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Google Sans', inherit;
+      white-space: nowrap;
+      transition: color 0.15s ease;
+    }
+    .serp-tab:hover { color: var(--text); }
+    .serp-tab.active {
+      color: var(--blue);
+      border-bottom-color: var(--blue);
+    }
+    .tab-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: var(--surface-subtle);
+      color: var(--text-secondary);
+    }
+    .serp-tab.active .tab-count {
+      background: var(--blue-soft);
+      color: var(--blue-text);
+    }
+
+    .telemetry-strip {
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 8px 24px;
+      background: var(--bg-canvas);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .telemetry-link {
+      color: var(--blue);
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .telemetry-link:hover { text-decoration: underline; }
+
+    /* =========================================================
+       MAIN WORKSPACE GRID (Left SERP List + Right 360° & Graph)
+       ========================================================= */
+    .workspace-container {
+      max-width: 1640px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 18px 24px 56px;
+      display: grid;
+      grid-template-columns: 390px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+    .workspace-container.full-tab {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    @media (max-width: 1120px) {
+      .workspace-container {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    /* Left Ranked SERP Column */
+    .serp-list-col {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .serp-section-heading {
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      margin: 4px 2px 2px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      cursor: pointer;
+      box-shadow: var(--card-shadow);
+      transition: border-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+    }
+    .result-card:hover {
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
+    }
+    .result-card.selected {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 1.5px var(--blue), var(--card-shadow);
+    }
+    .rc-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .rc-id {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .rc-title {
+      margin: 0 0 4px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--blue);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .rc-meta {
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      margin-bottom: 8px;
+    }
+    .rc-aliases {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    .rc-scores {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .score-meter {
+      width: 56px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--surface-subtle);
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .score-meter > span {
+      display: block;
+      height: 100%;
+      background: var(--emerald-solid);
+      border-radius: 999px;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+    .badge-mono { font-family: 'JetBrains Mono', monospace; }
+    .badge-blue { background: var(--blue-soft); color: var(--blue-text); }
+    .badge-emerald { background: var(--emerald-soft); color: var(--emerald-text); }
+    .badge-amber { background: var(--amber-soft); color: var(--amber-text); }
+    .badge-crimson { background: var(--crimson-soft); color: var(--crimson-text); }
+    .badge-neutral { background: var(--surface-subtle); color: var(--text-secondary); border: 1px solid var(--border); }
+
+    /* =========================================================
+       RIGHT 360° DOSSIER & INTERACTIVE GRAPH PANEL
+       ========================================================= */
+    .dossier-col {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    /* Statutory Protection Alert */
+    .protection-banner {
+      background: var(--crimson-soft);
+      border: 1px solid var(--crimson);
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      color: var(--crimson-text);
+    }
+    .protection-banner strong {
+      display: block;
+      font-size: 13.5px;
+      margin-bottom: 2px;
+    }
+    .protection-banner span {
+      font-size: 12.5px;
+      line-height: 1.45;
+    }
+
+    /* Golden Entity Header Card */
+    .dossier-hero-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: var(--card-shadow);
+    }
+    .dh-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .dh-title-wrap h2 {
+      margin: 4px 0 6px;
+      font-family: 'Google Sans', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .dh-demographics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 8px;
+    }
+    .dh-demographics div strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .kpi-tile {
+      background: var(--surface-subtle);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .kpi-tile .kpi-val {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .kpi-tile .kpi-lbl {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* =========================================================
+       INTERACTIVE PROPERTY GRAPH CARD & STUDIO
+       ========================================================= */
+    .graph-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--card-shadow);
+    }
+    .graph-toolbar {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      background: var(--surface);
+    }
+    .graph-toolbar-left, .graph-toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .graph-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-right: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .chip-toggle {
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-canvas);
+      color: var(--text-secondary);
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.14s ease;
+    }
+    .chip-toggle:hover { border-color: var(--border-strong); color: var(--text); }
+    .chip-toggle.active {
+      background: var(--blue-soft);
+      border-color: var(--blue);
+      color: var(--blue-text);
+    }
+
+    .graph-stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 310px;
+      height: 500px;
+      position: relative;
+      background: var(--bg-canvas);
+    }
+    .graph-stage.studio-height {
+      height: calc(100vh - 210px);
+      min-height: 620px;
+      grid-template-columns: minmax(0, 1fr) 360px;
+    }
+    @media (max-width: 960px) {
+      .graph-stage, .graph-stage.studio-height {
+        grid-template-columns: 1fr;
+        height: 560px;
+      }
+    }
+    .graph-canvas-wrap {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .graph-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: grab;
+    }
+    .graph-svg:active { cursor: grabbing; }
+
+    .graph-legend {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      background: color-mix(in srgb, var(--surface) 92%, transparent);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      max-width: calc(100% - 80px);
+      pointer-events: none;
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .legend-line-veto {
+      width: 16px;
+      height: 0;
+      border-top: 2px dashed var(--crimson);
+      display: inline-block;
+    }
+    .legend-line-link {
+      width: 16px;
+      height: 0;
+      border-top: 2.5px solid var(--emerald-solid);
+      display: inline-block;
+    }
+
+    .graph-zoom-controls {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .zoom-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .zoom-btn:hover { background: var(--surface-subtle); }
+
+    .graph-inspector {
+      border-left: 1px solid var(--border);
+      background: var(--surface);
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .gi-header {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+    }
+    .gi-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 2px 0;
+      word-break: break-word;
+    }
+    .gi-kv-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 12px;
+    }
+    .gi-kv {
+      padding-bottom: 7px;
+      border-bottom: 1px solid var(--border);
+    }
+    .gi-kv:last-child { border-bottom: none; }
+    .gi-k {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .gi-v {
+      color: var(--text);
+      margin-top: 2px;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+    .pivot-btn {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: none;
+      background: #1A73E8;
+      color: #FFFFFF;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .pivot-btn:hover { background: #1557B0; }
+
+    /* =========================================================
+       SECTION CARDS, AUDIT LEDGER, TABLES & MAP
+       ========================================================= */
+    .section-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 20px;
+      box-shadow: var(--card-shadow);
+    }
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .section-head h3 {
+      margin: 0;
+      font-family: 'Google Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .two-col-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 18px;
+    }
+
+    /* Clean Data Tables */
+    .data-table-wrap {
+      overflow-x: auto;
+    }
+    table.clean-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    table.clean-table th {
+      text-align: left;
+      padding: 8px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-strong);
+      white-space: nowrap;
+    }
+    table.clean-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: top;
+    }
+    table.clean-table tr:last-child td { border-bottom: none; }
+    table.clean-table tr.clickable-row { cursor: pointer; }
+    table.clean-table tr.clickable-row:hover td { background: var(--surface-hover); }
+
+    /* Adjudication Audit Cards */
+    .audit-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .audit-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: var(--bg-canvas);
+    }
+    .audit-card.is-link {
+      border-left: 4px solid var(--emerald-solid);
+    }
+    .audit-card.is-veto {
+      border-left: 4px solid var(--crimson);
+    }
+    .audit-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .audit-pair-ids {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .audit-rationale {
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text);
+      margin: 8px 0;
+      padding: 10px 12px;
+      background: var(--surface);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .audit-signals-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      margin-top: 8px;
+    }
+    .diff-details {
+      margin-top: 10px;
+    }
+    .diff-details summary {
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--blue);
+      user-select: none;
+    }
+    .diff-grid {
+      margin-top: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+
+    /* Map Canvas */
+    .map-box {
+      height: 300px;
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    /* Modals / Drawers */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.52);
+      backdrop-filter: blur(3px);
+      z-index: 1200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .modal-backdrop.open {
+      display: flex;
+    }
+    .modal-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      max-width: 980px;
+      width: 100%;
+      max-height: 86vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--modal-shadow);
+      overflow: hidden;
+    }
+    .modal-head {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-head h3 {
+      margin: 0;
+      font-size: 17px;
+      font-family: 'Google Sans', sans-serif;
+    }
+    .modal-body {
+      padding: 20px 22px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    pre.sql-code {
+      margin: 0;
+      padding: 14px;
+      background: #0F172A;
+      color: #E2E8F0;
+      border-radius: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+
+    /* Loading Skeleton / Spinner */
+    .loading-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 22px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      font-size: 13.5px;
+      color: var(--text-secondary);
+    }
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2.5px solid var(--border);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .link-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      color: var(--blue);
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: inherit;
+      text-align: left;
+    }
+    .link-btn:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <!-- =========================================================
+       TOP LANDING UTILITY BAR
+       ========================================================= -->
+  <header class="top-utility" id="top-landing-bar">
+    <div class="civic-brand">
+      <span class="nsw-crest">DCJ</span>
+      <span>NSW Department of Communities &amp; Justice · Frontline Identity &amp; Property Intelligence</span>
+    </div>
+    <div class="utility-actions">
+      <span class="pill-btn" title="Live connection to BigQuery Property Graph &amp; Hybrid Match Engine">
+        <span class="status-dot"></span>
+        <span id="conn-status-label">Live · all-things-cdp · dcj_person_graph</span>
+      </span>
+      <button class="pill-btn" id="btn-open-benchmark-home" onclick="openBenchmarkModal()">100% F1 Scorecard &amp; Graph Stats</button>
+      <button class="pill-btn" id="btn-toggle-theme-home" onclick="toggleTheme()">Theme</button>
+    </div>
+  </header>
+
+  <!-- =========================================================
+       STATE 1: GOOGLE SEARCH HERO LANDING
+       ========================================================= -->
+  <main id="hero-view">
+    <div class="hero-wordmark">
+      <h1>
+        <span><span class="wordmark-dcj">DCJ</span> Frontline Search</span>
+        <span class="wordmark-tag">Person &amp; Property</span>
+      </h1>
+      <p>
+        Unified Cross-Program Search across <strong>ChildStory</strong> (Child Protection), <strong>InfoShare</strong> (Family Preservation), and <strong>KIMS</strong> (Youth Justice) — powered by BigQuery Hybrid Search (<code>fn_person_match</code>), ISO GQL Property Graph (<code>dcj_person_graph</code>), and <strong>Gemini Platform</strong> Adjudication Audit.
+      </p>
+    </div>
+
+    <div class="omnibox-shell" id="hero-omnibox-shell">
+      <form class="omnibox-bar" id="hero-search-form" onsubmit="handleHeroSubmit(event)">
+        <span class="omnibox-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        </span>
+        <input
+          type="text"
+          id="hero-query-input"
+          class="omnibox-input"
+          placeholder="Search person name, cultural/adopted alias, DOB, CS/CNI/NDIS ID, or NSW street/refuge address..."
+          autocomplete="off"
+          oninput="handleAutocompleteInput(this.value, 'hero-ac-menu')"
+          onfocus="handleAutocompleteInput(this.value, 'hero-ac-menu')"
+        />
+        <button type="button" class="icon-action-btn" id="hero-clear-btn" title="Clear search" onclick="clearInputs()">✕</button>
+        <select id="hero-mode-select" class="omnibox-mode-select" aria-label="Search Scope">
+          <option value="all">All (Person + Property)</option>
+          <option value="person">Person Match (TVF)</option>
+          <option value="property">Property / GNAF</option>
+        </select>
+        <button type="button" class="icon-action-btn" id="hero-structured-btn" title="Structured 9-Field Intake Probe (fn_person_match)" onclick="toggleStructuredDrawer('hero-structured-drawer')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2" fill="currentColor"/><circle cx="16" cy="12" r="2" fill="currentColor"/><circle cx="10" cy="18" r="2" fill="currentColor"/></svg>
+        </button>
+        <button type="submit" class="omnibox-submit" id="hero-submit-btn">Search</button>
+      </form>
+
+      <div class="autocomplete-menu" id="hero-ac-menu"></div>
+
+      <!-- Structured 9-Argument Intake Probe -->
+      <div class="structured-drawer" id="hero-structured-drawer">
+        <div class="structured-header">
+          <span>Structured Intake Probe · Direct Parameters to <code>dcj_match.fn_person_match(...)</code></span>
+          <button type="button" class="link-btn" onclick="resetStructuredFields()">Reset fields</button>
+        </div>
+        <div class="structured-grid">
+          <div class="field-group"><label for="sf-given">Given Name</label><input id="sf-given" placeholder="e.g. Lachie" /></div>
+          <div class="field-group"><label for="sf-family">Family Name</label><input id="sf-family" placeholder="e.g. Smith" /></div>
+          <div class="field-group"><label for="sf-dob">Date of Birth</label><input id="sf-dob" type="date" /></div>
+          <div class="field-group">
+            <label for="sf-gender">Gender</label>
+            <select id="sf-gender"><option value="">Any</option><option value="M">Male</option><option value="F">Female</option></select>
+          </div>
+          <div class="field-group"><label for="sf-address">Street Address</label><input id="sf-address" placeholder="e.g. 160 Darling St" /></div>
+          <div class="field-group"><label for="sf-suburb">Suburb</label><input id="sf-suburb" placeholder="e.g. PENRITH" /></div>
+          <div class="field-group"><label for="sf-postcode">Postcode</label><input id="sf-postcode" placeholder="e.g. 2750" /></div>
+          <div class="field-group"><label for="sf-phone">Phone</label><input id="sf-phone" placeholder="e.g. 0412..." /></div>
+          <div class="field-group"><label for="sf-id">Gov / Agency ID</label><input id="sf-id" placeholder="CS-10001 / CNI / NDIS / SLK" /></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scenario-section">
+      <div class="scenario-label">Try Frontline Person &amp; Property Scenarios (Live BigQuery + Property Graph)</div>
+      <div class="scenario-grid">
+        <button class="scenario-chip" onclick="runScenario('Lachie Smith', 'all')"><strong>Lachie Smith</strong><span>Crossover Youth Diminutive · 3 Programs</span></button>
+        <button class="scenario-chip" onclick="runScenario('Chloe Clark', 'all')"><strong>Chloe Clark</strong><span>Twin SLK-581 Collision Guard · Kempsey</span></button>
+        <button class="scenario-chip" onclick="runScenario('Allira Campbell', 'all')"><strong>Allira Campbell</strong><span>First Nations Cultural / Skin Name</span></button>
+        <button class="scenario-chip" onclick="runScenario('Oliver Peachey', 'all')"><strong>Oliver Peachey</strong><span>Pre-Adoptive → Adopted Surname</span></button>
+        <button class="scenario-chip" onclick="runScenario('Aaliyah Robinson', 'all')"><strong>Aaliyah Robinson</strong><span>DV Protected Person Relocation</span></button>
+        <button class="scenario-chip" onclick="runScenario('Alexander Robinson', 'all')"><strong>Alexander Robinson</strong><span>Estimated 01-Jan vs Verified DOB</span></button>
+        <button class="scenario-chip" onclick="runScenario('10 Great Western Hwy Parramatta', 'property')"><strong>10 Great Western Hwy Parramatta</strong><span>30-Resident Crisis Refuge Hub</span></button>
+        <button class="scenario-chip" onclick="runScenario('160 Darling St Penrith', 'property')"><strong>160 Darling St Penrith</strong><span>Multi-Generational Household</span></button>
+      </div>
+    </div>
+  </main>
+
+  <!-- =========================================================
+       STATE 2: DOCKED GOOGLE SERP + 360° DOSSIER & GRAPH STUDIO
+       ========================================================= -->
+  <section id="results-shell">
+    <div class="serp-header">
+      <div class="serp-top-row">
+        <a class="serp-logo" href="javascript:void(0)" onclick="returnToHero()" title="Back to DCJ Search Home">
+          <span class="nsw-crest">DCJ</span>
+          <span><span class="wordmark-dcj">DCJ</span> Search</span>
+        </a>
+
+        <div class="serp-omnibox-wrap">
+          <form class="omnibox-bar" id="serp-search-form" onsubmit="handleSerpSubmit(event)">
+            <span class="omnibox-icon" aria-hidden="true">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            </span>
+            <input
+              type="text"
+              id="serp-query-input"
+              class="omnibox-input"
+              placeholder="Search person, alias, ID, or NSW street/refuge address..."
+              autocomplete="off"
+              oninput="handleAutocompleteInput(this.value, 'serp-ac-menu')"
+            />
+            <button type="button" class="icon-action-btn" onclick="clearInputs()" title="Clear">✕</button>
+            <select id="serp-mode-select" class="omnibox-mode-select" aria-label="Search Scope">
+              <option value="all">All</option>
+              <option value="person">Person</option>
+              <option value="property">Property</option>
+            </select>
+            <button type="submit" class="omnibox-submit">Search</button>
+          </form>
+          <div class="autocomplete-menu" id="serp-ac-menu"></div>
+        </div>
+
+        <div class="serp-right-tools">
+          <button class="pill-btn" onclick="openSqlModal()">Executed SQL &amp; ISO GQL</button>
+          <button class="pill-btn" onclick="openBenchmarkModal()">Benchmark (100% F1)</button>
+          <button class="pill-btn" onclick="toggleTheme()">Theme</button>
+        </div>
+      </div>
+
+      <div class="serp-tabs-row">
+        <nav class="serp-tabs" aria-label="Result Views">
+          <button class="serp-tab active" data-tab="all" onclick="switchTab('all')">All · 360° &amp; Graph</button>
+          <button class="serp-tab" data-tab="graph" onclick="switchTab('graph')">Graph Visualisation <span class="tab-count" id="tab-cnt-graph">0</span></button>
+          <button class="serp-tab" data-tab="audit" onclick="switchTab('audit')">Adjudication Audit History <span class="tab-count" id="tab-cnt-audit">0</span></button>
+          <button class="serp-tab" data-tab="lineage" onclick="switchTab('lineage')">Source Lineage &amp; Survivorship <span class="tab-count" id="tab-cnt-lineage">0</span></button>
+          <button class="serp-tab" data-tab="locations" onclick="switchTab('locations')">Properties &amp; Map <span class="tab-count" id="tab-cnt-locations">0</span></button>
+        </nav>
+      </div>
+    </div>
+
+    <div class="telemetry-strip" id="telemetry-strip">
+      <span id="telemetry-summary">Ready</span>
+      <button class="telemetry-link" onclick="openSqlModal()">Inspect Live BigQuery TVF &amp; ISO GQL Graph Queries →</button>
+    </div>
+
+    <div class="workspace-container" id="workspace-container">
+      <!-- Left Ranked SERP Results -->
+      <aside class="serp-list-col" id="serp-list-col"></aside>
+
+      <!-- Right 360° Dossier & Interactive Graph -->
+      <div class="dossier-col" id="dossier-col"></div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       MODAL 1: EXECUTED BIGQUERY SQL & ISO GQL INSPECTOR
+       ========================================================= -->
+  <div class="modal-backdrop" id="sql-modal" onclick="if(event.target===this)closeModal('sql-modal')">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h3>Live Executed BigQuery Hybrid Search &amp; ISO GQL Graph Queries</h3>
+        <button class="pill-btn" onclick="closeModal('sql-modal')">Close ✕</button>
+      </div>
+      <div class="modal-body" id="sql-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 2: GROUND-TRUTH BENCHMARK & GRAPH SUMMARY
+       ========================================================= -->
+  <div class="modal-backdrop" id="benchmark-modal" onclick="if(event.target===this)closeModal('benchmark-modal')">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h3>NSW DCJ Entity Resolution Benchmark &amp; Property Graph Telemetry (all-things-cdp)</h3>
+        <button class="pill-btn" onclick="closeModal('benchmark-modal')">Close ✕</button>
+      </div>
+      <div class="modal-body" id="benchmark-modal-body">
+        <div class="loading-banner"><div class="spinner"></div><span>Loading live scorecard from BigQuery...</span></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const API_BASE = "https://dcj-search-api-ttw6mmyb7a-uc.a.run.app";
+
+    const STATE = {
+      query: "",
+      mode: "all",
+      activeTab: "all",
+      searchResponse: null,
+      selectedKey: null,   // e.g. "person:PER-..." or "property:GNAF-..."
+      dossier: null,       // response from /api/person/... or /api/property/...
+      auditFilter: "all",  // all | link | gemini | veto
+      graphLayout: "force",// force | radial | lineage
+      graphLayer: "all",   // all | kinship | lineage | identity
+      showVetoes: true,
+      selectedGraphElem: null,
+      leafletMap: null,
+      overviewCache: null,
+      acTimer: null
+    };
+
+    function esc(v) {
+      if (v === null || v === undefined) return "";
+      return String(v)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function fmtNum(v, digits = 4) {
+      if (v === null || v === undefined || v === "") return "—";
+      const n = Number(v);
+      return Number.isFinite(n) ? n.toFixed(digits) : esc(v);
+    }
+
+    function fmtDate(v) {
+      if (!v) return "—";
+      return String(v).slice(0, 10);
+    }
+
+    function toggleTheme() {
+      const root = document.documentElement;
+      const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      localStorage.setItem("dcj_theme", next);
+      if (STATE.dossier && STATE.dossier.graph) {
+        renderActiveGraph();
+      }
+    }
+
+    (function initTheme() {
+      const saved = localStorage.getItem("dcj_theme");
+      if (saved === "dark" || saved === "light") {
+        document.documentElement.setAttribute("data-theme", saved);
+      }
+    })();
+
+    function toggleStructuredDrawer(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle("open");
+    }
+
+    function resetStructuredFields() {
+      ["sf-given", "sf-family", "sf-dob", "sf-gender", "sf-address", "sf-suburb", "sf-postcode", "sf-phone", "sf-id"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+      });
+    }
+
+    function clearInputs() {
+      document.getElementById("hero-query-input").value = "";
+      document.getElementById("serp-query-input").value = "";
+      closeAutocompleteMenus();
+    }
+
+    function closeAutocompleteMenus() {
+      document.querySelectorAll(".autocomplete-menu").forEach(m => m.classList.remove("open"));
+    }
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".omnibox-shell") && !e.target.closest(".serp-omnibox-wrap")) {
+        closeAutocompleteMenus();
+      }
+    });
+
+    function handleAutocompleteInput(val, menuId) {
+      clearTimeout(STATE.acTimer);
+      const q = (val || "").trim();
+      const menu = document.getElementById(menuId);
+      if (!q || q.length < 2) {
+        menu.classList.remove("open");
+        return;
+      }
+      STATE.acTimer = setTimeout(async () => {
+        try {
+          const res = await fetch(`${API_BASE}/api/autocomplete?q=${encodeURIComponent(q)}`);
+          if (!res.ok) return;
+          const data = await res.json();
+          if ((!data.persons || !data.persons.length) && (!data.properties || !data.properties.length)) {
+            menu.classList.remove("open");
+            return;
+          }
+          let html = "";
+          if (data.persons && data.persons.length) {
+            html += `<div class="ac-group-title">Mastered People &amp; Cultural / Adopted Aliases</div>`;
+            data.persons.forEach(p => {
+              html += `
+                <div class="ac-item" onclick="selectAutocompletePerson('${esc(p.person_id)}', '${esc(p.primary_name)}')">
+                  <div class="ac-main">
+                    <div class="ac-title">
+                      <span>${esc(p.primary_name)}</span>
+                      <span class="badge badge-mono badge-neutral">${esc(p.person_id)}</span>
+                      ${p.is_protected_person ? `<span class="badge badge-crimson">PROTECTED</span>` : ""}
+                    </div>
+                    <div class="ac-sub">DOB ${esc(p.dob || "—")} · ${esc(p.suburb || "")} ${esc(p.postcode || "")} · ${esc(p.names_typed || "")}</div>
+                  </div>
+                  <span class="badge badge-blue">Person →</span>
+                </div>
+              `;
+            });
+          }
+          if (data.properties && data.properties.length) {
+            html += `<div class="ac-group-title">NSW GNAF Properties &amp; Crisis Refuges</div>`;
+            data.properties.forEach(pr => {
+              html += `
+                <div class="ac-item" onclick="selectAutocompleteProperty('${esc(pr.address_id)}', '${esc(pr.full_address)}')">
+                  <div class="ac-main">
+                    <div class="ac-title">
+                      <span>${esc(pr.building_name || pr.full_address)}</span>
+                      ${pr.is_crisis_hub ? `<span class="badge badge-amber">CRISIS REFUGE HUB</span>` : `<span class="badge badge-emerald">GNAF</span>`}
+                    </div>
+                    <div class="ac-sub">${esc(pr.full_address)} · ${esc(pr.residents)} linked resident(s)</div>
+                  </div>
+                  <span class="badge badge-emerald">Property →</span>
+                </div>
+              `;
+            });
+          }
+          menu.innerHTML = html;
+          menu.classList.add("open");
+        } catch (_) {}
+      }, 110);
+    }
+
+    async function selectAutocompletePerson(personId, displayName) {
+      closeAutocompleteMenus();
+      document.getElementById("hero-query-input").value = displayName;
+      document.getElementById("serp-query-input").value = displayName;
+      await executeSearch({ q: displayName, mode: "all", focusOverride: `person:${personId}` });
+    }
+
+    async function selectAutocompleteProperty(addressId, fullAddr) {
+      closeAutocompleteMenus();
+      document.getElementById("hero-query-input").value = fullAddr;
+      document.getElementById("serp-query-input").value = fullAddr;
+      await executeSearch({ q: fullAddr, mode: "property", focusOverride: `property:${addressId}` });
+    }
+
+    function returnToHero() {
+      document.body.classList.remove("has-results");
+      const url = new URL(window.location.href);
+      url.searchParams.delete("q");
+      url.searchParams.delete("mode");
+      url.searchParams.delete("focus");
+      window.history.pushState({}, "", url);
+    }
+
+    function runScenario(queryText, mode) {
+      resetStructuredFields();
+      document.getElementById("hero-query-input").value = queryText;
+      document.getElementById("serp-query-input").value = queryText;
+      document.getElementById("hero-mode-select").value = mode;
+      document.getElementById("serp-mode-select").value = mode;
+      executeSearch({ q: queryText, mode });
+    }
+
+    function handleHeroSubmit(e) {
+      e.preventDefault();
+      closeAutocompleteMenus();
+      const q = document.getElementById("hero-query-input").value.trim();
+      const mode = document.getElementById("hero-mode-select").value;
+      const structured = {
+        given_name: document.getElementById("sf-given").value.trim(),
+        family_name: document.getElementById("sf-family").value.trim(),
+        dob: document.getElementById("sf-dob").value.trim(),
+        gender: document.getElementById("sf-gender").value.trim(),
+        address: document.getElementById("sf-address").value.trim(),
+        suburb: document.getElementById("sf-suburb").value.trim(),
+        postcode: document.getElementById("sf-postcode").value.trim(),
+        phone: document.getElementById("sf-phone").value.trim(),
+        identifier: document.getElementById("sf-id").value.trim()
+      };
+      executeSearch({ q, mode, structured });
+    }
+
+    function handleSerpSubmit(e) {
+      e.preventDefault();
+      closeAutocompleteMenus();
+      const q = document.getElementById("serp-query-input").value.trim();
+      const mode = document.getElementById("serp-mode-select").value;
+      executeSearch({ q, mode });
+    }
+
+    async function executeSearch({ q = "", mode = "all", structured = {}, focusOverride = null }) {
+      const hasStructured = Object.values(structured).some(v => v && v.length > 0);
+      if (!q && !hasStructured) return;
+
+      STATE.query = q;
+      STATE.mode = mode;
+      STATE.activeTab = "all";
+      updateTabButtons();
+
+      document.body.classList.add("has-results");
+      document.getElementById("serp-query-input").value = q || Object.values(structured).filter(Boolean).join(" ");
+      document.getElementById("serp-mode-select").value = mode;
+
+      document.getElementById("telemetry-summary").innerHTML =
+        `Executing live BigQuery Hybrid Search (<code>fn_person_match</code> + <code>AI.EMBED</code> + <code>VECTOR_SEARCH</code> + <code>GRAPH_TABLE</code>)...`;
+      document.getElementById("serp-list-col").innerHTML =
+        `<div class="loading-banner"><div class="spinner"></div><span>Searching ChildStory, InfoShare &amp; KIMS Youth Justice...</span></div>`;
+      document.getElementById("dossier-col").innerHTML =
+        `<div class="loading-banner"><div class="spinner"></div><span>Preparing 360° Dossier &amp; ISO GQL Property Graph...</span></div>`;
+
+      const params = new URLSearchParams({ q: q || "", mode });
+      Object.entries(structured).forEach(([k, v]) => {
+        if (v) params.set(k, v);
+      });
+
+      try {
+        const res = await fetch(`${API_BASE}/api/search?${params.toString()}`);
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.detail || `Search HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        STATE.searchResponse = data;
+
+        const pCount = (data.persons || []).length;
+        const propCount = (data.properties || []).length;
+        const sec = ((data.telemetry?.total_ms || 0) / 1000).toFixed(2);
+        document.getElementById("telemetry-summary").innerHTML =
+          `Found <strong>${pCount}</strong> mastered person${pCount === 1 ? "" : "s"} &amp; <strong>${propCount}</strong> GNAF propert${propCount === 1 ? "y" : "ies"} (${sec} seconds) · Live <code>all-things-cdp.dcj_match.fn_person_match</code> + <code>dcj_person_graph</code>`;
+
+        // Choose default selection
+        let initialTarget = focusOverride;
+        if (!initialTarget) {
+          if (data.primary_focus === "property" && propCount > 0) {
+            initialTarget = `property:${data.properties[0].address_id}`;
+          } else if (pCount > 0) {
+            initialTarget = `person:${data.persons[0].person_id}`;
+          } else if (propCount > 0) {
+            initialTarget = `property:${data.properties[0].address_id}`;
+          }
+        }
+
+        renderSerpList();
+
+        if (initialTarget) {
+          await selectEntity(initialTarget, false);
+        } else {
+          document.getElementById("dossier-col").innerHTML = `
+            <div class="section-card">
+              <h3>No matching person or property records found</h3>
+              <p class="section-sub">Try searching by partial name, cultural/adopted alias, ChildStory ID (e.g. CS-10001), or NSW suburb/address.</p>
+            </div>
+          `;
+        }
+      } catch (err) {
+        document.getElementById("serp-list-col").innerHTML =
+          `<div class="protection-banner"><div><strong>Search Error</strong><span>${esc(err.message)}</span></div></div>`;
+      }
+    }
+
+    function renderSerpList() {
+      const col = document.getElementById("serp-list-col");
+      const data = STATE.searchResponse;
+      if (!data) return;
+
+      const persons = data.persons || [];
+      const props = data.properties || [];
+      let html = "";
+
+      const renderPropsBlock = () => {
+        if (!props.length) return "";
+        let b = `<div class="serp-section-heading"><span>GNAF Properties &amp; Locations (${props.length})</span><span>GRAPH_TABLE</span></div>`;
+        props.forEach(pr => {
+          const key = `property:${pr.address_id}`;
+          const sel = STATE.selectedKey === key ? "selected" : "";
+          b += `
+            <article class="result-card ${sel}" onclick="selectEntity('${esc(key)}')">
+              <div class="rc-top">
+                <span class="rc-id">#${esc(pr.property_rank)} · ${esc(pr.address_id)}</span>
+                ${pr.is_crisis_hub
+                  ? `<span class="badge badge-crimson">CRISIS REFUGE HUB (SUPPRESSED)</span>`
+                  : `<span class="badge badge-emerald">GNAF RESIDENTIAL</span>`}
+              </div>
+              <h3 class="rc-title">${esc(pr.building_name || pr.full_address)}</h3>
+              <div class="rc-meta">${esc(pr.full_address)}</div>
+              <div class="rc-aliases">
+                <strong>${esc(pr.total_residents)}</strong> linked residents (${esc(pr.current_residents)} primary${pr.protected_residents > 0 ? `, <strong style="color:var(--crimson)">${esc(pr.protected_residents)} protected</strong>` : ""})
+                <br/>Preview: ${esc(pr.resident_preview || "—")}
+              </div>
+              <div class="rc-scores">
+                <span>Bipartite deg=${esc(pr.bipartite_degree)}</span>
+                <span>IDF=${fmtNum(pr.idf_weight, 2)}</span>
+                <span>${esc(pr.programs_at_property || "")}</span>
+              </div>
+            </article>
+          `;
+        });
+        return b;
+      };
+
+      const renderPersonsBlock = () => {
+        if (!persons.length) return "";
+        let b = `<div class="serp-section-heading"><span>Mastered People (${persons.length})</span><span>fn_person_match</span></div>`;
+        persons.forEach(p => {
+          const key = `person:${p.person_id}`;
+          const sel = STATE.selectedKey === key ? "selected" : "";
+          const actionBadge =
+            p.recommended_action === "AUTO_LINK"
+              ? `<span class="badge badge-emerald">AUTO_LINK</span>`
+              : p.recommended_action === "GEMINI_ADJUDICATE_OR_STEWARD"
+              ? `<span class="badge badge-blue">HYBRID + GEMINI AUDIT</span>`
+              : `<span class="badge badge-neutral">CANDIDATE</span>`;
+          const pct = Math.round(Math.min(100, Math.max(8, Number(p.hybrid_match_score || 0) * 100)));
+          b += `
+            <article class="result-card ${sel}" onclick="selectEntity('${esc(key)}')">
+              <div class="rc-top">
+                <span class="rc-id">#${esc(p.match_rank)} · ${esc(p.person_id)}</span>
+                ${actionBadge}
+              </div>
+              <h3 class="rc-title">
+                <span>${esc(p.primary_full_name)}</span>
+                ${p.is_protected_person ? `<span class="badge badge-crimson">PROTECTED</span>` : ""}
+              </h3>
+              <div class="rc-meta">
+                DOB <strong>${esc(p.date_of_birth || "—")}</strong> (${esc(p.dob_certainty_code || "")}) · ${esc(p.gender || "")}
+                ${p.indigenous_status && p.indigenous_status !== "No" ? ` · <span class="badge badge-amber">${esc(p.indigenous_status)}</span>` : ""}
+                <br/>${esc(p.primary_address || "No primary address")}
+              </div>
+              <div class="rc-aliases">
+                <strong>Programs (${esc(p.source_record_count)} rec):</strong> ${esc(p.contributing_programs)}<br/>
+                <strong>Known Names:</strong> ${esc(p.all_known_names || p.primary_full_name)}
+              </div>
+              <div class="rc-scores">
+                <span><span class="score-meter"><span style="width:${pct}%"></span></span> <strong>${fmtNum(p.hybrid_match_score, 3)}</strong></span>
+                <span>RRF ${fmtNum(p.rrf_score, 4)}</span>
+                <span>Vec ${fmtNum(p.semantic_similarity, 3)}</span>
+                <span>${esc(p.retrieved_by)}</span>
+                ${p.ai_adjudicated_count > 0 ? `<span class="badge badge-blue">${esc(p.ai_adjudicated_count)} AI Audit</span>` : ""}
+              </div>
+            </article>
+          `;
+        });
+        return b;
+      };
+
+      if (data.primary_focus === "property") {
+        html = renderPropsBlock() + renderPersonsBlock();
+      } else {
+        html = renderPersonsBlock() + renderPropsBlock();
+      }
+      col.innerHTML = html;
+    }
+
+    async function selectEntity(entityKey, pushUrl = true) {
+      STATE.selectedKey = entityKey;
+      STATE.selectedGraphElem = null;
+      renderSerpList();
+
+      const [kind, id] = entityKey.split(":");
+      const url = new URL(window.location.href);
+      if (STATE.query) url.searchParams.set("q", STATE.query);
+      url.searchParams.set("mode", STATE.mode);
+      url.searchParams.set("focus", entityKey);
+      if (pushUrl) window.history.pushState({}, "", url);
+
+      document.getElementById("dossier-col").innerHTML = `
+        <div class="loading-banner">
+          <div class="spinner"></div>
+          <span>Traversing <code>all-things-cdp.dcj_tdm.dcj_person_graph</code> &amp; loading Adjudication Audit Ledger for <strong>${esc(id)}</strong>...</span>
+        </div>
+      `;
+
+      try {
+        const endpoint = kind === "property"
+          ? `${API_BASE}/api/property/${encodeURIComponent(id)}`
+          : `${API_BASE}/api/person/${encodeURIComponent(id)}`;
+        const res = await fetch(endpoint);
+        if (!res.ok) throw new Error(`Dossier HTTP ${res.status}`);
+        const dossier = await res.json();
+        STATE.dossier = dossier;
+
+        // Update tab counters
+        document.getElementById("tab-cnt-graph").textContent = dossier.graph?.stats?.node_count || 0;
+        document.getElementById("tab-cnt-audit").textContent = (dossier.adjudications || []).length;
+        document.getElementById("tab-cnt-lineage").textContent =
+          dossier.entity_type === "person" ? (dossier.source_records || []).length : (dossier.residents || []).length;
+        document.getElementById("tab-cnt-locations").textContent =
+          dossier.entity_type === "person" ? (dossier.addresses || []).length : 1;
+
+        renderActiveTabWorkspace();
+      } catch (err) {
+        document.getElementById("dossier-col").innerHTML =
+          `<div class="protection-banner"><div><strong>Error loading 360° Dossier</strong><span>${esc(err.message)}</span></div></div>`;
+      }
+    }
+
+    async function pivotToPerson(personId, label) {
+      if (!personId) return;
+      if (STATE.activeTab === "graph") {
+        // Stay on Graph Studio or switch cleanly while loading new ego-graph
+      }
+      // If person is already in SERP list, select directly; otherwise run fresh search focused on personId
+      const inList = (STATE.searchResponse?.persons || []).some(p => p.person_id === personId);
+      if (inList) {
+        await selectEntity(`person:${personId}`);
+      } else {
+        const qText = label || personId;
+        document.getElementById("serp-query-input").value = qText;
+        await executeSearch({ q: qText, mode: "all", focusOverride: `person:${personId}` });
+      }
+    }
+
+    async function pivotToProperty(addressId, label) {
+      if (!addressId) return;
+      const inList = (STATE.searchResponse?.properties || []).some(p => p.address_id === addressId);
+      if (inList) {
+        await selectEntity(`property:${addressId}`);
+      } else {
+        const qText = label || addressId;
+        document.getElementById("serp-query-input").value = qText;
+        await executeSearch({ q: qText, mode: "all", focusOverride: `property:${addressId}` });
+      }
+    }
+
+    function switchTab(tab) {
+      STATE.activeTab = tab;
+      updateTabButtons();
+      renderActiveTabWorkspace();
+    }
+
+    function updateTabButtons() {
+      document.querySelectorAll(".serp-tab").forEach(btn => {
+        btn.classList.toggle("active", btn.getAttribute("data-tab") === STATE.activeTab);
+      });
+      const wc = document.getElementById("workspace-container");
+      const listCol = document.getElementById("serp-list-col");
+      if (STATE.activeTab === "all") {
+        wc.classList.remove("full-tab");
+        listCol.style.display = "flex";
+      } else {
+        wc.classList.add("full-tab");
+        listCol.style.display = "none";
+      }
+    }
+
+    function renderActiveTabWorkspace() {
+      const d = STATE.dossier;
+      const col = document.getElementById("dossier-col");
+      if (!d) return;
+
+      if (d.entity_type === "property") {
+        renderPropertyDossier(d, col);
+        return;
+      }
+
+      const p = d.profile;
+      const linkedCount = (d.adjudications || []).filter(a => a.decision === "LINK" && !a.suppressed_by_contradiction).length;
+      const vetoCount = Math.max(0, (d.total_candidate_pairs_evaluated || 0) - linkedCount);
+      const aiCount = (d.adjudications || []).filter(a => (a.ledger_history && a.ledger_history.length > 0) || a.decided_by === "GEMINI_ADJUDICATOR" || a.decided_by === "LLM_AND_TWIN_GUARD").length;
+
+      const protectionHtml = p.is_protected_person ? `
+        <div class="protection-banner" role="alert">
+          <div style="font-size:20px;line-height:1">🛡️</div>
+          <div>
+            <strong>STATUTORY CONFIDENTIALITY &amp; SAFETY RESTRICTION ACTIVE (RLS PROTECTED RECORD)</strong>
+            <span>
+              ${esc((d.protections && d.protections[0]?.reason) || "Domestic & Family Violence Safety / Statutory Child Protection Restriction")}
+              · Initiated by <strong>${esc((d.protections && d.protections[0]?.initiator_name) || "NSW DCJ Child Protection Authority")}</strong>
+              (Effective ${fmtDate(d.protections && d.protections[0]?.protect_start_date)} · Event <code>${esc((d.protections && d.protections[0]?.protection_event_id) || "ACTIVE")}</code>).
+              Do not disclose residential address or contact location to unauthorised parties.
+            </span>
+          </div>
+        </div>
+      ` : "";
+
+      const heroCardHtml = `
+        <div class="dossier-hero-card">
+          <div class="dh-top">
+            <div class="dh-title-wrap">
+              <div>
+                <span class="badge badge-mono badge-blue">${esc(p.person_id)}</span>
+                <span class="badge badge-neutral">Authoritative Spine: ${esc(p.source_program)}</span>
+                <span class="badge badge-emerald">${esc(d.telemetry?.total_ms)} ms Live Graph + TDM Query</span>
+              </div>
+              <h2>
+                <span>${esc(p.primary_full_name)}</span>
+                ${p.indigenous_status && p.indigenous_status !== "No" ? `<span class="badge badge-amber">${esc(p.indigenous_status)}</span>` : ""}
+                ${p.is_cald ? `<span class="badge badge-blue">CALD</span>` : ""}
+              </h2>
+              <div class="dh-demographics">
+                <div>Date of Birth: <strong>${esc(p.date_of_birth || "—")}</strong> <span class="badge badge-emerald">${esc(p.dob_certainty_code || "VERIFIED")}</span></div>
+                <div>Gender: <strong>${esc(p.gender || "—")}</strong></div>
+                <div>Primary Residence: <strong>${esc((d.addresses && d.addresses[0]?.full_address) || "—")}</strong></div>
+              </div>
+            </div>
+          </div>
+          <div class="kpi-strip">
+            <div class="kpi-tile"><div class="kpi-val">${(d.source_records || []).length}</div><div class="kpi-lbl">Mastered SDM Records</div></div>
+            <div class="kpi-tile"><div class="kpi-val">${(d.names || []).length}</div><div class="kpi-lbl">Known Names &amp; Aliases</div></div>
+            <div class="kpi-tile"><div class="kpi-val">${(d.relationships || []).length}</div><div class="kpi-lbl">Kinship &amp; Group Links</div></div>
+            <div class="kpi-tile"><div class="kpi-val">${aiCount}</div><div class="kpi-lbl">Gemini Platform Audits</div></div>
+            <div class="kpi-tile"><div class="kpi-val">${linkedCount} / ${vetoCount}</div><div class="kpi-lbl">Linked / Prevented Merges</div></div>
+          </div>
+        </div>
+      `;
+
+      if (STATE.activeTab === "graph") {
+        col.innerHTML = protectionHtml + buildGraphCardHtml(true);
+        renderActiveGraph();
+        return;
+      }
+
+      if (STATE.activeTab === "audit") {
+        col.innerHTML = protectionHtml + heroCardHtml + buildAdjudicationSectionHtml(d, false);
+        return;
+      }
+
+      if (STATE.activeTab === "lineage") {
+        col.innerHTML = protectionHtml + heroCardHtml + buildSourceLineageSectionHtml(d) + buildSurvivorshipSectionHtml(d);
+        return;
+      }
+
+      if (STATE.activeTab === "locations") {
+        col.innerHTML = protectionHtml + heroCardHtml + buildAddressesSectionHtml(d);
+        initPropertyMap(d.addresses || []);
+        return;
+      }
+
+      // Default 'all' tab: Everything We Know + Interactive Graph Visualisation + Map!
+      col.innerHTML = `
+        ${protectionHtml}
+        ${heroCardHtml}
+        ${buildGraphCardHtml(false)}
+        ${buildAdjudicationSectionHtml(d, true)}
+        <div class="two-col-grid">
+          ${buildNamesSectionHtml(d)}
+          ${buildInstrumentsSectionHtml(d)}
+        </div>
+        ${buildRelationshipsSectionHtml(d)}
+        ${buildAddressesSectionHtml(d)}
+        ${buildSourceLineageSectionHtml(d)}
+        ${buildSurvivorshipSectionHtml(d)}
+      `;
+      renderActiveGraph();
+      initPropertyMap(d.addresses || []);
+    }
+
+    function buildGraphCardHtml(isStudio) {
+      const st = STATE.dossier?.graph?.stats || { node_count: 0, edge_count: 0 };
+      return `
+        <div class="graph-card" id="graph-card-container">
+          <div class="graph-toolbar">
+            <div class="graph-toolbar-left">
+              <span class="graph-title">
+                Property Graph Visualisation
+                <span class="badge badge-mono badge-blue">${st.node_count} nodes · ${st.edge_count} edges</span>
+              </span>
+              <button class="chip-toggle ${STATE.graphLayout === 'force' ? 'active' : ''}" onclick="setGraphLayout('force')">Force Network</button>
+              <button class="chip-toggle ${STATE.graphLayout === 'radial' ? 'active' : ''}" onclick="setGraphLayout('radial')">Radial Ego</button>
+              <button class="chip-toggle ${STATE.graphLayout === 'lineage' ? 'active' : ''}" onclick="setGraphLayout('lineage')">Lineage (L→R)</button>
+            </div>
+            <div class="graph-toolbar-right">
+              <button class="chip-toggle ${STATE.graphLayer === 'all' ? 'active' : ''}" onclick="setGraphLayer('all')">All Layers</button>
+              <button class="chip-toggle ${STATE.graphLayer === 'kinship' ? 'active' : ''}" onclick="setGraphLayer('kinship')">Kinship &amp; Properties</button>
+              <button class="chip-toggle ${STATE.graphLayer === 'lineage' ? 'active' : ''}" onclick="setGraphLayer('lineage')">Lineage &amp; AI Audit</button>
+              <button class="chip-toggle ${STATE.graphLayer === 'identity' ? 'active' : ''}" onclick="setGraphLayer('identity')">Names &amp; IDs</button>
+              <button class="chip-toggle ${STATE.showVetoes ? 'active' : ''}" onclick="toggleGraphVetoes()">
+                ${STATE.showVetoes ? '✓ Showing Vetoed Pairs' : 'Show Vetoed Pairs'}
+              </button>
+              <button class="chip-toggle" onclick="exportGraphSvg()">SVG</button>
+              ${!isStudio ? `<button class="chip-toggle" onclick="switchTab('graph')">Expand Studio ↗</button>` : ""}
+            </div>
+          </div>
+
+          <div class="graph-stage ${isStudio ? 'studio-height' : ''}">
+            <div class="graph-canvas-wrap" id="graph-canvas-wrap">
+              <svg class="graph-svg" id="dcj-graph-svg"></svg>
+              <div class="graph-legend">
+                <span class="legend-item"><span class="legend-dot" style="background:#1A73E8"></span>Golden Person</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#0284C7"></span>Kin / Resident</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#059669"></span>GNAF Property</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#D97706"></span>FP Group</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#0891B2"></span>SDM Record</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#0D9488"></span>Name / Alias</span>
+                <span class="legend-item"><span class="legend-dot" style="background:#4F46E5"></span>Gov ID</span>
+                <span class="legend-item"><span class="legend-line-link"></span>LINK / Resolves</span>
+                <span class="legend-item"><span class="legend-line-veto"></span>Veto / NO_MATCH</span>
+              </div>
+              <div class="graph-zoom-controls">
+                <button class="zoom-btn" title="Zoom In" onclick="zoomGraphBy(1.28)">+</button>
+                <button class="zoom-btn" title="Zoom Out" onclick="zoomGraphBy(0.78)">−</button>
+                <button class="zoom-btn" title="Fit to View" onclick="fitGraphToScreen()">⊡</button>
+              </div>
+            </div>
+            <div class="graph-inspector" id="graph-inspector-panel"></div>
+          </div>
+        </div>
+      `;
+    }
+    function setAuditFilter(f) {
+      STATE.auditFilter = f;
+      renderActiveTabWorkspace();
+    }
+
+    function buildAdjudicationSectionHtml(d, compactCap = false) {
+      const all = d.adjudications || [];
+      const filtered = all.filter(a => {
+        const isLink = a.decision === "LINK" && !a.suppressed_by_contradiction;
+        const isGemini = (a.ledger_history && a.ledger_history.length > 0) || a.decided_by === "GEMINI_ADJUDICATOR" || a.decided_by === "LLM_AND_TWIN_GUARD";
+        if (STATE.auditFilter === "link") return isLink;
+        if (STATE.auditFilter === "gemini") return isGemini;
+        if (STATE.auditFilter === "veto") return !isLink;
+        return true;
+      });
+      const shown = compactCap ? filtered.slice(0, 8) : filtered;
+      const pid = d.profile?.person_id;
+
+      let cards = shown.map(a => {
+        const isLink = a.decision === "LINK" && !a.suppressed_by_contradiction;
+        const latestLedger = (a.ledger_history && a.ledger_history.length) ? a.ledger_history[0] : null;
+        const otherPid = a.person_id_a && a.person_id_a !== pid ? a.person_id_a : (a.person_id_b && a.person_id_b !== pid ? a.person_id_b : null);
+        const otherName = otherPid === a.person_id_a ? a.person_name_a : a.person_name_b;
+
+        const decBadge = isLink
+          ? `<span class="badge badge-emerald">DECISION: LINK (MERGED)</span>`
+          : `<span class="badge badge-crimson">DECISION: ${esc(a.decision)}${a.suppressed_by_contradiction ? " (CONTRADICTION PRUNED)" : ""}</span>`;
+
+        const deciderBadge = a.decided_by === "GEMINI_ADJUDICATOR"
+          ? `<span class="badge badge-blue">GEMINI PLATFORM ADJUDICATOR</span>`
+          : a.decided_by === "LLM_AND_TWIN_GUARD"
+          ? `<span class="badge badge-crimson">GEMINI + TWIN SLK-581 GUARD</span>`
+          : `<span class="badge badge-neutral">DETERMINISTIC RULE &amp; GRAPH</span>`;
+
+        const attrs = [
+          ["Program", a.a_program, a.b_program],
+          ["Full Name", a.a_name, a.b_name],
+          ["Known Aliases / Cultural Names", a.a_aliases, a.b_aliases],
+          ["Date of Birth & Status", `${a.a_dob || "—"} (${a.a_dob_status || ""})`, `${a.b_dob || "—"} (${a.b_dob_status || ""})`],
+          ["Gender / Indigenous Status", `${a.a_gender || "—"} / ${a.a_atsi || "—"}`, `${a.b_gender || "—"} / ${a.b_atsi || "—"}`],
+          ["Street Address", `${a.a_address || "—"}, ${a.a_suburb || ""} ${a.a_postcode || ""}`, `${a.b_address || "—"}, ${a.b_suburb || ""} ${a.b_postcode || ""}`],
+          ["Phone / Email", `${a.a_phone || "—"} / ${a.a_email || "—"}`, `${a.b_phone || "—"} / ${a.b_email || "—"}`],
+          ["ChildStory / CNI / NDIS", `CS:${a.a_cs_id || "—"} · CNI:${a.a_cni || "—"} · NDIS:${a.a_ndis || "—"}`, `CS:${a.b_cs_id || "—"} · CNI:${a.b_cni || "—"} · NDIS:${a.b_ndis || "—"}`],
+          ["AIHW SLK-581", a.a_slk || "—", a.b_slk || "—"],
+          ["Kinship / Carer Context", a.a_kin || "—", a.b_kin || "—"]
+        ];
+
+        const diffRows = attrs.map(([lbl, va, vb]) => {
+          const same = String(va || "").trim().toUpperCase() === String(vb || "").trim().toUpperCase() && String(va || "") !== "—";
+          return `
+            <tr>
+              <td style="font-weight:600;color:var(--text-muted);width:22%">${esc(lbl)}</td>
+              <td style="width:39%;${same ? 'color:var(--emerald-text);font-weight:500' : ''}">${esc(va || "—")}</td>
+              <td style="width:39%;${same ? 'color:var(--emerald-text);font-weight:500' : ''}">${esc(vb || "—")}</td>
+            </tr>
+          `;
+        }).join("");
+
+        return `
+          <div class="audit-card ${isLink ? 'is-link' : 'is-veto'}">
+            <div class="audit-top">
+              <div class="audit-pair-ids">
+                <span>${esc(a.record_id_a)}</span>
+                <span>↔</span>
+                <span>${esc(a.record_id_b)}</span>
+                ${decBadge}
+                ${deciderBadge}
+                <span class="badge badge-mono badge-neutral">Tier: ${esc(a.tier)}</span>
+              </div>
+              <div>
+                <span class="badge badge-mono badge-neutral">Conf: ${fmtNum(a.confidence, 2)}</span>
+                <span class="badge badge-mono badge-neutral">Score: ${fmtNum(a.combined_score, 3)}</span>
+              </div>
+            </div>
+
+            <div class="audit-rationale">
+              <strong>Statutory Rationale:</strong> ${esc(a.rationale || latestLedger?.rationale || "—")}
+              ${(a.decisive_evidence || latestLedger?.decisive_evidence) ? `<div style="margin-top:6px"><strong>Decisive Evidence:</strong> ${esc(a.decisive_evidence || latestLedger?.decisive_evidence)}</div>` : ""}
+              ${(a.contradiction && a.contradiction.toLowerCase() !== "none") ? `<div style="margin-top:6px;color:var(--crimson-text)"><strong>Contradiction / Guard Citation:</strong> ${esc(a.contradiction)}</div>` : ""}
+            </div>
+
+            <div class="audit-signals-row">
+              <span><strong>Retrieved:</strong> ${esc(a.retrieved_by)}</span>
+              <span>· <strong>RRF:</strong> ${fmtNum(a.rrf_score, 4)}</span>
+              <span>· <strong>Vector Sim:</strong> ${fmtNum(a.semantic_similarity, 4)}</span>
+              <span>· <strong>Non-Hub IDF:</strong> ${fmtNum(a.non_hub_idf_sum, 2)}</span>
+              ${a.twin_or_sibling_trap ? `· <span class="badge badge-crimson">Twin/Sibling SLK-581 Collision Detected</span>` : ""}
+              ${a.documented_kin_relationship ? `· <span class="badge badge-amber">Documented Kin: ${esc(a.documented_kin_relationship)}</span>` : ""}
+              ${a.hub_only ? `· <span class="badge badge-amber">Promiscuous Refuge Hub Only</span>` : ""}
+              ${latestLedger ? `· <span class="badge badge-mono badge-blue">${esc(latestLedger.model)} · ${esc(latestLedger.prompt_version)} · ${esc(String(latestLedger.adjudicated_at).slice(0, 19))} UTC · ${esc(latestLedger.input_tokens || 0)}→${esc(latestLedger.output_tokens || 0)} tok · Injection=${latestLedger.injection_detected ? "DETECTED" : "CLEAN"}</span>` : ""}
+              ${otherPid ? `· <button class="link-btn" onclick="pivotToPerson('${esc(otherPid)}', '${esc(otherName || otherPid)}')">Inspect Kept-Separate Person: ${esc(otherName || otherPid)} (${esc(otherPid)}) →</button>` : ""}
+            </div>
+
+            <details class="diff-details">
+              <summary>Compare Side-by-Side Source Record Attributes (${esc(a.record_id_a)} vs ${esc(a.record_id_b)})${a.ledger_history && a.ledger_history.length > 1 ? ` · ${a.ledger_history.length} Audit Ledger Revisions` : ""}</summary>
+              <div class="diff-grid">
+                <table class="clean-table">
+                  <thead><tr><th>Attribute</th><th>Record A (${esc(a.record_id_a)})</th><th>Record B (${esc(a.record_id_b)})</th></tr></thead>
+                  <tbody>${diffRows}</tbody>
+                </table>
+              </div>
+            </details>
+          </div>
+        `;
+      }).join("");
+
+      if (!cards) {
+        cards = `<div class="section-sub">No candidate pairs match the selected filter.</div>`;
+      }
+
+      return `
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h3>Entity Resolution &amp; Gemini Platform Adjudication Audit History</h3>
+              <div class="section-sub">Immutable ledger from <code>dcj_match.person_match_adjudications</code>, <code>person_match_decisions</code> &amp; <code>resolution_edges</code> (${esc(d.total_candidate_pairs_evaluated || all.length)} total candidate pairs evaluated)</div>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button class="chip-toggle ${STATE.auditFilter === 'all' ? 'active' : ''}" onclick="setAuditFilter('all')">All (${all.length})</button>
+              <button class="chip-toggle ${STATE.auditFilter === 'link' ? 'active' : ''}" onclick="setAuditFilter('link')">Accepted Merges</button>
+              <button class="chip-toggle ${STATE.auditFilter === 'gemini' ? 'active' : ''}" onclick="setAuditFilter('gemini')">Gemini Platform Audited</button>
+              <button class="chip-toggle ${STATE.auditFilter === 'veto' ? 'active' : ''}" onclick="setAuditFilter('veto')">Prevented False Merges</button>
+              ${compactCap && filtered.length > 8 ? `<button class="chip-toggle" onclick="switchTab('audit')">View All (${filtered.length}) →</button>` : ""}
+            </div>
+          </div>
+          <div class="audit-list">${cards}</div>
+        </div>
+      `;
+    }
+
+    function buildNamesSectionHtml(d) {
+      const rows = (d.names || []).map(n => `
+        <tr>
+          <td><strong>${esc(n.full_name)}</strong> ${n.primary_name_flag ? `<span class="badge badge-emerald">PRIMARY</span>` : ""}</td>
+          <td><span class="badge badge-blue">${esc(n.name_usage_code || "Name")}</span></td>
+          <td>${esc(n.source_program)}</td>
+          <td>${fmtDate(n.start_date)} → ${n.end_date ? `<span style="color:var(--text-muted)">${fmtDate(n.end_date)}</span>` : `<strong style="color:var(--emerald-text)">Active</strong>`}</td>
+        </tr>
+      `).join("");
+      return `
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h3>Multi-Name, Cultural &amp; Alias Timeline (${(d.names || []).length})</h3>
+              <div class="section-sub"><code>dcj_tdm.person_name</code> across 16 NSW DCJ name usage contexts</div>
+            </div>
+          </div>
+          <div class="data-table-wrap">
+            <table class="clean-table">
+              <thead><tr><th>Full Name</th><th>Usage Type</th><th>Asserting Program</th><th>Effective Window</th></tr></thead>
+              <tbody>${rows || `<tr><td colspan="4">No name records</td></tr>`}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function buildInstrumentsSectionHtml(d) {
+      const rows = (d.instruments || []).map(i => `
+        <tr>
+          <td><span class="badge badge-mono badge-blue">${esc(i.instrument_type_code)}</span></td>
+          <td><strong style="font-family:'JetBrains Mono',monospace">${esc(i.designation_number)}</strong> ${i.is_primary ? `<span class="badge badge-emerald">PRIMARY</span>` : ""}</td>
+          <td>${esc(i.status_code || "Active")}</td>
+          <td>${esc(i.issuer_name || i.issuer_party_id)}</td>
+        </tr>
+      `).join("");
+      return `
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h3>Government &amp; Statistical Identity Instruments (${(d.instruments || []).length})</h3>
+              <div class="section-sub"><code>dcj_tdm.person_identity_instrument</code> &amp; Issuing Authorities</div>
+            </div>
+          </div>
+          <div class="data-table-wrap">
+            <table class="clean-table">
+              <thead><tr><th>Type</th><th>Designation Number</th><th>Status</th><th>Issuing Authority</th></tr></thead>
+              <tbody>${rows || `<tr><td colspan="4">No identity instruments recorded</td></tr>`}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function buildRelationshipsSectionHtml(d) {
+      const pid = d.profile?.person_id;
+      const rows = (d.relationships || []).map(r => {
+        const otherId = r.from_id === pid ? r.to_id : r.from_id;
+        const otherName = r.from_id === pid ? r.to_name : r.from_name;
+        const otherType = r.from_id === pid ? r.to_type : r.from_type;
+        const canPivotPerson = otherType === "person";
+        return `
+          <tr class="${canPivotPerson ? 'clickable-row' : ''}" ${canPivotPerson ? `onclick="pivotToPerson('${esc(otherId)}', '${esc(otherName)}')"` : ""}>
+            <td><span class="badge badge-mono badge-neutral">${r.hop}-Hop</span></td>
+            <td><strong>${esc(r.from_name)}</strong> → <strong>${esc(r.to_name)}</strong></td>
+            <td><span class="badge badge-blue">${esc(r.canonical_relationship_type || r.relationship_type)}</span></td>
+            <td><span class="badge badge-neutral">${esc(r.relationship_category)}</span></td>
+            <td>${esc(r.source_program)}</td>
+            <td>${esc(r.comment || "—")}</td>
+            <td>${canPivotPerson ? `<button class="link-btn">Open 360° →</button>` : `<span class="badge badge-mono badge-neutral">${esc(otherId)}</span>`}</td>
+          </tr>
+        `;
+      }).join("");
+      return `
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h3>Kinship, Carer, Household Group &amp; NGO Service Network (${(d.relationships || []).length})</h3>
+              <div class="section-sub">1-Hop &amp; 2-Hop ISO GQL traversal on <code>dcj_tdm.dcj_person_graph</code> (<code>PARTY_RELATIONSHIP</code>) — click any person to pivot</div>
+            </div>
+          </div>
+          <div class="data-table-wrap">
+            <table class="clean-table">
+              <thead><tr><th>Hop</th><th>Relationship Pair</th><th>Canonical Role</th><th>Category</th><th>Program</th><th>Provenance</th><th>Action</th></tr></thead>
+              <tbody>${rows || `<tr><td colspan="7">No party relationships recorded</td></tr>`}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function buildAddressesSectionHtml(d) {
+      const rows = (d.addresses || []).map(a => {
+        const coLinks = (a.co_residents || []).map(c =>
+          `<button class="link-btn" onclick="event.stopPropagation();pivotToPerson('${esc(c.person_id)}','${esc(c.full_name)}')">${esc(c.full_name)}${c.is_protected_person ? ' 🛡️' : ''}</button>`
+        ).join(", ");
+        return `
+          <tr class="clickable-row" onclick="pivotToProperty('${esc(a.address_id)}', '${esc(a.full_address)}')">
+            <td>
+              <strong>${esc(a.building_name ? a.building_name + " — " : "")}${esc(a.full_address)}</strong>
+              ${a.primary_address_flag ? `<span class="badge badge-emerald">PRIMARY</span>` : ""}
+              ${a.is_crisis_hub ? `<span class="badge badge-crimson">CRISIS REFUGE HUB (IDF=0.0, deg=${esc(a.bipartite_degree)})</span>` : ""}
+              <div style="font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace">${esc(a.address_id)} · ${esc(a.record_type || "GNAF")} · (${fmtNum(a.latitude, 4)}, ${fmtNum(a.longitude, 4)})</div>
+            </td>
+            <td>${esc(a.address_purpose || "Residential")}</td>
+            <td>${fmtDate(a.start_date)} → ${a.end_date ? fmtDate(a.end_date) : "Current"}</td>
+            <td>${esc(a.total_residents_at_addr)} total${coLinks ? `<div style="margin-top:3px;font-size:11.5px">${coLinks}</div>` : ""}</td>
+            <td><button class="link-btn">Inspect Property →</button></td>
+          </tr>
+        `;
+      }).join("");
+
+      return `
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h3>Geocoded NSW GNAF Residential &amp; Crisis Accommodation History (${(d.addresses || []).length})</h3>
+              <div class="section-sub"><code>dcj_tdm.address_location</code> + <code>LIVES_AT</code> edges + Crisis Refuge Hub Suppression</div>
+            </div>
+          </div>
+          <div class="two-col-grid">
+            <div class="data-table-wrap">
+              <table class="clean-table">
+                <thead><tr><th>GNAF Address</th><th>Purpose</th><th>Period</th><th>Co-Residents</th><th>Property</th></tr></thead>
+                <tbody>${rows || `<tr><td colspan="5">No GNAF addresses linked</td></tr>`}</tbody>
+              </table>
+            </div>
+            <div class="map-box" id="dossier-leaflet-map"></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function buildSourceLineageSectionHtml(d) {
+      const cards = (d.source_records || []).map(sr => {
+        const idPills = (sr.identifiers || []).map(i =>
+          `<span class="badge badge-mono ${i.is_promiscuous ? 'badge-crimson' : i.is_anchor ? 'badge-emerald' : 'badge-neutral'}">${esc(i.identifier_id)} (IDF=${fmtNum(i.idf_weight, 2)}, deg=${esc(i.degree)}${i.is_promiscuous ? ' HUB' : ''})</span>`
+        ).join(" ");
+        return `
+          <div class="audit-card is-link">
+            <div class="audit-top">
+              <div class="audit-pair-ids">
+                <span class="badge badge-blue">${esc(sr.source_app_id)}</span>
+                <span>${esc(sr.source_record_id)}</span>
+                <span class="badge badge-mono badge-neutral">Native ID: ${esc(sr.source_person_id)}</span>
+                <span class="badge badge-emerald">Trust Weight: ${esc(sr.source_trust)}</span>
+              </div>
+              <span class="section-sub">${esc(sr.source_program)} · Asserted ${fmtDate(sr.record_ts)}</span>
+            </div>
+            <div style="font-size:12.5px;line-height:1.55;margin-bottom:8px">
+              <strong>Raw Name:</strong> ${esc(sr.given_name_raw || "")} ${esc(sr.middle_name_raw || "")} ${esc(sr.family_name_raw || "")}
+              ${sr.alias_names_concat ? ` · <strong>Aliases:</strong> ${esc(sr.alias_names_concat)}` : ""}
+              · <strong>DOB:</strong> ${esc(sr.dob || "—")} (${esc(sr.dob_status)})
+              · <strong>Address:</strong> ${esc(sr.address_norm || "—")}, ${esc(sr.suburb_norm || "")} ${esc(sr.postcode_norm || "")}
+              ${sr.phone_e164 ? ` · <strong>Phone:</strong> ${esc(sr.phone_e164)}` : ""}
+              ${sr.kin_context ? ` · <strong>Kin Context:</strong> ${esc(sr.kin_context)}` : ""}
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">${idPills}</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);background:var(--surface);padding:8px 10px;border-radius:8px;border:1px solid var(--border)">
+              <strong>AI.EMBED Match Key:</strong> ${esc(sr.match_key)}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      return `
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h3>Cross-Program Source Lineage &amp; Bipartite Identifiers (${(d.source_records || []).length} SDM Records)</h3>
+              <div class="section-sub">Originating records from <code>dcj_match.stg_source_profiles</code> &amp; <code>dcj_tdm.person_source_linkage</code></div>
+            </div>
+          </div>
+          <div class="audit-list">${cards}</div>
+        </div>
+      `;
+    }
+
+    function buildSurvivorshipSectionHtml(d) {
+      const rows = (d.survivorship || []).map(s => {
+        const comp = (s.assertions || []).map(a =>
+          `<span class="badge badge-mono ${a.record_id === s.won_from_record_id ? 'badge-emerald' : 'badge-neutral'}">${esc(a.source_system)}(${esc(a.source_trust)}): ${esc(a.field_value)}</span>`
+        ).join(" ");
+        return `
+          <tr>
+            <td><strong style="font-family:'JetBrains Mono',monospace">${esc(s.field_name)}</strong></td>
+            <td><strong>${esc(s.surviving_value)}</strong></td>
+            <td>${s.was_contested ? `<span class="badge badge-amber">CONTESTED RESOLVED</span>` : `<span class="badge badge-emerald">UNANIMOUS</span>`}</td>
+            <td>${esc(s.won_from_program)} (<code>${esc(s.won_from_record_id)}</code>, trust=${esc(s.source_trust)})</td>
+            <td>${esc(s.corroborating_programs)} program(s)</td>
+            <td><div style="display:flex;flex-wrap:wrap;gap:4px">${comp}</div></td>
+          </tr>
+        `;
+      }).join("");
+
+      return `
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h3>Field-Level Survivorship &amp; Attribute Provenance (${(d.survivorship || []).length} Attributes)</h3>
+              <div class="section-sub"><code>dcj_match.field_survivorship</code> — trust-weighted golden record survivorship audit</div>
+            </div>
+          </div>
+          <div class="data-table-wrap">
+            <table class="clean-table">
+              <thead><tr><th>Golden Field</th><th>Surviving Value</th><th>Consensus</th><th>Winning Source</th><th>Corroboration</th><th>All Source Assertions</th></tr></thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPropertyDossier(d, col) {
+      const pr = d.property;
+      const residents = d.residents || [];
+      const protCount = residents.filter(r => r.is_protected_person).length;
+
+      const hubBanner = pr.is_crisis_hub ? `
+        <div class="protection-banner" style="background:var(--amber-soft);border-color:var(--amber);color:var(--amber-text)">
+          <div style="font-size:20px;line-height:1">🏠</div>
+          <div>
+            <strong>PROMISCUOUS CRISIS REFUGE / RESIDENTIAL CARE HUB SUPPRESSION ACTIVE</strong>
+            <span>
+              This GNAF property (<code>${esc(pr.id)}</code>) is shared by <strong>${esc(pr.bipartite_degree)}</strong> source records across unrelated families/clients.
+              In the Bipartite Identifier Graph, its Inverse Document Frequency weight is suppressed to <strong>IDF = 0.0000</strong> (<code>is_promiscuous = TRUE</code>) so co-residency NEVER triggers false Hairball merges, while preserving <code>LIVES_AT</code> graph lineage for frontline safety checks.
+            </span>
+          </div>
+        </div>
+      ` : "";
+
+      const propHero = `
+        <div class="dossier-hero-card">
+          <div class="dh-top">
+            <div class="dh-title-wrap">
+              <div>
+                <span class="badge badge-mono badge-emerald">${esc(pr.id)}</span>
+                <span class="badge badge-neutral">GNAF ${esc(pr.record_type || "PROPERTY CENTROID")}</span>
+                <span class="badge badge-blue">${esc(d.telemetry?.total_ms)} ms Live Graph Query</span>
+              </div>
+              <h2>
+                <span>${esc(pr.building_name || pr.full_address)}</span>
+                ${pr.is_crisis_hub ? `<span class="badge badge-crimson">CRISIS REFUGE HUB</span>` : `<span class="badge badge-emerald">RESIDENTIAL DWELLING</span>`}
+              </h2>
+              <div class="dh-demographics">
+                <div>Full GNAF Address: <strong>${esc(pr.full_address)}</strong></div>
+                <div>Locality: <strong>${esc(pr.suburb)} ${esc(pr.state)} ${esc(pr.postcode)}</strong></div>
+                <div>Coordinates: <strong>${fmtNum(pr.latitude, 5)}, ${fmtNum(pr.longitude, 5)}</strong></div>
+              </div>
+            </div>
+          </div>
+          <div class="kpi-strip">
+            <div class="kpi-tile"><div class="kpi-val">${residents.length}</div><div class="kpi-lbl">Linked Mastered People</div></div>
+            <div class="kpi-tile"><div class="kpi-val">${protCount}</div><div class="kpi-lbl">Protected Residents</div></div>
+            <div class="kpi-tile"><div class="kpi-val">${(d.relationships || []).length}</div><div class="kpi-lbl">Intra-Property Kin Links</div></div>
+            <div class="kpi-tile"><div class="kpi-val">${esc(pr.bipartite_degree)}</div><div class="kpi-lbl">Bipartite Record Degree</div></div>
+            <div class="kpi-tile"><div class="kpi-val">${fmtNum(pr.idf_weight, 3)}</div><div class="kpi-lbl">Bipartite IDF Weight</div></div>
+          </div>
+        </div>
+      `;
+
+      const resRows = residents.map(r => `
+        <tr class="clickable-row" onclick="pivotToPerson('${esc(r.person_id)}', '${esc(r.primary_full_name)}')">
+          <td>
+            <strong>${esc(r.primary_full_name || r.person_id)}</strong>
+            ${r.is_protected_person ? `<span class="badge badge-crimson">PROTECTED</span>` : ""}
+            <div style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text-muted)">${esc(r.person_id)}</div>
+          </td>
+          <td>${esc(r.date_of_birth || "—")} (${esc(r.dob_certainty_code || "")})</td>
+          <td>${esc(r.gender || "—")}${r.indigenous_status && r.indigenous_status !== "No" ? ` · <span class="badge badge-amber">${esc(r.indigenous_status)}</span>` : ""}</td>
+          <td>${r.primary_address_flag ? `<span class="badge badge-emerald">Current Primary</span>` : `<span class="badge badge-neutral">Historical</span>`} · ${esc(r.address_purpose || "")}</td>
+          <td>${esc(r.contributing_programs || r.source_program)}</td>
+          <td><button class="link-btn">Open 360° Dossier →</button></td>
+        </tr>
+      `).join("");
+
+      const resSection = `
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h3>Current &amp; Historical Residents at Property (${residents.length})</h3>
+              <div class="section-sub">Traversed via <code>MATCH (p:Person)-[la:LIVES_AT]->(al:AddressLocation)</code> — click any resident to inspect their 360° Dossier</div>
+            </div>
+          </div>
+          <div class="two-col-grid">
+            <div class="data-table-wrap">
+              <table class="clean-table">
+                <thead><tr><th>Mastered Person</th><th>DOB</th><th>Demographics</th><th>Residency</th><th>Programs</th><th>Action</th></tr></thead>
+                <tbody>${resRows}</tbody>
+              </table>
+            </div>
+            <div class="map-box" id="dossier-leaflet-map"></div>
+          </div>
+        </div>
+      `;
+
+      const propAuditRows = (d.adjudications || []).map(a => `
+        <tr>
+          <td style="font-family:'JetBrains Mono',monospace">${esc(a.record_id_a)} ↔ ${esc(a.record_id_b)}</td>
+          <td>${esc(a.a_name)} (${esc(a.a_dob)}) vs ${esc(a.b_name)} (${esc(a.b_dob)})</td>
+          <td>${a.decision === "LINK" ? `<span class="badge badge-emerald">LINK</span>` : `<span class="badge badge-crimson">${esc(a.decision)}</span>`}</td>
+          <td><span class="badge badge-blue">${esc(a.decided_by)}</span></td>
+          <td>${esc(a.rationale)}</td>
+        </tr>
+      `).join("");
+
+      const propAuditSection = `
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h3>Co-Resident Pair Adjudication &amp; Hub Guard Audit (${(d.adjudications || []).length})</h3>
+              <div class="section-sub">How the Hybrid Engine &amp; Gemini Platform handled records sharing this address</div>
+            </div>
+          </div>
+          <div class="data-table-wrap">
+            <table class="clean-table">
+              <thead><tr><th>Record Pair</th><th>Compared Names &amp; DOBs</th><th>Decision</th><th>Decided By</th><th>Audit Rationale</th></tr></thead>
+              <tbody>${propAuditRows || `<tr><td colspan="5">No cross-record candidate pairs at this property</td></tr>`}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      if (STATE.activeTab === "graph") {
+        col.innerHTML = hubBanner + buildGraphCardHtml(true);
+        renderActiveGraph();
+        return;
+      }
+
+      col.innerHTML = hubBanner + propHero + buildGraphCardHtml(false) + resSection + propAuditSection;
+      renderActiveGraph();
+      initPropertyMap([{ ...pr, address_id: pr.id, primary_address_flag: true }]);
+    }
+
+    function initPropertyMap(addresses) {
+      const mapEl = document.getElementById("dossier-leaflet-map");
+      if (!mapEl || typeof L === "undefined") return;
+      if (STATE.leafletMap) {
+        try { STATE.leafletMap.remove(); } catch (_) {}
+        STATE.leafletMap = null;
+      }
+      const valid = (addresses || []).filter(a => Number.isFinite(Number(a.latitude)) && Number.isFinite(Number(a.longitude)));
+      const center = valid.length ? [Number(valid[0].latitude), Number(valid[0].longitude)] : [-33.815, 151.001];
+      const map = L.map(mapEl, { zoomControl: true, attributionControl: false }).setView(center, valid.length === 1 ? 14 : 11);
+      STATE.leafletMap = map;
+
+      // Watermark-free Simple-View Google Maps tiles
+      L.tileLayer("https://{s}.google.com/vt/lyrs=m&hl=en&x={x}&y={y}&z={z}", {
+        subdomains: ["mt0", "mt1", "mt2", "mt3"],
+        maxZoom: 19
+      }).addTo(map);
+
+      const bounds = [];
+      valid.forEach(a => {
+        const lat = Number(a.latitude), lng = Number(a.longitude);
+        bounds.push([lat, lng]);
+        const isHub = Boolean(a.is_crisis_hub);
+        const marker = L.circleMarker([lat, lng], {
+          radius: isHub ? 11 : 8,
+          color: isHub ? "#DC2626" : "#1A73E8",
+          weight: 2.5,
+          fillColor: isHub ? "#EF4444" : "#059669",
+          fillOpacity: 0.88
+        }).addTo(map);
+        marker.bindPopup(`
+          <div style="font-family:Inter,sans-serif;font-size:12px">
+            <strong>${esc(a.building_name || a.full_address)}</strong><br/>
+            ${esc(a.full_address)}<br/>
+            <span style="color:#64748B">${esc(a.address_id || a.id)} ${isHub ? "· Crisis Refuge Hub" : ""}</span>
+          </div>
+        `);
+      });
+      if (bounds.length > 1) {
+        map.fitBounds(bounds, { padding: [32, 32] });
+      }
+      setTimeout(() => map.invalidateSize(), 120);
+    }
+
+
+    /* =========================================================
+       D3.JS v7 INTERACTIVE PROPERTY GRAPH ENGINE
+       ========================================================= */
+    const NODE_STYLE = {
+      Person:             { color: "#0284C7", focusColor: "#1A73E8", glyph: "PER", r: 16, focusR: 23, col: 2 },
+      AddressLocation:    { color: "#059669", focusColor: "#059669", glyph: "ADR", r: 17, focusR: 23, col: 3 },
+      Group:              { color: "#D97706", focusColor: "#D97706", glyph: "GRP", r: 16, focusR: 21, col: 3 },
+      Organisation:       { color: "#475569", focusColor: "#475569", glyph: "ORG", r: 14, focusR: 20, col: 3 },
+      SourceRecord:       { color: "#0891B2", focusColor: "#0891B2", glyph: "SDM", r: 15, focusR: 20, col: 1 },
+      PersonName:         { color: "#0D9488", focusColor: "#0D9488", glyph: "NAM", r: 13, focusR: 18, col: 3 },
+      IdentityInstrument: { color: "#4F46E5", focusColor: "#4F46E5", glyph: "ID",  r: 13, focusR: 18, col: 3 },
+      ProtectionEvent:    { color: "#DC2626", focusColor: "#DC2626", glyph: "RLS", r: 15, focusR: 20, col: 3 },
+      Identifier:         { color: "#64748B", focusColor: "#64748B", glyph: "TOK", r: 11, focusR: 16, col: 0 }
+    };
+
+    let GRAPH_RUNTIME = {
+      sim: null,
+      svg: null,
+      zoom: null,
+      gRoot: null,
+      width: 800,
+      height: 500
+    };
+
+    function refreshGraphToolbarState() {
+      const card = document.getElementById("graph-card-container");
+      if (!card) return;
+      card.querySelectorAll(".graph-toolbar-left .chip-toggle").forEach(btn => {
+        const txt = btn.textContent.trim();
+        const match =
+          (STATE.graphLayout === "force" && txt.startsWith("Force")) ||
+          (STATE.graphLayout === "radial" && txt.startsWith("Radial")) ||
+          (STATE.graphLayout === "lineage" && txt.startsWith("Lineage"));
+        btn.classList.toggle("active", match);
+      });
+      card.querySelectorAll(".graph-toolbar-right .chip-toggle").forEach(btn => {
+        const oc = btn.getAttribute("onclick") || "";
+        if (oc.startsWith("setGraphLayer")) {
+          btn.classList.toggle("active", oc.includes(`'${STATE.graphLayer}'`));
+        } else if (oc.startsWith("toggleGraphVetoes")) {
+          btn.classList.toggle("active", STATE.showVetoes);
+          btn.textContent = STATE.showVetoes ? "✓ Showing Vetoed Pairs" : "Show Vetoed Pairs";
+        }
+      });
+    }
+
+    function setGraphLayout(layout) {
+      STATE.graphLayout = layout;
+      refreshGraphToolbarState();
+      renderActiveGraph();
+    }
+
+    function setGraphLayer(layer) {
+      STATE.graphLayer = layer;
+      refreshGraphToolbarState();
+      renderActiveGraph();
+    }
+
+    function toggleGraphVetoes() {
+      STATE.showVetoes = !STATE.showVetoes;
+      refreshGraphToolbarState();
+      renderActiveGraph();
+    }
+
+    function getFilteredGraphData() {
+      const raw = STATE.dossier?.graph;
+      if (!raw || !raw.nodes) return { nodes: [], edges: [] };
+
+      const allowedEdges = (raw.edges || []).filter(e => {
+        if (!STATE.showVetoes && e.category === "audit_veto") return false;
+        if (STATE.graphLayer === "kinship") {
+          return e.category === "kinship" || e.category === "property";
+        }
+        if (STATE.graphLayer === "lineage") {
+          return e.category === "lineage" || e.category === "audit_link" || e.category === "audit_veto";
+        }
+        if (STATE.graphLayer === "identity") {
+          return e.category === "identity";
+        }
+        return true;
+      });
+
+      const activeNodeIds = new Set();
+      raw.nodes.forEach(n => {
+        if (n.is_focus) activeNodeIds.add(n.id);
+      });
+      allowedEdges.forEach(e => {
+        activeNodeIds.add(e.source);
+        activeNodeIds.add(e.target);
+      });
+
+      const nodes = raw.nodes
+        .filter(n => activeNodeIds.has(n.id))
+        .map(n => ({ ...n }));
+
+      const validSet = new Set(nodes.map(n => n.id));
+      const edges = allowedEdges
+        .filter(e => validSet.has(e.source) && validSet.has(e.target))
+        .map(e => ({ ...e }));
+
+      // Assign parallel edge curve offsets for multi-edges between the same node pair
+      const pairGroups = new Map();
+      edges.forEach(e => {
+        const k = e.source < e.target ? `${e.source}||${e.target}` : `${e.target}||${e.source}`;
+        if (!pairGroups.has(k)) pairGroups.set(k, []);
+        pairGroups.get(k).push(e);
+      });
+      pairGroups.forEach(group => {
+        const total = group.length;
+        group.forEach((e, idx) => {
+          if (total === 1) {
+            e.curveOffset = 0;
+          } else {
+            const sign = e.source < e.target ? 1 : -1;
+            e.curveOffset = (idx - (total - 1) / 2) * 28 * sign;
+          }
+        });
+      });
+
+      return { nodes, edges };
+    }
+
+    function getEdgeStroke(e) {
+      if (e.status === "vetoed" || e.category === "audit_veto") return "#DC2626";
+      if (e.status === "linked" || e.category === "audit_link") return "#059669";
+      if (e.status === "alert") return "#DC2626";
+      if (e.status === "hub") return "#D97706";
+      if (e.category === "kinship") return "#2563EB";
+      if (e.category === "property") return "#059669";
+      return "#94A3B8";
+    }
+
+    function getNodeColor(n) {
+      const cfg = NODE_STYLE[n.type] || NODE_STYLE.Identifier;
+      if (n.is_focus) return cfg.focusColor;
+      if (n.type === "AddressLocation" && n.props?.is_crisis_hub) return "#D97706";
+      if (n.type === "Identifier" && n.props?.is_promiscuous) return "#D97706";
+      if (n.type === "Person" && String(n.sublabel || "").includes("Kept Separate")) return "#E11D48";
+      return cfg.color;
+    }
+
+    function getNodeRadius(n) {
+      const cfg = NODE_STYLE[n.type] || NODE_STYLE.Identifier;
+      return n.is_focus ? cfg.focusR : cfg.r;
+    }
+
+    function renderActiveGraph() {
+      const svgEl = document.getElementById("dcj-graph-svg");
+      const wrapEl = document.getElementById("graph-canvas-wrap");
+      if (!svgEl || !wrapEl || typeof d3 === "undefined") return;
+
+      if (GRAPH_RUNTIME.sim) {
+        GRAPH_RUNTIME.sim.stop();
+        GRAPH_RUNTIME.sim = null;
+      }
+
+      const rect = wrapEl.getBoundingClientRect();
+      const width = Math.max(480, rect.width || 820);
+      const height = Math.max(380, rect.height || 500);
+      GRAPH_RUNTIME.width = width;
+      GRAPH_RUNTIME.height = height;
+
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      const labelFill = isDark ? "#F1F5F9" : "#0F172A";
+      const subFill = isDark ? "#94A3B8" : "#475569";
+      const haloStroke = isDark ? "#0B1120" : "#F8FAFC";
+      const edgePillBg = isDark ? "#131C2E" : "#FFFFFF";
+
+      const { nodes, edges } = getFilteredGraphData();
+      const svg = d3.select(svgEl);
+      svg.selectAll("*").remove();
+      svg.attr("viewBox", `0 0 ${width} ${height}`);
+
+      // Directional arrow markers
+      const defs = svg.append("defs");
+      [
+        { id: "arr-default", color: "#94A3B8" },
+        { id: "arr-link",    color: "#059669" },
+        { id: "arr-veto",    color: "#DC2626" },
+        { id: "arr-kin",     color: "#2563EB" },
+        { id: "arr-hub",     color: "#D97706" }
+      ].forEach(m => {
+        defs.append("marker")
+          .attr("id", m.id)
+          .attr("viewBox", "0 -5 10 10")
+          .attr("refX", 9)
+          .attr("refY", 0)
+          .attr("markerWidth", 6)
+          .attr("markerHeight", 6)
+          .attr("orient", "auto")
+          .append("path")
+          .attr("d", "M0,-4.2L10,0L0,4.2")
+          .attr("fill", m.color);
+      });
+
+      const gRoot = svg.append("g").attr("class", "graph-zoom-root");
+      const zoom = d3.zoom()
+        .scaleExtent([0.22, 3.8])
+        .on("zoom", (event) => {
+          gRoot.attr("transform", event.transform);
+        });
+      svg.call(zoom);
+      svg.on("dblclick.zoom", null);
+
+      GRAPH_RUNTIME.svg = svg;
+      GRAPH_RUNTIME.zoom = zoom;
+      GRAPH_RUNTIME.gRoot = gRoot;
+
+      // Click empty canvas resets inspector to focus entity
+      svg.on("click", (event) => {
+        if (event.target === svgEl) {
+          STATE.selectedGraphElem = null;
+          nodeGroup.selectAll(".node-ring-select").attr("opacity", 0);
+          renderGraphInspector(null);
+        }
+      });
+
+      const nodeById = new Map(nodes.map(n => [n.id, n]));
+
+      // Initial deterministic seed positions according to selected layout
+      const cx = width / 2;
+      const cy = height / 2;
+
+      if (STATE.graphLayout === "radial") {
+        const ring1 = nodes.filter(n => !n.is_focus && n.ring === 1);
+        const ring2 = nodes.filter(n => !n.is_focus && n.ring !== 1);
+        const typeOrder = ["SourceRecord", "Person", "Group", "AddressLocation", "PersonName", "IdentityInstrument", "ProtectionEvent", "Organisation", "Identifier"];
+        ring1.sort((a, b) => typeOrder.indexOf(a.type) - typeOrder.indexOf(b.type));
+        ring2.sort((a, b) => typeOrder.indexOf(a.type) - typeOrder.indexOf(b.type));
+
+        const r1Radius = Math.min(width, height) * 0.28;
+        const r2Radius = Math.min(width, height) * 0.44;
+        nodes.forEach(n => {
+          if (n.is_focus) {
+            n.x = cx; n.y = cy; n.fx = cx; n.fy = cy;
+          }
+        });
+        ring1.forEach((n, i) => {
+          const ang = (2 * Math.PI * i) / Math.max(1, ring1.length) - Math.PI / 2;
+          n.x = cx + r1Radius * Math.cos(ang);
+          n.y = cy + r1Radius * Math.sin(ang);
+          n.fx = n.x;
+          n.fy = n.y;
+        });
+        ring2.forEach((n, i) => {
+          const ang = (2 * Math.PI * i) / Math.max(1, ring2.length) - Math.PI / 2 + 0.18;
+          n.x = cx + r2Radius * Math.cos(ang);
+          n.y = cy + r2Radius * Math.sin(ang);
+          n.fx = n.x;
+          n.fy = n.y;
+        });
+      } else if (STATE.graphLayout === "lineage") {
+        // 4-Column Left-to-Right Architecture Lineage:
+        // Col 0: Identifiers | Col 1: SDM Source Records | Col 2: Focus Entity | Col 3: Mastered Attributes, Properties, Kin & Kept-Separate Entities
+        const cols = [[], [], [], []];
+        nodes.forEach(n => {
+          if (n.is_focus) {
+            cols[2].push(n);
+          } else if (n.type === "Identifier") {
+            cols[0].push(n);
+          } else if (n.type === "SourceRecord") {
+            cols[1].push(n);
+          } else {
+            cols[3].push(n);
+          }
+        });
+        const colX = [width * 0.11, width * 0.34, width * 0.56, width * 0.83];
+        cols.forEach((arr, cIdx) => {
+          const padY = 48;
+          const usableH = Math.max(height - padY * 2, arr.length * 46);
+          const startY = (height - usableH) / 2;
+          arr.forEach((n, idx) => {
+            n.x = colX[cIdx];
+            n.y = arr.length === 1 ? cy : startY + (usableH * idx) / (arr.length - 1);
+            n.fx = n.x;
+            n.fy = n.y;
+          });
+        });
+      } else {
+        // Force network: seed gently around center so simulation converges rapidly without chaos
+        nodes.forEach((n, i) => {
+          if (n.is_focus) {
+            n.x = cx; n.y = cy; n.fx = cx; n.fy = cy;
+          } else {
+            const ang = (2 * Math.PI * i) / Math.max(1, nodes.length);
+            const dist = n.ring === 1 ? 140 : 230;
+            n.x = cx + dist * Math.cos(ang);
+            n.y = cy + dist * Math.sin(ang);
+          }
+        });
+      }
+
+      // Build neighbor lookup for hover spotlight
+      const neighbors = new Map();
+      nodes.forEach(n => neighbors.set(n.id, new Set([n.id])));
+      edges.forEach(e => {
+        neighbors.get(e.source)?.add(e.target);
+        neighbors.get(e.target)?.add(e.source);
+      });
+
+      function markerUrl(e) {
+        if (e.status === "vetoed" || e.category === "audit_veto" || e.status === "alert") return "url(#arr-veto)";
+        if (e.status === "linked" || e.category === "audit_link") return "url(#arr-link)";
+        if (e.status === "hub") return "url(#arr-hub)";
+        if (e.category === "kinship") return "url(#arr-kin)";
+        return "url(#arr-default)";
+      }
+
+      const edgeGroup = gRoot.append("g").attr("class", "edges-layer");
+      const edgeLabelGroup = gRoot.append("g").attr("class", "edge-labels-layer");
+      const nodeGroup = gRoot.append("g").attr("class", "nodes-layer");
+
+      const edgePaths = edgeGroup.selectAll("path")
+        .data(edges, d => d.id)
+        .join("path")
+        .attr("fill", "none")
+        .attr("stroke", d => getEdgeStroke(d))
+        .attr("stroke-width", d => (d.category === "audit_veto" || d.category === "audit_link" || d.category === "kinship") ? 2.2 : 1.55)
+        .attr("stroke-dasharray", d => {
+          if (d.status === "vetoed" || d.category === "audit_veto") return "6,4";
+          if (d.status === "hub") return "4,3";
+          return null;
+        })
+        .attr("marker-end", d => markerUrl(d))
+        .style("cursor", "pointer")
+        .on("click", (event, d) => {
+          event.stopPropagation();
+          STATE.selectedGraphElem = { elemType: "edge", data: d };
+          nodeGroup.selectAll(".node-ring-select").attr("opacity", 0);
+          renderGraphInspector(STATE.selectedGraphElem);
+        });
+
+      // Show concise edge badges on high-signal edges (Kinship, Audit LINK/VETO, Lives At, Resolves To)
+      const labelledEdges = edges.filter(e =>
+        e.category === "audit_veto" ||
+        e.category === "audit_link" ||
+        e.category === "kinship" ||
+        e.label === "LIVES_AT" ||
+        e.label === "RESOLVES_TO" ||
+        e.label === "HAS_PROTECTION_EVENT"
+      );
+
+      const edgeBadges = edgeLabelGroup.selectAll("g")
+        .data(labelledEdges, d => d.id)
+        .join("g")
+        .style("cursor", "pointer")
+        .on("click", (event, d) => {
+          event.stopPropagation();
+          STATE.selectedGraphElem = { elemType: "edge", data: d };
+          nodeGroup.selectAll(".node-ring-select").attr("opacity", 0);
+          renderGraphInspector(STATE.selectedGraphElem);
+        });
+
+      edgeBadges.append("rect")
+        .attr("rx", 4)
+        .attr("ry", 4)
+        .attr("fill", edgePillBg)
+        .attr("stroke", d => getEdgeStroke(d))
+        .attr("stroke-width", 0.9)
+        .attr("opacity", 0.94);
+
+      edgeBadges.append("text")
+        .attr("text-anchor", "middle")
+        .attr("dominant-baseline", "central")
+        .attr("font-family", "'JetBrains Mono', monospace")
+        .attr("font-size", "9px")
+        .attr("font-weight", "600")
+        .attr("fill", d => getEdgeStroke(d))
+        .text(d => String(d.label || "").slice(0, 22));
+
+      edgeBadges.each(function() {
+        const g = d3.select(this);
+        const txt = g.select("text");
+        const len = (txt.text().length * 5.4) + 10;
+        g.select("rect")
+          .attr("x", -len / 2)
+          .attr("y", -7.5)
+          .attr("width", len)
+          .attr("height", 15);
+      });
+
+      const nodeEls = nodeGroup.selectAll("g.graph-node")
+        .data(nodes, d => d.id)
+        .join("g")
+        .attr("class", "graph-node")
+        .style("cursor", "pointer")
+        .call(
+          d3.drag()
+            .on("start", (event, d) => {
+              if (GRAPH_RUNTIME.sim && !event.active) GRAPH_RUNTIME.sim.alphaTarget(0.25).restart();
+              d.fx = d.x;
+              d.fy = d.y;
+            })
+            .on("drag", (event, d) => {
+              d.fx = event.x;
+              d.fy = event.y;
+              if (!GRAPH_RUNTIME.sim) updatePositions();
+            })
+            .on("end", (event, d) => {
+              if (GRAPH_RUNTIME.sim && !event.active) GRAPH_RUNTIME.sim.alphaTarget(0);
+              if (STATE.graphLayout === "force" && !d.is_focus) {
+                d.fx = null;
+                d.fy = null;
+              }
+            })
+        )
+        .on("mouseenter", (_, d) => {
+          const nSet = neighbors.get(d.id) || new Set([d.id]);
+          nodeEls.attr("opacity", o => (nSet.has(o.id) ? 1 : 0.22));
+          edgePaths.attr("opacity", e => {
+            const sid = typeof e.source === "object" ? e.source.id : e.source;
+            const tid = typeof e.target === "object" ? e.target.id : e.target;
+            return (sid === d.id || tid === d.id) ? 1 : 0.12;
+          });
+          edgeBadges.attr("opacity", e => {
+            const sid = typeof e.source === "object" ? e.source.id : e.source;
+            const tid = typeof e.target === "object" ? e.target.id : e.target;
+            return (sid === d.id || tid === d.id) ? 1 : 0.1;
+          });
+        })
+        .on("mouseleave", () => {
+          nodeEls.attr("opacity", 1);
+          edgePaths.attr("opacity", 1);
+          edgeBadges.attr("opacity", 1);
+        })
+        .on("click", (event, d) => {
+          event.stopPropagation();
+          STATE.selectedGraphElem = { elemType: "node", data: d };
+          nodeGroup.selectAll(".node-ring-select").attr("opacity", o => (o.id === d.id ? 1 : 0));
+          renderGraphInspector(STATE.selectedGraphElem);
+        })
+        .on("dblclick", (event, d) => {
+          event.stopPropagation();
+          if (!d.is_focus && d.type === "Person") {
+            const targetPid = d.props?.person_id || d.id;
+            pivotToPerson(targetPid, d.label);
+          } else if (!d.is_focus && d.type === "AddressLocation") {
+            pivotToProperty(d.id, d.props?.full_address || d.label);
+          }
+        });
+
+      // Selection ring
+      nodeEls.append("circle")
+        .attr("class", "node-ring-select")
+        .attr("r", d => getNodeRadius(d) + 6)
+        .attr("fill", "none")
+        .attr("stroke", "#1A73E8")
+        .attr("stroke-width", 2.5)
+        .attr("opacity", 0);
+
+      // Focus or Statutory Protection outer ring
+      nodeEls.filter(d => d.is_focus || d.props?.is_protected_person || d.props?.is_crisis_hub)
+        .append("circle")
+        .attr("r", d => getNodeRadius(d) + 3.5)
+        .attr("fill", "none")
+        .attr("stroke", d => d.props?.is_protected_person ? "#DC2626" : d.props?.is_crisis_hub ? "#D97706" : "#1A73E8")
+        .attr("stroke-width", 1.8)
+        .attr("stroke-dasharray", d => d.props?.is_protected_person ? "3,2" : null);
+
+      // Main node circle
+      nodeEls.append("circle")
+        .attr("r", d => getNodeRadius(d))
+        .attr("fill", d => getNodeColor(d))
+        .attr("stroke", "#FFFFFF")
+        .attr("stroke-width", 1.8);
+
+      // Crisp type monogram inside node
+      nodeEls.append("text")
+        .attr("text-anchor", "middle")
+        .attr("dominant-baseline", "central")
+        .attr("font-family", "'JetBrains Mono', monospace")
+        .attr("font-size", d => d.is_focus ? "10px" : "8.5px")
+        .attr("font-weight", "700")
+        .attr("fill", "#FFFFFF")
+        .attr("pointer-events", "none")
+        .text(d => (NODE_STYLE[d.type] || NODE_STYLE.Identifier).glyph);
+
+      // Primary node label
+      nodeEls.append("text")
+        .attr("y", d => getNodeRadius(d) + 13)
+        .attr("text-anchor", "middle")
+        .attr("font-size", d => d.is_focus ? "12.5px" : "11px")
+        .attr("font-weight", d => d.is_focus ? "700" : "600")
+        .attr("fill", labelFill)
+        .attr("stroke", haloStroke)
+        .attr("stroke-width", 3.2)
+        .attr("paint-order", "stroke")
+        .attr("pointer-events", "none")
+        .text(d => {
+          const s = String(d.label || d.id);
+          return s.length > 26 ? s.slice(0, 24) + "…" : s;
+        });
+
+      // Secondary sublabel
+      nodeEls.append("text")
+        .attr("y", d => getNodeRadius(d) + 25)
+        .attr("text-anchor", "middle")
+        .attr("font-size", "9.5px")
+        .attr("fill", subFill)
+        .attr("stroke", haloStroke)
+        .attr("stroke-width", 2.8)
+        .attr("paint-order", "stroke")
+        .attr("pointer-events", "none")
+        .text(d => {
+          const s = String(d.sublabel || "");
+          return s.length > 30 ? s.slice(0, 28) + "…" : s;
+        });
+
+      function computeEdgeGeom(e) {
+        const s = typeof e.source === "object" ? e.source : nodeById.get(e.source);
+        const t = typeof e.target === "object" ? e.target : nodeById.get(e.target);
+        if (!s || !t) return { path: "", mx: 0, my: 0 };
+        const dx = t.x - s.x;
+        const dy = t.y - s.y;
+        const dist = Math.hypot(dx, dy) || 1;
+        const sr = getNodeRadius(s) + 2;
+        const tr = getNodeRadius(t) + 6;
+        const sx = s.x + (dx / dist) * sr;
+        const sy = s.y + (dy / dist) * sr;
+        const tx = t.x - (dx / dist) * tr;
+        const ty = t.y - (dy / dist) * tr;
+
+        if (!e.curveOffset) {
+          return {
+            path: `M${sx},${sy}L${tx},${ty}`,
+            mx: (sx + tx) / 2,
+            my: (sy + ty) / 2
+          };
+        }
+        const nx = -dy / dist;
+        const ny = dx / dist;
+        const cxCtrl = (sx + tx) / 2 + nx * e.curveOffset;
+        const cyCtrl = (sy + ty) / 2 + ny * e.curveOffset;
+        // Midpoint of quadratic Bezier at t=0.5
+        const mx = 0.25 * sx + 0.5 * cxCtrl + 0.25 * tx;
+        const my = 0.25 * sy + 0.5 * cyCtrl + 0.25 * ty;
+        return {
+          path: `M${sx},${sy}Q${cxCtrl},${cyCtrl} ${tx},${ty}`,
+          mx,
+          my
+        };
+      }
+
+      function updatePositions() {
+        nodeEls.attr("transform", d => `translate(${d.x},${d.y})`);
+        edgePaths.attr("d", d => computeEdgeGeom(d).path);
+        edgeBadges.attr("transform", d => {
+          const g = computeEdgeGeom(d);
+          return `translate(${g.mx},${g.my})`;
+        });
+      }
+
+      if (STATE.graphLayout === "force") {
+        const sim = d3.forceSimulation(nodes)
+          .force("link", d3.forceLink(edges).id(d => d.id).distance(d => {
+            if (d.category === "identity") return 115;
+            if (d.category === "audit_veto") return 175;
+            if (d.category === "kinship" || d.category === "property") return 150;
+            return 130;
+          }).strength(0.65))
+          .force("charge", d3.forceManyBody().strength(-460))
+          .force("collide", d3.forceCollide().radius(d => getNodeRadius(d) + 26).iterations(2))
+          .force("x", d3.forceX(cx).strength(0.05))
+          .force("y", d3.forceY(cy).strength(0.05))
+          .on("tick", updatePositions);
+
+        GRAPH_RUNTIME.sim = sim;
+        setTimeout(() => fitGraphToScreen(false), 380);
+      } else {
+        // Resolve links to node objects for consistent rendering, then render static layout & fit
+        edges.forEach(e => {
+          e.source = nodeById.get(e.source) || e.source;
+          e.target = nodeById.get(e.target) || e.target;
+        });
+        updatePositions();
+        setTimeout(() => fitGraphToScreen(false), 40);
+      }
+
+      renderGraphInspector(STATE.selectedGraphElem);
+    }
+
+    function zoomGraphBy(factor) {
+      if (!GRAPH_RUNTIME.svg || !GRAPH_RUNTIME.zoom) return;
+      GRAPH_RUNTIME.svg.transition().duration(200).call(GRAPH_RUNTIME.zoom.scaleBy, factor);
+    }
+
+    function fitGraphToScreen(animate = true) {
+      if (!GRAPH_RUNTIME.svg || !GRAPH_RUNTIME.zoom || !GRAPH_RUNTIME.gRoot) return;
+      const gNode = GRAPH_RUNTIME.gRoot.node();
+      if (!gNode) return;
+      const bbox = gNode.getBBox();
+      if (!bbox || bbox.width === 0 || bbox.height === 0) return;
+
+      const pad = 46;
+      const w = GRAPH_RUNTIME.width;
+      const h = GRAPH_RUNTIME.height;
+      const scale = Math.min(
+        1.25,
+        Math.max(0.28, Math.min((w - pad * 2) / bbox.width, (h - pad * 2) / bbox.height))
+      );
+      const tx = w / 2 - scale * (bbox.x + bbox.width / 2);
+      const ty = h / 2 - scale * (bbox.y + bbox.height / 2);
+      const transform = d3.zoomIdentity.translate(tx, ty).scale(scale);
+      if (animate) {
+        GRAPH_RUNTIME.svg.transition().duration(260).call(GRAPH_RUNTIME.zoom.transform, transform);
+      } else {
+        GRAPH_RUNTIME.svg.call(GRAPH_RUNTIME.zoom.transform, transform);
+      }
+    }
+
+    function exportGraphSvg() {
+      const svgEl = document.getElementById("dcj-graph-svg");
+      if (!svgEl) return;
+      const serializer = new XMLSerializer();
+      let source = serializer.serializeToString(svgEl);
+      if (!source.includes('xmlns="http://www.w3.org/2000/svg"')) {
+        source = source.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
+      }
+      const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const fid = STATE.dossier?.graph?.focus_id || "dcj-graph";
+      a.href = url;
+      a.download = `${fid.toLowerCase()}-property-graph.svg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function renderGraphInspector(selected) {
+      const panel = document.getElementById("graph-inspector-panel");
+      if (!panel) return;
+      const g = STATE.dossier?.graph;
+      if (!g) {
+        panel.innerHTML = `<div class="gi-header">Graph Inspector</div><div class="section-sub">Select a person or property to inspect the graph.</div>`;
+        return;
+      }
+
+      if (!selected) {
+        const byType = g.stats?.by_type || {};
+        const typeRows = Object.entries(byType).map(([t, cnt]) => `
+          <div class="gi-kv">
+            <div class="gi-k">${esc(t)}</div>
+            <div class="gi-v"><strong>${esc(cnt)}</strong> node(s)</div>
+          </div>
+        `).join("");
+        panel.innerHTML = `
+          <div>
+            <div class="gi-header">ISO GQL Property Graph</div>
+            <div class="gi-title">${esc(g.focus_id)}</div>
+            <div class="section-sub" style="margin-top:4px">
+              Click any <strong>Node</strong> or <strong>Edge</strong> (including green <code>LINK</code> and red dashed <code>VETO / NO_MATCH</code> edges) to inspect live attributes and Gemini Platform audit provenance. Double-click any Person or Property node to pivot.
+            </div>
+          </div>
+          <div class="gi-kv-list">${typeRows}</div>
+        `;
+        return;
+      }
+
+      if (selected.elemType === "node") {
+        const n = selected.data;
+        const props = n.props || {};
+        const kvHtml = Object.entries(props)
+          .filter(([k, v]) => v !== null && v !== undefined && v !== "" && typeof v !== "object")
+          .slice(0, 14)
+          .map(([k, v]) => `
+            <div class="gi-kv">
+              <div class="gi-k">${esc(k.replace(/_/g, " "))}</div>
+              <div class="gi-v">${esc(String(v))}</div>
+            </div>
+          `).join("");
+
+        let pivotHtml = "";
+        if (!n.is_focus && n.type === "Person") {
+          const pid = props.person_id || n.id;
+          pivotHtml = `<button class="pivot-btn" onclick="pivotToPerson('${esc(pid)}', '${esc(n.label)}')">Open 360° Person Dossier (${esc(pid)}) →</button>`;
+        } else if (!n.is_focus && n.type === "AddressLocation") {
+          const aid = props.address_id || props.id || n.id;
+          pivotHtml = `<button class="pivot-btn" onclick="pivotToProperty('${esc(aid)}', '${esc(props.full_address || n.label)}')">Open 360° Property Dossier (${esc(aid)}) →</button>`;
+        }
+
+        panel.innerHTML = `
+          <div>
+            <div class="gi-header">Node · ${esc(n.type)}</div>
+            <div class="gi-title">${esc(n.label)}</div>
+            <div class="section-sub">${esc(n.sublabel || n.id)}</div>
+          </div>
+          ${pivotHtml}
+          <div class="gi-kv-list">${kvHtml || `<div class="section-sub">ID: ${esc(n.id)}</div>`}</div>
+        `;
+        return;
+      }
+
+      // Edge inspector
+      const e = selected.data;
+      const srcId = typeof e.source === "object" ? e.source.id : e.source;
+      const dstId = typeof e.target === "object" ? e.target.id : e.target;
+      const props = e.props || {};
+      const kvHtml = Object.entries(props)
+        .filter(([k, v]) => v !== null && v !== undefined && v !== "" && typeof v !== "object")
+        .slice(0, 16)
+        .map(([k, v]) => `
+          <div class="gi-kv">
+            <div class="gi-k">${esc(k.replace(/_/g, " "))}</div>
+            <div class="gi-v">${esc(String(v))}</div>
+          </div>
+        `).join("");
+
+      panel.innerHTML = `
+        <div>
+          <div class="gi-header">Edge · ${esc(e.category)}</div>
+          <div class="gi-title">${esc(e.label)}</div>
+          <div class="section-sub" style="font-family:'JetBrains Mono',monospace">${esc(srcId)} → ${esc(dstId)}</div>
+        </div>
+        <div class="gi-kv-list">${kvHtml || `<div class="section-sub">Graph relationship edge</div>`}</div>
+      `;
+    }
+
+    /* =========================================================
+       SQL & ISO GQL QUERY INSPECTOR + BENCHMARK MODALS
+       ========================================================= */
+    function openSqlModal() {
+      const modal = document.getElementById("sql-modal");
+      const body = document.getElementById("sql-modal-body");
+      const blocks = [];
+
+      if (STATE.searchResponse?.telemetry?.person_query) {
+        blocks.push({ title: "1. Hybrid Person Search TVF (fn_frontline_person_search → fn_person_match: AI.EMBED + VECTOR_SEARCH + RRF)", ...STATE.searchResponse.telemetry.person_query });
+      }
+      if (STATE.searchResponse?.telemetry?.property_query) {
+        blocks.push({ title: "2. Property Search TVF (fn_frontline_property_search via GRAPH_TABLE)", ...STATE.searchResponse.telemetry.property_query });
+      }
+      if (STATE.dossier?.telemetry?.queries) {
+        STATE.dossier.telemetry.queries.forEach((q, idx) => {
+          if (q && q.sql) {
+            blocks.push({ title: `Dossier & ISO GQL Graph Query #${idx + 1}`, ...q });
+          }
+        });
+      }
+
+      if (!blocks.length) {
+        body.innerHTML = `<div class="section-sub">Run any Person or Property search first to inspect the live executed BigQuery SQL and ISO GQL queries, job IDs, and latencies.</div>`;
+      } else {
+        body.innerHTML = blocks.map(b => `
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+              <strong style="font-size:13px">${esc(b.title)}</strong>
+              <span class="badge badge-mono badge-emerald">${esc(b.elapsed_ms)} ms · ${esc(b.row_count)} row(s) · Job ${esc((b.job_id || "").slice(0, 18))}</span>
+            </div>
+            <pre class="sql-code">${esc(b.sql)}</pre>
+          </div>
+        `).join("");
+      }
+      modal.classList.add("open");
+    }
+
+    async function openBenchmarkModal() {
+      const modal = document.getElementById("benchmark-modal");
+      const body = document.getElementById("benchmark-modal-body");
+      modal.classList.add("open");
+
+      if (!STATE.overviewCache) {
+        body.innerHTML = `<div class="loading-banner"><div class="spinner"></div><span>Querying live <code>v_dcj_method_comparison</code>, <code>v_dcj_scenario_scorecard</code> &amp; <code>v_dcj_graph_summary</code> in BigQuery...</span></div>`;
+        try {
+          const res = await fetch(`${API_BASE}/api/overview`);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          STATE.overviewCache = await res.json();
+        } catch (err) {
+          body.innerHTML = `<div class="protection-banner"><div><strong>Error loading scorecard</strong><span>${esc(err.message)}</span></div></div>`;
+          return;
+        }
+      }
+
+      const ov = STATE.overviewCache;
+      const mRows = (ov.method_comparison || []).map(m => {
+        const keys = Object.keys(m);
+        return `<tr>${keys.map(k => `<td>${esc(m[k])}</td>`).join("")}</tr>`;
+      }).join("");
+      const mHeaders = ov.method_comparison && ov.method_comparison.length
+        ? Object.keys(ov.method_comparison[0]).map(k => `<th>${esc(k.replace(/_/g, " "))}</th>`).join("")
+        : "";
+
+      const sRows = (ov.scenario_scorecard || []).map(s => {
+        const keys = Object.keys(s);
+        return `<tr>${keys.map(k => `<td>${esc(s[k])}</td>`).join("")}</tr>`;
+      }).join("");
+      const sHeaders = ov.scenario_scorecard && ov.scenario_scorecard.length
+        ? Object.keys(ov.scenario_scorecard[0]).map(k => `<th>${esc(k.replace(/_/g, " "))}</th>`).join("")
+        : "";
+
+      const gRows = (ov.graph_summary || []).map(g => {
+        const keys = Object.keys(g);
+        return `<tr>${keys.map(k => `<td>${esc(g[k])}</td>`).join("")}</tr>`;
+      }).join("");
+      const gHeaders = ov.graph_summary && ov.graph_summary.length
+        ? Object.keys(ov.graph_summary[0]).map(k => `<th>${esc(k.replace(/_/g, " "))}</th>`).join("")
+        : "";
+
+      body.innerHTML = `
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h3>1. Entity Resolution Method Comparison (Pairwise Precision / Recall / F1)</h3>
+              <div class="section-sub">Live from <code>all-things-cdp.dcj_match.v_dcj_method_comparison</code> — Hybrid Blocking + Gemini Platform Adjudication</div>
+            </div>
+          </div>
+          <div class="data-table-wrap"><table class="clean-table"><thead><tr>${mHeaders}</tr></thead><tbody>${mRows}</tbody></table></div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h3>2. Statutory, Cultural &amp; Safety Scenario Scorecard</h3>
+              <div class="section-sub">Live from <code>all-things-cdp.dcj_match.v_dcj_scenario_scorecard</code></div>
+            </div>
+          </div>
+          <div class="data-table-wrap"><table class="clean-table"><thead><tr>${sHeaders}</tr></thead><tbody>${sRows}</tbody></table></div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-head">
+            <div>
+              <h3>3. Mastered ISO GQL Property Graph Inventory (<code>dcj_tdm.dcj_person_graph</code>)</h3>
+              <div class="section-sub">Live from <code>all-things-cdp.dcj_match.v_dcj_graph_summary</code> &amp; BigQuery Knowledge Catalog governed TDM</div>
+            </div>
+          </div>
+          <div class="data-table-wrap"><table class="clean-table"><thead><tr>${gHeaders}</tr></thead><tbody>${gRows}</tbody></table></div>
+        </div>
+      `;
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove("open");
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeAutocompleteMenus();
+        closeModal("sql-modal");
+        closeModal("benchmark-modal");
+      }
+    });
+
+    /* =========================================================
+       STARTUP HEALTH PING & DEEP-LINK INITIALIZER
+       ========================================================= */
+    async function bootApp() {
+      // Ping Cloud Run API health in background
+      fetch(`${API_BASE}/api/health`)
+        .then(r => r.ok ? r.json() : null)
+        .then(h => {
+          if (h && h.status === "ok") {
+            const lbl = document.getElementById("conn-status-label");
+            if (lbl && h.cached_persons > 0) {
+              lbl.textContent = `Live · ${h.data_project} · ${h.cached_persons} people · ${h.cached_properties} properties`;
+            }
+          }
+        })
+        .catch(() => {});
+
+      const params = new URLSearchParams(window.location.search);
+      const q = (params.get("q") || "").trim();
+      const mode = params.get("mode") || "all";
+      const focus = params.get("focus") || null;
+
+      if (q) {
+        document.getElementById("hero-query-input").value = q;
+        document.getElementById("serp-query-input").value = q;
+        document.getElementById("hero-mode-select").value = mode;
+        document.getElementById("serp-mode-select").value = mode;
+        await executeSearch({ q, mode, focusOverride: focus });
+      } else if (focus && focus.includes(":")) {
+        const [, id] = focus.split(":");
+        document.getElementById("hero-query-input").value = id;
+        document.getElementById("serp-query-input").value = id;
+        await executeSearch({ q: id, mode, focusOverride: focus });
+      }
+    }
+
+    window.addEventListener("popstate", () => {
+      const params = new URLSearchParams(window.location.search);
+      const q = (params.get("q") || "").trim();
+      const mode = params.get("mode") || "all";
+      const focus = params.get("focus") || null;
+      if (!q && !focus) {
+        document.body.classList.remove("has-results");
+      } else {
+        executeSearch({ q: q || focus.split(":")[1], mode, focusOverride: focus });
+      }
+    });
+
+    window.addEventListener("DOMContentLoaded", bootApp);
+  </script>
+</body>
+</html>

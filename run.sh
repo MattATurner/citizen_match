@@ -38,6 +38,7 @@ if [[ "${MODE}" == "--all" || "${MODE}" == "--elt" ]]; then
   run_sql "${SCRIPT_DIR}/sql/60_connected_components_and_tdm.sql"
   run_sql "${SCRIPT_DIR}/sql/70_property_graph.sql"
   run_sql "${SCRIPT_DIR}/sql/80_person_match_tvf_and_scorecard.sql"
+  run_sql "${SCRIPT_DIR}/sql/90_frontline_search_functions.sql"
 fi
 
 if [[ "${MODE}" == "--all" || "${MODE}" == "--catalog" ]]; then
