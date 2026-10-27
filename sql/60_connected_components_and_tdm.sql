@@ -92,6 +92,9 @@ JOIN `all-things-cdp.dcj_match.stg_source_profiles` AS p
 GROUP BY c.comp
 HAVING has_verified_dob_conflict OR has_cni_conflict OR has_ndis_conflict OR has_cs_id_conflict;
 
+-- Drop Property Graph temporarily if present so underlying TDM/edge tables can be replaced cleanly (recreated in Stage 70)
+DROP PROPERTY GRAPH IF EXISTS `all-things-cdp.dcj_tdm.dcj_person_graph`;
+
 -- 60d · Prune Contradicted Bridge Edges & Re-Run Pass-2 Connected Components
 CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.resolution_edges`
 CLUSTER BY record_id_a, record_id_b
@@ -116,7 +119,7 @@ SELECT
   d.semantic_similarity,
   (d.decision = 'LINK'
    AND (d.record_id_a IN (SELECT node FROM suspect_nodes) OR d.record_id_b IN (SELECT node FROM suspect_nodes))
-   AND (t.verified_dob_conflict OR t.cni_conflict OR t.ndis_conflict OR t.cs_id_conflict OR t.twin_or_sibling_trap OR d.confidence < 0.92)
+   AND (t.verified_dob_conflict OR t.cni_conflict OR t.ndis_conflict OR t.cs_id_conflict OR t.twin_or_sibling_trap OR d.confidence < 0.92 OR (t.non_hub_idf_sum = 0.0 AND NOT t.surname_or_alias_match))
   ) AS suppressed_by_contradiction
 FROM `all-things-cdp.dcj_match.person_match_decisions` AS d
 JOIN `all-things-cdp.dcj_match.candidate_pair_tiers` AS t

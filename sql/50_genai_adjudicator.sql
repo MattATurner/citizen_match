@@ -232,6 +232,7 @@ FROM (
 WHERE rn = 1;
 
 -- 50d · Unified Pair Decisions (Combining Deterministic Tiers + Gemini Adjudicator + Structural Guards)
+DROP TABLE IF EXISTS `all-things-cdp.dcj_match.person_match_decisions`;
 CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.person_match_decisions`
 CLUSTER BY decision, record_id_a
 AS

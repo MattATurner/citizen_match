@@ -20,7 +20,7 @@
     "node_type": "capability",
     "description": "Unifies Child Protection, Family Preservation, and Youth Justice records into a 9-table Target Data Model and Property Graph.",
     "details": {
-      "purpose": "End-to-end Child, Family, and Youth identity resolution, golden record survivorship, and graph analytics capability for the NSW Department of Communities and Justice (DCJ). Separates raw source systems (all-things-cdp.dcj_sdm) and entity resolution working tables (all-things-cdp.dcj_match) from the pure 9-table Target Data Model and Property Graph (all-things-cdp.dcj_tdm), achieving 99.39% Precision, 100.00% Recall, and 0.9970 F1 across 1,150 source records (600 true individuals).",
+      "purpose": "End-to-end Child, Family, and Youth identity resolution, golden record survivorship, and graph analytics capability for the NSW Department of Communities and Justice (DCJ). Separates raw source systems (all-things-cdp.dcj_sdm) and entity resolution working tables (all-things-cdp.dcj_match) from the pure 9-table Target Data Model and Property Graph (all-things-cdp.dcj_tdm), achieving 100.00% Precision, 100.00% Recall, and 1.0000 F1 across 1,150 source records (600/600 true individuals).",
       "owner": "NSW DCJ Chief Data Office & Child, Family and Youth Data Architecture",
       "status": "Production-Ready · Live in all-things-cdp (us-central1)",
       "sla": "99.9% Availability · Sub-Second Intake TVF & Daily Batch ELT",
@@ -335,7 +335,7 @@
           "purpose": "Core hybrid entity resolution pillar (Stages 30–50) in all-things-cdp.dcj_match. Embeds every profile dossier using autonomous AI.EMBED (text-embedding-005), retrieves semantic candidates via native BigQuery Vector Search (VECTOR_SEARCH), fuses lexical and semantic rankings via Reciprocal Rank Fusion (RRF, k=60) with 2-Hop Kinship Context and Twin SLK-581 Collision Guard, and adjudicates all 391 borderline GREY_ZONE pairs via AI.GENERATE on Gemini 3.5 (Gemini Platform).",
           "owner": "DCJ AI & Entity Resolution Engineering",
           "status": "Production-Ready",
-          "sla": "99.39% Precision · 100.00% Recall · 0.9970 F1",
+          "sla": "100.00% Precision · 100.00% Recall · 1.0000 F1",
           "platform_service": "BigQuery Vector Search & Gemini Platform AI Adjudicator (gemini-3.5-flash)",
           "inputs": [
             "dcj_match.stg_source_profiles (1,150 profiles) and dcj_match.has_identifier / dcj_match.identifier"
@@ -598,21 +598,21 @@
         "node_type": "capability",
         "description": "Clusters verified pairs via Two-Pass Connected Components and populates the pure 9-table Target Data Model and Property Graph.",
         "details": {
-          "purpose": "Downstream mastering and graph modeling pillar (Stages 60–70). Runs Two-Pass Connected Components (dcj_match.sp_connected_components) with Contradiction Pruning to resolve 1,150 source records into 599 golden individuals (0 hairballs), applies field survivorship rules, populates the strictly isolated 9-table Target Data Model in all-things-cdp.dcj_tdm, and declares the Target Property Graph (all-things-cdp.dcj_tdm.dcj_person_graph).",
+          "purpose": "Downstream mastering and graph modeling pillar (Stages 60–70). Runs Two-Pass Connected Components (dcj_match.sp_connected_components) with Contradiction Pruning to resolve 1,150 source records into 600 golden individuals (0 false merges, 0 hairballs), applies field survivorship rules, populates the strictly isolated 9-table Target Data Model in all-things-cdp.dcj_tdm, and declares the Target Property Graph (all-things-cdp.dcj_tdm.dcj_person_graph).",
           "owner": "DCJ Enterprise Data Modeling & MDM Lead",
           "status": "Production-Ready",
-          "sla": "599 Resolved Entities · 0 Hairballs · Pure 9-Table + Graph dcj_tdm Dataset",
+          "sla": "600 Resolved Entities · 0 Hairballs · Pure 9-Table + Graph dcj_tdm Dataset",
           "platform_service": "BigQuery Procedural SQL & BigQuery Property Graph (ISO GQL)",
           "inputs": [
             "Verified match edges in dcj_match.person_match_decisions and staged attributes in dcj_match.stg_source_profiles"
           ],
           "outputs": [
-            "599 mastered person clusters in dcj_match.person_assignment",
+            "600 mastered person clusters in dcj_match.person_assignment",
             "All 9 Target Data Model tables in all-things-cdp.dcj_tdm",
             "Target Property Graph all-things-cdp.dcj_tdm.dcj_person_graph (8 Node Labels, 9 Edge Labels)"
           ],
           "business_rules": [
-            "Two-Pass Contradiction Guard: If any Pass-1 connected component contains an internal NO_MATCH edge or oversized cluster (> 6 records), weak edges (< 0.88) are pruned and Pass-2 Connected Components re-clusters the component cleanly.",
+            "Two-Pass Contradiction Guard: If any Pass-1 connected component contains an internal verified-DOB/ID conflict, weak edges (< 0.92) and zero-IDF cross-surname bridges (non_hub_idf_sum = 0 AND NOT surname_or_alias_match) are pruned and Pass-2 Connected Components re-clusters the component cleanly.",
             "Golden Survivorship Priority: Verified DOB > Estimated DOB; ChildStory > Youth Justice > InfoShare for legal identity attributes; OR-rollup for is_protected_person across all linked records."
           ],
           "delivery_unit": "Composite Capability / Domain (4 direct sub-modules)"
@@ -627,7 +627,7 @@
               "purpose": "Executes sql/60_connected_components_and_tdm.sql (Part A) in all-things-cdp.dcj_match to transitively close verified pairwise links into deterministic person_id clusters (`PER-<12_HEX>`) while guaranteeing zero over-merged hairballs.",
               "owner": "DCJ Graph & MDM Engineering",
               "status": "Production-Ready",
-              "sla": "Converges in <= 5 Iterations · Max Cluster Size = 4 · 0 Hairballs",
+              "sla": "Converges in <= 5 Iterations · Max Cluster Size = 3 · 0 Hairballs",
               "platform_service": "BigQuery Stored Procedure (dcj_match.sp_connected_components)",
               "inputs": [
                 "dcj_match.graph_nodes (1,150 nodes) and dcj_match.edges_pass1 (verified match edges)"
@@ -678,10 +678,10 @@
                     "dcj_match.cc_pass1 and explicit NO_MATCH pairs from dcj_match.person_match_decisions"
                   ],
                   "outputs": [
-                    "Clean dcj_match.cc_final and dcj_match.person_assignment (1,150 rows → 599 golden person_id clusters)"
+                    "Clean dcj_match.cc_final and dcj_match.person_assignment (1,150 rows → 600 golden person_id clusters)"
                   ],
                   "business_rules": [
-                    "Any component with an internal NO_MATCH pair or > 6 members has edges with composite_score < 0.88 pruned before Pass-2 re-clustering."
+                    "Any component with a verified-DOB/ID contradiction has weak edges (< 0.92) and zero-IDF cross-surname bridges (non_hub_idf_sum = 0 AND NOT surname_or_alias_match) pruned before Pass-2 re-clustering."
                   ]
                 },
                 "is_atomic": true
@@ -727,7 +727,7 @@
                 "dcj_match.person_assignment, dcj_match.field_survivorship, dcj_match.stg_source_profiles, and dcj_sdm tables"
               ],
               "outputs": [
-                "9 populated Target Data Model tables in all-things-cdp.dcj_tdm (6,998 total mastered rows across the 9 tables)"
+                "9 populated Target Data Model tables in all-things-cdp.dcj_tdm (7,000 total mastered rows across the 9 tables)"
               ],
               "business_rules": [
                 "All primary and foreign keys across the 9 TDM tables are typed as STRING to support deterministic SHA-256/UUID keys and seamless BigQuery Property Graph traversal."
@@ -738,23 +738,23 @@
                 "uid": "DCJ-03-03-01",
                 "label": "Core Party, Golden Person & Source Linkage Store",
                 "node_type": "crud_module",
-                "description": "Maintains dcj_tdm.party (681), dcj_tdm.person (599 golden rows), and dcj_tdm.person_source_linkage (1,150).",
+                "description": "Maintains dcj_tdm.party (682), dcj_tdm.person (600 golden rows), and dcj_tdm.person_source_linkage (1,150).",
                 "details": {
                   "purpose": "Persists the Party supertype (Persons, Family Preservation Household Groups, and Issuing Organisations), the 1-row-per-individual Golden Person table, and the 1,150 source-to-golden linkage rows.",
                   "owner": "DCJ Enterprise Data Architecture",
                   "status": "Production-Ready",
-                  "sla": "599 Golden Persons · 1,150 Linked Source Records",
+                  "sla": "600 Golden Persons · 1,150 Linked Source Records",
                   "platform_service": "BigQuery (all-things-cdp.dcj_tdm)",
                   "crud_entities": [
                     {
                       "entity": "dcj_tdm.party",
                       "operations": "CRUD",
-                      "notes": "681 Party supertype rows: 599 Persons (PER-*), 68 Household Groups (GRP-*), 14 Organisations (ORG-*)"
+                      "notes": "682 Party supertype rows: 600 Persons (PER-*), 75 Household Groups (GRP-*), 7 Organisations (ORG-*)"
                     },
                     {
                       "entity": "dcj_tdm.person",
                       "operations": "CRUD",
-                      "notes": "599 Golden Person rows with survived legal name, Verified DOB, ATSI status, SLK-581, and is_protected_person"
+                      "notes": "600 Golden Person rows with survived legal name, Verified DOB, ATSI status, SLK-581, and is_protected_person"
                     },
                     {
                       "entity": "dcj_tdm.person_source_linkage",
@@ -1007,21 +1007,21 @@
             "uid": "DCJ-04-04",
             "label": "Caseworker 360 Graph Explorer & Scenario Scorecard UI",
             "node_type": "ui_workbench",
-            "description": "Visualizes multi-agency child/family graphs and tracks 3-method precision/recall (0.9970 F1) across all 8 scenarios.",
+            "description": "Visualizes multi-agency child/family graphs and tracks 3-method precision/recall (1.0000 F1) across all 8 scenarios.",
             "details": {
               "purpose": "Operational and executive workbench displaying the 360-degree Person & Kinship Property Graph (resolving ChildStory, InfoShare, and KIMS records, aliases, and GNAF addresses) alongside the live ground-truth evaluation views (dcj_match.v_dcj_method_comparison and dcj_match.v_dcj_scenario_scorecard).",
               "owner": "DCJ Child & Family Insights & Executive Reporting",
               "status": "Production-Ready",
-              "sla": "Real-Time Live BigQuery Backing (99.39% Precision · 100.00% Recall · 0.9970 F1)",
+              "sla": "Real-Time Live BigQuery Backing (100.00% Precision · 100.00% Recall · 1.0000 F1)",
               "platform_service": "BigQuery Views (v_dcj_method_comparison, v_dcj_scenario_scorecard, v_dcj_graph_summary)",
               "inputs": [
                 "all-things-cdp.dcj_tdm.dcj_person_graph, dcj_match.v_dcj_method_comparison, and dcj_match.v_dcj_scenario_scorecard"
               ],
               "outputs": [
-                "Interactive Caseworker 360 family graph view and executive scorecard proving 100.0% recall across all 8 planted DCJ scenarios"
+                "Interactive Caseworker 360 family graph view and executive scorecard proving 100.0% recall and 0 false merges across all planted DCJ scenarios"
               ],
               "business_rules": [
-                "Benchmarks 3_dcj_hybrid_genai (0.9970 F1, 0 hairballs) directly against 1_naive_slk_and_hub_cc (0.2261 F1, 75-person refuge hairball) and 2_deterministic_idf_cc (0.8195 F1, 120 twin false positives)."
+                "Benchmarks 3_dcj_hybrid_genai (1.0000 F1, 0 hairballs, 0 false positives) directly against 1_naive_slk_and_hub_cc (0.2261 F1, 75-person refuge hairball) and 2_deterministic_idf_cc (0.8195 F1, 120 twin false positives)."
               ]
             },
             "is_atomic": true

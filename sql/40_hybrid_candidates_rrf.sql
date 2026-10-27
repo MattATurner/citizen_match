@@ -28,6 +28,7 @@ GROUP BY key
 HAVING COUNT(*) > 1;
 
 -- 40b · Lexical / Deterministic Candidate Leg
+DROP TABLE IF EXISTS `all-things-cdp.dcj_match.candidate_pairs_lexical`;
 CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.candidate_pairs_lexical`
 CLUSTER BY record_id_a, record_id_b
 AS
@@ -76,6 +77,7 @@ FROM paired
 GROUP BY record_id_a, record_id_b;
 
 -- 40c · Semantic Vector Search Leg (COSINE top_k = 15)
+DROP TABLE IF EXISTS `all-things-cdp.dcj_match.candidate_pairs_semantic`;
 CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.candidate_pairs_semantic`
 CLUSTER BY record_id_a, record_id_b
 AS
@@ -103,6 +105,7 @@ FROM knn
 GROUP BY record_id_a, record_id_b;
 
 -- 40d · Reciprocal Rank Fusion (RRF, k = 60)
+DROP TABLE IF EXISTS `all-things-cdp.dcj_match.candidate_pairs_fused`;
 CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.candidate_pairs_fused`
 CLUSTER BY record_id_a, record_id_b
 AS
@@ -172,6 +175,7 @@ FROM joined AS j
 JOIN pair_ranks AS pr USING (record_id_a, record_id_b);
 
 -- 40e · Enrich with 1-Hop Bipartite Rarity, 2-Hop Kinship/Household Features & Tiering
+DROP TABLE IF EXISTS `all-things-cdp.dcj_match.candidate_pair_tiers`;
 CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.candidate_pair_tiers`
 CLUSTER BY tier, record_id_a
 AS

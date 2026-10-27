@@ -10,7 +10,10 @@
 --   3. `dcj_match.profile_projection` (2-hop shared-identifier projection)
 -- =====================================================================
 
+DROP PROPERTY GRAPH IF EXISTS `all-things-cdp.dcj_tdm.dcj_person_graph`;
+
 -- 1. Extract Profile -> Identifier links
+DROP TABLE IF EXISTS `all-things-cdp.dcj_match.has_identifier`;
 CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.has_identifier`
 CLUSTER BY record_id, identifier_id
 AS
@@ -47,6 +50,7 @@ FROM raw_links
 GROUP BY record_id, identifier_id;
 
 -- 2. Identifier Nodes with Degree, IDF Rarity & Promiscuous Hub Detection
+DROP TABLE IF EXISTS `all-things-cdp.dcj_match.identifier`;
 CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.identifier`
 CLUSTER BY identifier_id
 AS
@@ -81,6 +85,7 @@ FROM agg AS a
 CROSS JOIN corpus AS c;
 
 -- 3. 2-Hop Bipartite Projection (Record A <-> Shared Identifier <-> Record B)
+DROP TABLE IF EXISTS `all-things-cdp.dcj_match.profile_projection`;
 CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.profile_projection`
 CLUSTER BY record_id_a, record_id_b
 AS

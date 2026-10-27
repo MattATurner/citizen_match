@@ -11,6 +11,7 @@
 -- =====================================================================
 
 -- 1. Autonomous Embedding Table (Self-maintaining vector column)
+DROP TABLE IF EXISTS `all-things-cdp.dcj_match.source_profile_search`;
 CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.source_profile_search`
 (
   record_id         STRING NOT NULL,
@@ -64,6 +65,7 @@ FROM `all-things-cdp.dcj_match.stg_source_profiles`
 WHERE match_key IS NOT NULL AND match_key != '';
 
 -- 2. Materialise 768-dim Embeddings for Immediate VECTOR_SEARCH
+DROP TABLE IF EXISTS `all-things-cdp.dcj_match.source_profile_vectors`;
 CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.source_profile_vectors`
 CLUSTER BY record_id
 AS

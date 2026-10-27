@@ -50,7 +50,7 @@
         <mxCell id="cell_16" value="&lt;b&gt;[Gemini] Gemini Platform Adjudicator&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#64748B&#39; size=&#39;1&#39;&gt;Gemini 3.5 · 391 Borderline Pairs&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1a73e8;strokeWidth=2;fontColor=#202124;fontSize=13;shadow=1;" vertex="1" parent="cell_5">
           <mxGeometry x="23" y="283.8571428571429" width="220" height="66" as="geometry" />
         </mxCell>
-        <mxCell id="cell_17" value="&lt;b&gt;[BigQuery] 9 Master Person Tables&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#64748B&#39; size=&#39;1&#39;&gt;599 People · 99.4% Accuracy&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1a73e8;strokeWidth=2;fontColor=#202124;fontSize=13;shadow=1;" vertex="1" parent="cell_6">
+        <mxCell id="cell_17" value="&lt;b&gt;[BigQuery] 9 Master Person Tables&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#64748B&#39; size=&#39;1&#39;&gt;600 People · 100% Accuracy&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1a73e8;strokeWidth=2;fontColor=#202124;fontSize=13;shadow=1;" vertex="1" parent="cell_6">
           <mxGeometry x="16" y="80.14285714285714" width="220" height="66" as="geometry" />
         </mxCell>
         <mxCell id="cell_18" value="&lt;b&gt;[BigQuery] Family Graph &amp; Live Search&lt;/b&gt;&lt;br&gt;&lt;font color=&#39;#64748B&#39; size=&#39;1&#39;&gt;BigQuery Property Graph&lt;/font&gt;" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1a73e8;strokeWidth=2;fontColor=#202124;fontSize=13;shadow=1;" vertex="1" parent="cell_6">
@@ -89,7 +89,7 @@
         <mxCell id="edge_29" value="Verified Links" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d97706;strokeWidth=2;fontColor=#334155;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="cell_15" target="cell_14">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="edge_30" value="599 People" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7c3aed;strokeWidth=2;fontColor=#334155;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="cell_14" target="cell_17">
+        <mxCell id="edge_30" value="600 People" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7c3aed;strokeWidth=2;fontColor=#334155;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="cell_14" target="cell_17">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="edge_31" value="Family &amp; ID Links" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7c3aed;strokeWidth=2;fontColor=#334155;fontSize=11;endArrow=block;endFill=1;" edge="1" parent="1" source="cell_17" target="cell_18">

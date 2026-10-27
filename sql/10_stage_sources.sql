@@ -11,6 +11,7 @@
 --   - Canonical `match_key` and multi-leg `blocking_keys`
 -- =====================================================================
 
+DROP TABLE IF EXISTS `all-things-cdp.dcj_match.stg_source_profiles`;
 CREATE OR REPLACE TABLE `all-things-cdp.dcj_match.stg_source_profiles`
 CLUSTER BY postcode_norm, family_name_norm
 AS

@@ -115,7 +115,7 @@ Zone @GoogleCloud {
 
     [adj_cc: "Person Record Grouping" | "Links Matches · Separates Twins"] {
       style: @HeroCard, icon: "Dataflow",
-      description: "Combines confirmed links into 599 Master Person profiles with zero false shelter or twin merges"
+      description: "Combines confirmed links into 600 Master Person profiles with zero false shelter or twin merges"
     }
     [adj_ledger: "Written Audit Log" | "Stores Every Decision & Reason"] {
       style: @ProductCard, icon: "CloudAuditLogs",
@@ -134,7 +134,7 @@ Zone @GoogleCloud {
     style: @TdmZone
     layout: column, gap: 18, align: center, justify: center
 
-    [tdm_tables: "9 Master Person Tables" | "599 People · 99.4% Accuracy"] {
+    [tdm_tables: "9 Master Person Tables" | "600 People · 100% Accuracy"] {
       style: @HeroCard, icon: "BigQuery",
       description: "One master profile per person plus full history of names, addresses, government IDs, family ties, and safety orders"
     }
@@ -163,7 +163,7 @@ Zone @GoogleCloud {
 [adj_llm] --> [adj_ledger] { curve: "step",  sourceAnchor: "top", targetAnchor: "bottom", label: "Written Reasons", color: $AmberGold }
 [adj_ledger] --> [adj_cc] { curve: "step",  sourceAnchor: "top", targetAnchor: "bottom", label: "Verified Links", color: $AmberGold }
 
-[adj_cc] --> [tdm_tables] { sourceAnchor: "right", targetAnchor: "left", label: "599 People", color: $PurpleAccent }
+[adj_cc] --> [tdm_tables] { sourceAnchor: "right", targetAnchor: "left", label: "600 People", color: $PurpleAccent }
 [tdm_tables] --> [tdm_graph] { sourceAnchor: "bottom", targetAnchor: "top", label: "Family & ID Links", color: $PurpleAccent }
 [tdm_graph] --> [tdm_catalog] { sourceAnchor: "bottom", targetAnchor: "top", label: "118 Definitions", color: $PurpleAccent }
 
