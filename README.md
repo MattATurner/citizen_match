@@ -10,36 +10,41 @@
 
 ---
 
-## 1. System Architecture Diagram
+## 1. System Architecture, Interactive Walkthroughs & Frontline Search
 
-![NSW DCJ Person Data Model, Hybrid Match & Property Graph Architecture](/usr/local/google/home/mattturner/.gemini/jetski/brain/dae4bfdd-5a62-4fb2-b9cd-a8b6a47305b6/dcj_person_data_model.svg)
+![NSW DCJ Person Data Model, Hybrid Match & Property Graph Architecture](dcj_person_data_model.svg)
 
-- **Dendrite Source**: [dcj_person_data_model.dendrite](file:///usr/local/google/home/mattturner/Customers/dcj/dcj_person_data_model.dendrite)
-- **Draw.io Export**: [dcj_person_data_model.drawio](file:///usr/local/google/home/mattturner/Customers/dcj/dcj_person_data_model.drawio)
-- **Executive HTML Presentation**: [index.html](file:///usr/local/google/home/mattturner/Customers/dcj/index.html)
-- **Simplified Novice Walkthrough Presentation**: [novice_walkthrough.html](file:///usr/local/google/home/mattturner/Customers/dcj/novice_walkthrough.html)
-- **BigQuery Studio Python Notebook (`cdp-walkthrough`)**: [cdp-walkthrough.ipynb](file:///usr/local/google/home/mattturner/Customers/dcj/notebooks/cdp-walkthrough.ipynb) — Deployed to `projects/all-things-cdp/locations/us-central1/repositories/cdp-walkthrough` via [deploy_notebook_to_bq_studio.py](file:///usr/local/google/home/mattturner/Customers/dcj/scripts/deploy_notebook_to_bq_studio.py) ([Open in BigQuery Studio](https://console.cloud.google.com/bigquery?project=all-things-cdp&ws=!1m7!1m6!12m5!1m3!1sall-things-cdp!2sus-central1!3scdp-walkthrough!2e2))
+- **Frontline Person & Property Search + Graph Studio**: [`dcj-frontline-search.html`](dcj-frontline-search.html) + [`backend/`](backend/) — Google Search-style omnibox & 9-field intake probe calling live `fn_frontline_person_search`, `fn_frontline_property_search`, and `GRAPH_TABLE(dcj_tdm.dcj_person_graph)` with D3.js v7 Property Graph visualisation, **Gemini Platform** adjudication audit ledger, survivorship provenance, and Simple-View Google Map.
+- **Complete Test Use-Cases & Walkthrough Guide**: [`WALKTHROUGH_AND_TEST_CASES.md`](WALKTHROUGH_AND_TEST_CASES.md) + [`sql/95_test_use_cases_walkthrough.sql`](sql/95_test_use_cases_walkthrough.sql) — Covers all 8 statutory, cultural, kinship, and crisis-refuge scenarios end-to-end.
+- **BigQuery Studio Python Notebook (`cdp-walkthrough`, `45` cells)**: [`notebooks/cdp-walkthrough.ipynb`](notebooks/cdp-walkthrough.ipynb) — Deployed via [`scripts/deploy_notebook_to_bq_studio.py`](scripts/deploy_notebook_to_bq_studio.py) ([Open in BigQuery Studio](https://console.cloud.google.com/bigquery?project=all-things-cdp&ws=!1m7!1m6!12m5!1m3!1sall-things-cdp!2sus-central1!3scdp-walkthrough!2e2)).
+- **Executive & Technical Walkthrough Presentation**: [`index.html`](index.html)
+- **Simplified Plain-English Customer Walkthrough**: [`novice_walkthrough.html`](novice_walkthrough.html)
+- **Functional Hierarchy Diagram (`DCJ-00` .. `DCJ-04`)**: [`dcj_fhd.html`](dcj_fhd.html) / [`dcj_fhd.svg`](dcj_fhd.svg) / [`dcj_fhd_spec.json`](dcj_fhd_spec.json)
+- **Capability Maps**: [`mdm-capability-map.md`](mdm-capability-map.md) / [`DCJ_PROCESS_BQ_CAPABILITIES_OVERVIEW.md`](DCJ_PROCESS_BQ_CAPABILITIES_OVERVIEW.md)
+- **Dendrite & Draw.io Architecture Sources**: [`dcj_person_data_model.dendrite`](dcj_person_data_model.dendrite) / [`dcj_person_data_model.drawio`](dcj_person_data_model.drawio)
 
 ---
 
 ## 2. Repository Layout & Next-Generation SQL ELT Pipeline
 
-All pipeline stages are orchestrated by [run.sh](file:///usr/local/google/home/mattturner/Customers/dcj/run.sh) using environment variables in [config.env](file:///usr/local/google/home/mattturner/Customers/dcj/config.env):
+All pipeline stages are orchestrated by [`run.sh`](run.sh) using environment variables in [`config.env`](config.env):
 
 | Stage | File | Purpose & Key Outputs |
 | :--- | :--- | :--- |
-| **Config** | [config.env](file:///usr/local/google/home/mattturner/Customers/dcj/config.env) / [run.sh](file:///usr/local/google/home/mattturner/Customers/dcj/run.sh) | Project (`all-things-cdp`), datasets (`dcj_sdm`, `dcj_match`, `dcj_tdm`, `dcj_truth`), connection (`dcj-conn`), and idempotent runner (`./run.sh --all`). |
-| **Stage 00** | [00_setup_and_sdm.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/00_setup_and_sdm.sql) | Creates schemas (`dcj_sdm`, `dcj_match`, `dcj_tdm`, `dcj_truth`), normalization UDFs (`standardize_address` in `dcj_sdm`; `fold_diacritics`, `norm_phone`, `compute_slk581`, `canonical_relationship_type`, `relationship_category` in `dcj_match`), and all 14 SDM tables, views, and materialized views. |
-| **Data Gen** | [generate_dcj_sdm_data.py](file:///usr/local/google/home/mattturner/Customers/dcj/scripts/generate_dcj_sdm_data.py) | Generates realistic NSW DCJ synthetic data (`600` true people, `1,150` SDM records, `655` true pairs, all `78` relationship strings, all `16` name usage types, and `8` planted edge-case scenarios) and loads `dcj_sdm` + `dcj_truth`. |
-| **Stage 10** | [10_stage_sources.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/10_stage_sources.sql) | Normalizes and unifies Child Protection, Family Preservation, and Youth Justice records into `dcj_match.stg_source_profiles` (`1,150` rows) with phonetic keys (`SOUNDEX`), SLK-581, and serialized `match_key` dossiers. |
-| **Stage 20** | [20_bipartite_graph.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/20_bipartite_graph.sql) | Builds the Bipartite Identifier Graph (`dcj_match.has_identifier` = `5,143` links, `dcj_match.identifier` = `2,754` nodes) with $\text{IDF} = \ln(1 + N/\text{df})$ rarity weights and Crisis Refuge hub suppression (`df > 5` $\rightarrow$ `is_hub = TRUE`). |
-| **Stage 30** | [30_embed_and_search.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/30_embed_and_search.sql) | Creates `dcj_match.source_profile_search` with autonomous `GENERATED ALWAYS AS (AI.EMBED(...))` columns (`text-embedding-005`) and materialized `dcj_match.source_profile_vectors` for native **BigQuery Vector Search**. |
-| **Stage 40** | [40_hybrid_candidates_rrf.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/40_hybrid_candidates_rrf.sql) | Combines Lexical/Deterministic blocking + **BigQuery Vector Search** (`VECTOR_SEARCH`) via **Reciprocal Rank Fusion (`RRF`, $k=60$)** + **2-Hop Kinship Context** + **Twin SLK-581 Collision Guard** into `dcj_match.candidate_pair_tiers` (`405` `AUTO_MATCH`, `391` `GREY_ZONE`, `13,690` `REJECT`). |
-| **Stage 50** | [50_genai_adjudicator.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/50_genai_adjudicator.sql) | Calls `AI.GENERATE` via BigQuery connection (`all-things-cdp.us-central1.dcj-conn`) to **Gemini 3.5** (`gemini-3.5-flash` on **Gemini Platform**) with structured output schema for the `391` `GREY_ZONE` pairs and appends to the immutable audit ledger `dcj_match.person_match_adjudications`. |
-| **Stage 60** | [60_connected_components_and_tdm.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/60_connected_components_and_tdm.sql) | Runs Two-Pass Connected Components + Contradiction/Twin Guard in `dcj_match` (`600` resolved entities, `0` false positives, `0` hairballs) and populates all **9 mastered Target Data Model (TDM) tables** in `dcj_tdm`. |
-| **Stage 70** | [70_property_graph.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/70_property_graph.sql) | Declares `CREATE OR REPLACE PROPERTY GRAPH all-things-cdp.dcj_tdm.dcj_person_graph` with 8 Node Labels and 9 Edge Labels (and summary view `dcj_match.v_dcj_graph_summary`). |
-| **Stage 80** | [80_person_match_tvf_and_scorecard.sql](file:///usr/local/google/home/mattturner/Customers/dcj/sql/80_person_match_tvf_and_scorecard.sql) | Creates the callable real-time TVF `dcj_match.fn_person_match(...)` and benchmark views `dcj_match.v_dcj_method_comparison` and `dcj_match.v_dcj_scenario_scorecard`. |
-| **Catalog** | [populate_dcj_knowledge_catalog.py](file:///usr/local/google/home/mattturner/Customers/dcj/scripts/populate_dcj_knowledge_catalog.py) | Populates **BigQuery Knowledge Catalog** Business Glossary `dcj_person_cdm_glossary` (`6` categories, `118` terms & KPIs, `118` column `EntryLinks` across `dcj_tdm` and `dcj_match`, and synced BigQuery column descriptions). |
+| **Config** | [`config.env`](config.env) / [`run.sh`](run.sh) | Project (`all-things-cdp`), datasets (`dcj_sdm`, `dcj_match`, `dcj_tdm`, `dcj_truth`), connection (`dcj-conn`), and idempotent runner (`./run.sh --all`). |
+| **Stage 00** | [`00_setup_and_sdm.sql`](sql/00_setup_and_sdm.sql) | Creates schemas (`dcj_sdm`, `dcj_match`, `dcj_tdm`, `dcj_truth`), normalization UDFs (`standardize_address` in `dcj_sdm`; `fold_diacritics`, `norm_phone`, `compute_slk581`, `canonical_relationship_type`, `relationship_category` in `dcj_match`), and all 14 SDM tables, views, and materialized views. |
+| **Data Gen** | [`generate_dcj_sdm_data.py`](scripts/generate_dcj_sdm_data.py) | Generates realistic NSW DCJ synthetic data (`600` true people, `1,150` SDM records, `655` true pairs, all `78` relationship strings, all `16` name usage types, and `8` planted edge-case scenarios) and loads `dcj_sdm` + `dcj_truth`. |
+| **Stage 10** | [`10_stage_sources.sql`](sql/10_stage_sources.sql) | Normalizes and unifies Child Protection, Family Preservation, and Youth Justice records into `dcj_match.stg_source_profiles` (`1,150` rows) with phonetic keys (`SOUNDEX`), SLK-581, and serialized `match_key` dossiers. |
+| **Stage 20** | [`20_bipartite_graph.sql`](sql/20_bipartite_graph.sql) | Builds the Bipartite Identifier Graph (`dcj_match.has_identifier` = `5,143` links, `dcj_match.identifier` = `2,754` nodes) with $\text{IDF} = \ln(1 + N/\text{df})$ rarity weights and Crisis Refuge hub suppression (`df > 5` $\rightarrow$ `is_hub = TRUE`). |
+| **Stage 30** | [`30_embed_and_search.sql`](sql/30_embed_and_search.sql) | Creates `dcj_match.source_profile_search` with autonomous `GENERATED ALWAYS AS (AI.EMBED(...))` columns (`text-embedding-005`) and materialized `dcj_match.source_profile_vectors` for native **BigQuery Vector Search**. |
+| **Stage 40** | [`40_hybrid_candidates_rrf.sql`](sql/40_hybrid_candidates_rrf.sql) | Combines Lexical/Deterministic blocking + **BigQuery Vector Search** (`VECTOR_SEARCH`) via **Reciprocal Rank Fusion (`RRF`, $k=60$)** + **2-Hop Kinship Context** + **Twin SLK-581 Collision Guard** into `dcj_match.candidate_pair_tiers` (`405` `AUTO_MATCH`, `391` `GREY_ZONE`, `13,690` `REJECT`). |
+| **Stage 50** | [`50_genai_adjudicator.sql`](sql/50_genai_adjudicator.sql) | Calls `AI.GENERATE` via BigQuery connection (`all-things-cdp.us-central1.dcj-conn`) to **Gemini 3.5** (`gemini-3.5-flash` on **Gemini Platform**) with structured output schema for the `391` `GREY_ZONE` pairs and appends to the immutable audit ledger `dcj_match.person_match_adjudications`. |
+| **Stage 60** | [`60_connected_components_and_tdm.sql`](sql/60_connected_components_and_tdm.sql) | Runs Two-Pass Connected Components + Contradiction/Twin Guard in `dcj_match` (`600` resolved entities, `0` false positives, `0` hairballs) and populates all **9 mastered Target Data Model (TDM) tables** in `dcj_tdm`. |
+| **Stage 70** | [`70_property_graph.sql`](sql/70_property_graph.sql) | Declares `CREATE OR REPLACE PROPERTY GRAPH all-things-cdp.dcj_tdm.dcj_person_graph` with 8 Node Labels and 9 Edge Labels (and summary view `dcj_match.v_dcj_graph_summary`). |
+| **Stage 80** | [`80_person_match_tvf_and_scorecard.sql`](sql/80_person_match_tvf_and_scorecard.sql) | Creates the callable real-time TVF `dcj_match.fn_person_match(...)` and benchmark views `dcj_match.v_dcj_method_comparison` and `dcj_match.v_dcj_scenario_scorecard`. |
+| **Stage 90** | [`90_frontline_search_functions.sql`](sql/90_frontline_search_functions.sql) | Creates `dcj_match.fn_frontline_person_search(...)` and `dcj_match.fn_frontline_property_search(...)` powering the Frontline Search & Graph Studio (`dcj-frontline-search.html` + `backend/`). |
+| **Stage 95** | [`95_test_use_cases_walkthrough.sql`](sql/95_test_use_cases_walkthrough.sql) | Automated BigQuery SQL regression & walkthrough suite validating all 8 person/property test scenarios and enforcing `100.00%` Precision & Recall via SQL `ASSERT` checks. |
+| **Catalog** | [`populate_dcj_knowledge_catalog.py`](scripts/populate_dcj_knowledge_catalog.py) | Populates **BigQuery Knowledge Catalog** Business Glossary `dcj_person_cdm_glossary` (`6` categories, `118` terms & KPIs, `118` column `EntryLinks` across `dcj_tdm` and `dcj_match`, and synced BigQuery column descriptions). |
 
 ---
 
@@ -174,7 +179,7 @@ LIMIT 5;
 
 ## 7. BigQuery Knowledge Catalog Business Glossary (`dcj_person_cdm_glossary`)
 
-Populated via [populate_dcj_knowledge_catalog.py](file:///usr/local/google/home/mattturner/Customers/dcj/scripts/populate_dcj_knowledge_catalog.py) in `projects/all-things-cdp/locations/global/glossaries/dcj_person_cdm_glossary`:
+Populated via [`scripts/populate_dcj_knowledge_catalog.py`](scripts/populate_dcj_knowledge_catalog.py) in `projects/all-things-cdp/locations/global/glossaries/dcj_person_cdm_glossary`:
 
 - **6 Logical Categories**:
   1. `core_party_and_person` (*Core Party & Mastered Person Entities*)

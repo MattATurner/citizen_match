@@ -47,11 +47,12 @@ if [[ "${MODE}" == "--all" || "${MODE}" == "--catalog" ]]; then
 fi
 
 if [[ "${MODE}" == "--all" || "${MODE}" == "--verify" ]]; then
-  echo "==> Running 3-Method Benchmark & Scenario Scorecard Verification ..."
+  echo "==> Running 3-Method Benchmark, 8-Scenario Scorecard & Frontline Test Use-Cases ..."
   bq query --project_id="${PROJECT_ID}" --location="${LOCATION}" --use_legacy_sql=false \
     "SELECT * FROM \`${PROJECT_ID}.${MATCH_DATASET}.v_dcj_method_comparison\` ORDER BY method;"
   bq query --project_id="${PROJECT_ID}" --location="${LOCATION}" --use_legacy_sql=false \
     "SELECT * FROM \`${PROJECT_ID}.${MATCH_DATASET}.v_dcj_scenario_scorecard\` ORDER BY scenario;"
+  run_sql "${SCRIPT_DIR}/sql/95_test_use_cases_walkthrough.sql"
 fi
 
 echo "🎉 NSW DCJ Person Data Model Pipeline Completed Successfully!"
