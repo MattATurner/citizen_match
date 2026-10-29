@@ -19,7 +19,7 @@
 - **BigQuery Studio Python Notebook (`cdp-walkthrough`, `45` cells)**: [`notebooks/cdp-walkthrough.ipynb`](notebooks/cdp-walkthrough.ipynb) — Deployed via [`scripts/deploy_notebook_to_bq_studio.py`](scripts/deploy_notebook_to_bq_studio.py) ([Open in BigQuery Studio](https://console.cloud.google.com/bigquery?project=all-things-cdp&ws=!1m7!1m6!12m5!1m3!1sall-things-cdp!2sus-central1!3scdp-walkthrough!2e2)).
 - **Executive & Technical Walkthrough Presentation**: [`index.html`](index.html)
 - **Simplified Plain-English Customer Walkthrough**: [`novice_walkthrough.html`](novice_walkthrough.html)
-- **Functional Hierarchy Diagram (`DCJ-00` .. `DCJ-04`)**: [`dcj_fhd.html`](dcj_fhd.html) / [`dcj_fhd.svg`](dcj_fhd.svg) / [`dcj_fhd_spec.json`](dcj_fhd_spec.json)
+- **Standalone Interactive Functional Hierarchy Diagram (`DCJ-00` .. `DCJ-04-05`, `44` nodes)**: [`dcj_fhd.html`](dcj_fhd.html) *(100% self-contained single-file HTML — opens directly offline in any browser with Right-Hand Functional Specification Cards, subtree re-rooting, Light/Dark mode, and client-side `Export SVG` / `Export 2x PNG`)* · Static exports: [`dcj_fhd.svg`](dcj_fhd.svg) / [`dcj_fhd.png`](dcj_fhd.png) / [`dcj_fhd.drawio`](dcj_fhd.drawio) / [`dcj_fhd_spec.json`](dcj_fhd_spec.json)
 - **Capability Maps**: [`mdm-capability-map.md`](mdm-capability-map.md) / [`DCJ_PROCESS_BQ_CAPABILITIES_OVERVIEW.md`](DCJ_PROCESS_BQ_CAPABILITIES_OVERVIEW.md)
 - **Dendrite & Draw.io Architecture Sources**: [`dcj_person_data_model.dendrite`](dcj_person_data_model.dendrite) / [`dcj_person_data_model.drawio`](dcj_person_data_model.drawio)
 

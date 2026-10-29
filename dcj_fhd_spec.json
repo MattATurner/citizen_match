@@ -33,7 +33,8 @@
       "outputs": [
         "Pure 9-table mastered Target Data Model in all-things-cdp.dcj_tdm (party, person, person_name, person_identity_instrument, address_location, address_relation, person_source_linkage, party_relationship, person_protection_event)",
         "Target BigQuery Property Graph (all-things-cdp.dcj_tdm.dcj_person_graph) with 8 Node Labels and 9 Edge Labels",
-        "Entity Resolution working dataset (all-things-cdp.dcj_match) with immutable AI adjudication ledger (person_match_adjudications) and callable intake TVF (fn_person_match)",
+        "Entity Resolution working dataset (all-things-cdp.dcj_match) with immutable AI adjudication ledger (person_match_adjudications) and callable real-time TVFs (fn_person_match, fn_frontline_person_search, fn_frontline_property_search)",
+        "Google Search-style Frontline Person & Property Search + D3.js Property Graph Studio (dcj-frontline-search.html + Cloud Run dcj-search-api) and 8-scenario SQL regression suite (95_test_use_cases_walkthrough.sql)",
         "BigQuery Knowledge Catalog Business Glossary (dcj_person_cdm_glossary) with 6 categories, 118 governed terms & KPIs, and 118 Schema.<Column> EntryLinks"
       ],
       "business_rules": [
@@ -883,52 +884,100 @@
       },
       {
         "uid": "DCJ-04",
-        "label": "Stage 4: Real-Time Intake TVF, Knowledge Catalog & Caseworker 360",
+        "label": "Stage 4: Real-Time Search TVFs, Knowledge Catalog & Frontline Graph Studio",
         "node_type": "capability",
-        "description": "Serves real-time intake resolution via fn_person_match, governs 118 Knowledge Catalog terms, and powers Caseworker 360.",
+        "description": "Serves real-time person/property search TVFs, governs 118 Knowledge Catalog terms, and powers Frontline Graph Studio.",
         "details": {
-          "purpose": "Rightmost consumption, operational service, and enterprise governance pillar (Stage 80 + Knowledge Catalog). Provides the callable SQL Table-Valued Function (dcj_match.fn_person_match) for real-time intake search, governs all 118 TDM & Audit definitions in BigQuery Knowledge Catalog (dcj_person_cdm_glossary), grounds Conversational Analytics in governed definitions, and delivers the 3-method / 8-scenario evaluation scorecards.",
+          "purpose": "Rightmost consumption, frontline operational search, and enterprise governance pillar (Stages 80–95 + Knowledge Catalog + Cloud Run Search & Graph Studio). Provides callable SQL Table-Valued Functions (fn_person_match, fn_frontline_person_search, fn_frontline_property_search), governs all 118 TDM & Audit definitions in BigQuery Knowledge Catalog (dcj_person_cdm_glossary), powers the Google Search-style Frontline Person & Property Search + D3 Property Graph Studio (dcj-frontline-search.html + dcj-search-api), and enforces 100.00% Precision & Recall across all 8 statutory test scenarios.",
           "owner": "DCJ Digital Caseworker Experience & Data Governance Lead",
-          "status": "Production-Ready",
-          "sla": "Sub-Second TVF Lookup · 118 Governed Glossary Terms & EntryLinks",
-          "platform_service": "BigQuery TVF, BigQuery Knowledge Catalog & Gemini Platform",
+          "status": "Production-Ready · Live on Cloud Run & BigQuery",
+          "sla": "Sub-Second Search & Graph API · 118 Governed Glossary Terms & EntryLinks",
+          "platform_service": "BigQuery TVFs & Property Graph, BigQuery Knowledge Catalog, Gemini Platform & Cloud Run",
           "inputs": [
             "all-things-cdp.dcj_tdm (9 TDM tables + dcj_person_graph) and all-things-cdp.dcj_match (vectors, identifiers, adjudications)"
           ],
           "outputs": [
-            "Callable TVF all-things-cdp.dcj_match.fn_person_match",
+            "Callable TVFs dcj_match.fn_person_match, dcj_match.fn_frontline_person_search, and dcj_match.fn_frontline_property_search",
             "BigQuery Knowledge Catalog Business Glossary dcj_person_cdm_glossary (6 categories, 118 terms, 118 EntryLinks)",
-            "Benchmark scorecard views dcj_match.v_dcj_method_comparison and dcj_match.v_dcj_scenario_scorecard"
+            "Frontline Person & Property Search + D3 Graph Studio (dcj-frontline-search.html + Cloud Run dcj-search-api)",
+            "Benchmark scorecard views (v_dcj_method_comparison, v_dcj_scenario_scorecard) and 8-scenario SQL regression suite (95_test_use_cases_walkthrough.sql)"
           ],
           "business_rules": [
             "Every TDM and AI Audit column description in BigQuery INFORMATION_SCHEMA is synchronized directly from its authoritative Business Glossary Term in BigQuery Knowledge Catalog.",
-            "Frontline queries respect is_protected_person = TRUE to prevent unauthorized disclosure of Domestic Violence and Child Protection safe-house locations."
+            "Frontline queries surface statutory protection alerts (is_protected_person = TRUE) and complete Gemini Platform adjudication audit rationales before caseworkers take action."
           ],
-          "delivery_unit": "Composite Capability / Domain (4 direct sub-modules)"
+          "delivery_unit": "Composite Capability / Domain (5 direct sub-modules)"
         },
         "children": [
           {
             "uid": "DCJ-04-01",
-            "label": "Callable Real-Time Person Match TVF (fn_person_match)",
+            "label": "Callable Real-Time Intake & Omnibox Search TVFs",
             "node_type": "business_function",
-            "description": "Executes real-time hybrid lexical + BigQuery Vector Search + RRF intake lookup via dcj_match.fn_person_match.",
+            "description": "Executes real-time hybrid person match, omnibox alias/ID lookup, and GNAF property residency search in SQL.",
             "details": {
-              "purpose": "Executes sql/80_person_match_tvf_and_scorecard.sql to expose all-things-cdp.dcj_match.fn_person_match(in_given_name, in_family_name, in_dob, in_gender, in_phone, in_suburb, in_postcode, in_cni, in_ndis), returning ranked mastered Person candidates with RRF scores, semantic similarity, and recommended action (AUTO_LINK vs. GEMINI_ADJUDICATE_OR_STEWARD).",
+              "purpose": "Executes sql/80_person_match_tvf_and_scorecard.sql and sql/90_frontline_search_functions.sql to expose parameterized BigQuery Table-Valued Functions for structured 9-field intake matching as well as single-box frontline person and property search.",
               "owner": "DCJ Real-Time Intake & API Engineering",
               "status": "Production-Ready",
               "sla": "Sub-Second SQL TVF Execution",
-              "platform_service": "BigQuery Table-Valued Function (all-things-cdp.dcj_match.fn_person_match)",
+              "platform_service": "BigQuery Table-Valued Functions (all-things-cdp.dcj_match)",
               "inputs": [
-                "9 intake search parameters (e.g., 'Lachie', 'Smith', DATE '2009-01-01', 'M', NULL, 'PARRAMATTA', '2150', NULL, NULL)"
+                "9-field structured intake attributes or free-text omnibox queries (names, cultural/adopted aliases, CS/CNI/NDIS/SLK-581 IDs, GNAF addresses)"
               ],
               "outputs": [
-                "Ranked Golden Person matches (e.g., #1 PER-698E72DBC085 Lachlan James Smith, hybrid_match_score = 0.9459, AUTO_LINK) with all contributing programs and source record IDs"
+                "Ranked Golden Person and GNAF Property search results with RRF scores, match provenance, protection flags, and hub occupancy metrics"
               ],
               "business_rules": [
-                "Embeds the ad-hoc query dossier on the fly with AI.EMBED and fuses exact/phonetic/SLK-581 matches with cosine vector similarity using RRF."
+                "Combines AI.EMBED + VECTOR_SEARCH semantic similarity with deterministic identifier, phonetic, and alias matching via Reciprocal Rank Fusion."
               ]
             },
-            "is_atomic": true
+            "children": [
+              {
+                "uid": "DCJ-04-01-01",
+                "label": "9-Field Intake Person Match Probe TVF (fn_person_match)",
+                "node_type": "business_function",
+                "description": "Scores ad-hoc 9-attribute intake probes via AI.EMBED, VECTOR_SEARCH, and RRF into AUTO_LINK or STEWARD tiers.",
+                "details": {
+                  "purpose": "Exposes all-things-cdp.dcj_match.fn_person_match(in_given_name, in_family_name, in_dob, in_gender, in_phone, in_suburb, in_postcode, in_cni, in_ndis) for real-time caseworker intake triage.",
+                  "owner": "DCJ Real-Time Intake Engineering",
+                  "status": "Production-Ready",
+                  "sla": "Sub-Second SQL TVF Execution",
+                  "platform_service": "BigQuery TVF (dcj_match.fn_person_match)",
+                  "inputs": [
+                    "9 intake search parameters (e.g., 'Lachie', 'Smith', DATE '2009-01-01', 'M', NULL, 'PARRAMATTA', '2150', NULL, NULL)"
+                  ],
+                  "outputs": [
+                    "Ranked Golden Person matches (e.g., #1 PER-698E72DBC085 Lachlan James Smith, hybrid_match_score = 0.9459, AUTO_LINK) with contributing programs and source record IDs"
+                  ],
+                  "business_rules": [
+                    "Embeds the ad-hoc query dossier on the fly with AI.EMBED and fuses exact/phonetic/SLK-581 matches with cosine vector similarity using RRF."
+                  ]
+                },
+                "is_atomic": true
+              },
+              {
+                "uid": "DCJ-04-01-02",
+                "label": "Frontline Person & Property Omnibox TVFs",
+                "node_type": "business_function",
+                "description": "Powers single-box person, cultural alias, ID, and GNAF property residency search via Stage 90 SQL TVFs.",
+                "details": {
+                  "purpose": "Exposes dcj_match.fn_frontline_person_search and dcj_match.fn_frontline_property_search (sql/90_frontline_search_functions.sql), wrapping hybrid vector/RRF matching with omnibox boosting across all 16 name usage types, government instruments, GNAF addresses, adjudication counts, and GRAPH_TABLE(dcj_person_graph) resident rollups.",
+                  "owner": "DCJ Frontline Search Engineering",
+                  "status": "Production-Ready",
+                  "sla": "Sub-Second Omnibox & Property Graph Lookup",
+                  "platform_service": "BigQuery TVFs & ISO GQL GRAPH_TABLE (dcj_match & dcj_tdm)",
+                  "inputs": [
+                    "Single-string omnibox query (e.g., 'Allira Campbell', 'Oliver Peachey', 'CS-10001', '10 Great Western Hwy Parramatta')"
+                  ],
+                  "outputs": [
+                    "Enriched person cards (aliases, IDs, protection alerts, adjudication count) and property cards (resident count, crisis refuge hub flag, active safety count)"
+                  ],
+                  "business_rules": [
+                    "Automatically flags GNAF locations with > 5 linked residents (or hub degree > 5 in dcj_match.identifier) as Institutional / Crisis Refuge Hubs."
+                  ]
+                },
+                "is_atomic": true
+              }
+            ]
           },
           {
             "uid": "DCJ-04-02",
@@ -1005,26 +1054,143 @@
           },
           {
             "uid": "DCJ-04-04",
-            "label": "Caseworker 360 Graph Explorer & Scenario Scorecard UI",
+            "label": "Frontline Person & Property Search + Graph Studio",
             "node_type": "ui_workbench",
-            "description": "Visualizes multi-agency child/family graphs and tracks 3-method precision/recall (1.0000 F1) across all 8 scenarios.",
+            "description": "Delivers Google Search-style person/property lookup, Gemini adjudication audit history, and D3 Property Graph Studio.",
             "details": {
-              "purpose": "Operational and executive workbench displaying the 360-degree Person & Kinship Property Graph (resolving ChildStory, InfoShare, and KIMS records, aliases, and GNAF addresses) alongside the live ground-truth evaluation views (dcj_match.v_dcj_method_comparison and dcj_match.v_dcj_scenario_scorecard).",
-              "owner": "DCJ Child & Family Insights & Executive Reporting",
-              "status": "Production-Ready",
-              "sla": "Real-Time Live BigQuery Backing (100.00% Precision · 100.00% Recall · 1.0000 F1)",
-              "platform_service": "BigQuery Views (v_dcj_method_comparison, v_dcj_scenario_scorecard, v_dcj_graph_summary)",
+              "purpose": "Interactive frontline web application (dcj-frontline-search.html) and Cloud Run FastAPI backend (backend/main.py → dcj-search-api) enabling caseworkers to search 600 mastered people and 260 GNAF properties, inspect golden survivorship, source lineage, and full Gemini Platform adjudication audit history (including rejected twin/false-positive pairs), and explore interactive D3.js v7 Property Graphs and Simple-View Google Maps.",
+              "owner": "DCJ Frontline Caseworker Digital Product Team",
+              "status": "Production-Ready · Live on Presentation Server",
+              "sla": "Sub-Second Autocomplete & Live BigQuery Dossier/Graph Retrieval",
+              "platform_service": "Cloud Run (dcj-search-api & presentation-server) + D3.js v7 + Google Maps",
               "inputs": [
-                "all-things-cdp.dcj_tdm.dcj_person_graph, dcj_match.v_dcj_method_comparison, and dcj_match.v_dcj_scenario_scorecard"
+                "Omnibox queries, 9-field intake probes, and graph node click/expand events from frontline caseworkers"
               ],
               "outputs": [
-                "Interactive Caseworker 360 family graph view and executive scorecard proving 100.0% recall and 0 false merges across all planted DCJ scenarios"
+                "Unified 360° Person & Property Knowledge Panels, Adjudication & Match Audit Cards, interactive D3.js Property Graph canvas, and GNAF spatial pins"
               ],
               "business_rules": [
-                "Benchmarks 3_dcj_hybrid_genai (1.0000 F1, 0 hairballs, 0 false positives) directly against 1_naive_slk_and_hub_cc (0.2261 F1, 75-person refuge hairball) and 2_deterministic_idf_cc (0.8195 F1, 120 twin false positives)."
+                "Displays both merged MATCH pairs and rejected NO_MATCH twin/collision pairs from dcj_match.person_match_adjudications so caseworkers see why records were linked or kept separate."
               ]
             },
-            "is_atomic": true
+            "children": [
+              {
+                "uid": "DCJ-04-04-01",
+                "label": "Cloud Run Search & ISO GQL Graph API (dcj-search-api)",
+                "node_type": "integration",
+                "description": "Serves /api/search, /api/person/{id}, /api/property/{id}, and /api/graph/{kind}/{id} over live BigQuery.",
+                "details": {
+                  "purpose": "FastAPI microservice (backend/main.py) deployed on Cloud Run that maintains an in-memory typeahead index (600 people, 260 properties) and executes parameterized BigQuery TVF, dossier, audit ledger, and ISO GQL GRAPH_TABLE queries.",
+                  "owner": "DCJ API & Platform Engineering",
+                  "status": "Production-Ready",
+                  "sla": "< 50ms Autocomplete · Sub-Second BigQuery Graph & Dossier Queries",
+                  "platform_service": "Google Cloud Run (dcj-search-api) + BigQuery Python SDK",
+                  "inputs": [
+                    "REST requests from dcj-frontline-search.html (/api/suggest, /api/search, /api/intake-probe, /api/person/{id}, /api/property/{id}, /api/graph/{kind}/{id})"
+                  ],
+                  "outputs": [
+                    "Structured JSON payloads containing ranked hits, full 9-table TDM + dcj_match audit dossiers, and typed Property Graph nodes/edges"
+                  ],
+                  "business_rules": [
+                    "Uses strictly parameterized BigQuery QueryJobConfig parameters and pre-aggregated CTE joins for high-concurrency safety."
+                  ]
+                },
+                "is_atomic": true
+              },
+              {
+                "uid": "DCJ-04-04-02",
+                "label": "Google Search-Style Omnibox, Audit & D3 Graph UI",
+                "node_type": "ui_workbench",
+                "description": "Renders single-box search, 8 scenario chips, full adjudication audit trails, D3 force graph, and Simple-View Map.",
+                "details": {
+                  "purpose": "Single-file HTML/JS application (dcj-frontline-search.html) published on the Cloud Run Presentation Server (/p/dcj-frontline-search) providing a clean Google Search-style landing experience, split Knowledge Panel, 5-tab Entity 360 Dossier, and interactive D3.js v7 Property Graph Studio.",
+                  "owner": "DCJ Frontline Caseworker UX Engineering",
+                  "status": "Production-Ready",
+                  "sla": "Zero-Install Browser Access · Light/Dark Theme & Full-Screen Graph Studio",
+                  "platform_service": "Cloud Run Presentation Server (/p/dcj-frontline-search)",
+                  "inputs": [
+                    "JSON responses from dcj-search-api and interactive node/edge selections on the D3.js v7 graph canvas"
+                  ],
+                  "outputs": [
+                    "Interactive 8-node-type / 9-edge-type force-directed Property Graph with filter chips, double-click neighborhood expansion, and Gemini Platform rationale cards"
+                  ],
+                  "business_rules": [
+                    "Highlights crisis refuge hubs (is_hub = TRUE) with dashed amber suppression rings so caseworkers immediately see why co-residents were not falsely merged."
+                  ]
+                },
+                "is_atomic": true
+              }
+            ]
+          },
+          {
+            "uid": "DCJ-04-05",
+            "label": "Ground-Truth Benchmark & 8-Scenario Regression Suite",
+            "node_type": "ui_workbench",
+            "description": "Verifies 100.00% Precision & Recall (1.0000 F1) across 3 ER methods and all 8 statutory/cultural test cases.",
+            "details": {
+              "purpose": "Combines live BigQuery benchmark views (v_dcj_method_comparison, v_dcj_scenario_scorecard), the 45-cell BigQuery Studio notebook (cdp-walkthrough.ipynb), and the automated Stage 95 SQL regression suite (95_test_use_cases_walkthrough.sql) to continuously prove zero false merges and zero missed links.",
+              "owner": "DCJ Chief Data Office & Quality Engineering",
+              "status": "Production-Ready",
+              "sla": "100.00% Precision · 100.00% Recall · 0 Hairballs Enforced by SQL ASSERT",
+              "platform_service": "BigQuery Views, SQL ASSERT & BigQuery Studio Notebook",
+              "inputs": [
+                "dcj_truth.ground_truth_persons (600), dcj_truth.ground_truth_pairs (655), dcj_tdm.*, and dcj_match.*"
+              ],
+              "outputs": [
+                "Live 3-method precision/recall comparison, 8-scenario recall scorecard, and automated SQL ASSERT verification gates"
+              ],
+              "business_rules": [
+                "Pipeline verification (./run.sh --verify) fails immediately via BigQuery ASSERT if F1 drops below 1.0000, resolved entities != 600, or any refuge/twin false positive occurs."
+              ]
+            },
+            "children": [
+              {
+                "uid": "DCJ-04-05-01",
+                "label": "3-Method & 8-Scenario Evaluation Scorecard Views",
+                "node_type": "business_function",
+                "description": "Benchmarks Hybrid + Gemini 3.5 (1.0000 F1) against Naive SLK-581 (0.2261 F1) and Deterministic IDF (0.8195 F1).",
+                "details": {
+                  "purpose": "Maintains dcj_match.v_dcj_method_comparison and dcj_match.v_dcj_scenario_scorecard (sql/80_person_match_tvf_and_scorecard.sql) to measure pairwise TP, FP, FN, Precision, Recall, F1, largest cluster, and hairball count.",
+                  "owner": "DCJ MDM Quality & Analytics",
+                  "status": "Production-Ready",
+                  "sla": "Real-Time Live SQL Benchmark Views",
+                  "platform_service": "BigQuery Views (v_dcj_method_comparison & v_dcj_scenario_scorecard)",
+                  "inputs": [
+                    "Cluster assignments from Naive CC, Deterministic IDF CC, and DCJ Hybrid + Gemini Platform CC joined to dcj_truth"
+                  ],
+                  "outputs": [
+                    "3-row method comparison table and 8-row planted scenario recall table"
+                  ],
+                  "business_rules": [
+                    "Quantifies elimination of all 4,420 crisis refuge hairball false positives and all 120 twin SLK-581 false merges."
+                  ]
+                },
+                "is_atomic": true
+              },
+              {
+                "uid": "DCJ-04-05-02",
+                "label": "Automated SQL Test Use-Cases & Walkthrough Suite",
+                "node_type": "business_function",
+                "description": "Executes 8 end-to-end person/property SQL walkthrough queries and ASSERT gates via 95_test_use_cases_walkthrough.sql.",
+                "details": {
+                  "purpose": "Runs sql/95_test_use_cases_walkthrough.sql (documented in WALKTHROUGH_AND_TEST_CASES.md and notebooks/cdp-walkthrough.ipynb) covering Lachie Smith, Chloe vs Phoebe Clark twins, Allira Campbell, Oliver Peachey, Aaliyah Robinson, Alexander Robinson, Parramatta Crisis Refuge, and Penrith Kinship Household.",
+                  "owner": "DCJ Release Verification Engineering",
+                  "status": "Production-Ready",
+                  "sla": "100% Automated Pass Rate on ./run.sh --verify",
+                  "platform_service": "BigQuery Scripting & SQL ASSERT (sql/95_test_use_cases_walkthrough.sql)",
+                  "inputs": [
+                    "Live BigQuery TVFs, Property Graph (dcj_person_graph), adjudication ledger, and benchmark views"
+                  ],
+                  "outputs": [
+                    "Verified query outputs for all 8 statutory/property scenarios plus passing SQL ASSERT checks"
+                  ],
+                  "business_rules": [
+                    "Enforces COUNTIF(recall_pct < 100.0 OR false_merge_pairs > 0) = 0 across all 8 scenarios on every verification run."
+                  ]
+                },
+                "is_atomic": true
+              }
+            ]
           }
         ]
       }
